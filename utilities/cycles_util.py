@@ -59,7 +59,7 @@ def ops_input_files():
   #residual_file = indir + 'quartiles_panel2_d9.nc'
 
   # for validation runs
-  residual_file = valdir + '/residuals/quartiles_panel2_d9.nc'
+  residual_file = dirs[2] + '/residuals/quartiles_panel2_d9.nc'
 
   return obsfile, panel_ssn_prediction, panel_f10_prediction, residual_file
 
@@ -69,7 +69,7 @@ This function reads in sunspot number (ssn) data from a swpc services file and r
 """
 
 
-def get_cycles(tstart = False):
+def get_cycles(full = False):
 
   #----------------------------------------------------------------------------
   # Cycle begin dates according to SIDC
@@ -153,10 +153,10 @@ def get_cycles(tstart = False):
 
   n = Nc + 1
 
-  if tstart:
-    return tmon[1:n], cycles[1:n], cycles_sm[1:n], t1[1:n]
-  else:
+  if (full):
     return tmon[1:n], cycles[1:n], cycles_sm[1:n]
+  else:
+    return tmon[6:n], cycles[6:n], cycles_sm[6:n]
 
 #----------------------------------------------------------------------------
 def fpanel(t,amp,t0):

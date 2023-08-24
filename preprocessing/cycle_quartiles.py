@@ -48,6 +48,8 @@ time, d, dsm = u.get_cycles()
 
 Nc = len(d)
 
+print(f"Number of cycles: {Nc}")
+
 #------------------------------------------------------------------------------
 # define minimum number of points needed to make a prediction.
 #  Setting kmin = 11 means that the cycle update starts one year into the cycle, at month 12.  So a prediction is not made for k=0,10 (the first 11 months of the cycle).

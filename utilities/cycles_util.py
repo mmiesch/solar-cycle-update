@@ -181,53 +181,6 @@ def fuh(t,a,t0):
   return a * tt**3 / (np.exp((tt/b)**2) - c)
 
 #----------------------------------------------------------------------------
-def fpanel3(t,a,t0,c):
-  """
-  Three-parameter version of fpanel for use with fitting full cycles
-  """
-  tt = t - t0
-  b = 15.6 + 8.18 / (a**0.25)
-  return a * tt**3 / (np.exp((tt/b)**2) - c)
-
-#----------------------------------------------------------------------------
-def fbase(t,a,b,c,t0):
-  """
-  This is the form suggested by Hathaway (2015, LRSP)
-  t and t0 are months since minimum
-  b is in months
-  Hathaway quotes these as optimal parameters for the average cycle
-  A = 195
-  b = 56
-  c = 0.8
-  t0 = -4 months (prior to min)
-  Hathaway et al. (1994) found that good fits to most cycles could be obtained with a fixed value for the parameter c and a parameter b that is allowed to vary with the amplitude — leaving a function of just two parameters (amplitude and starting time) that were well determine early in each cycle.
-  """
-  tau = (t - t0)/b
-  return a * tau**3 / (np.exp(tau**2) - c)
-
-#----------------------------------------------------------------------------
-def fhath(t,a,t0):
-  """
-  This is a two parameter version of fhath, for predictive purposes
-  based on curve fitting.
-  t and t0 are in decimal year.
-  Compare this with curve fits from fpanel
-  """
-  # placeholder - re-calibrate these as functions of A
-  b = 56
-  c = 0.8
-  return fbase(t,a,b,c,t0)
-
-#----------------------------------------------------------------------------
-def fhath3(t,a,t0,c):
-  """
-  A three-parameter version of fpred, for use in fitting full cycles
-  """
-  # placeholder - re-calibrate these as functions of A
-  b = 56
-  return fbase(t,a,b,c,t0)
-
-#----------------------------------------------------------------------------
 def fpanel10(t,amp,t0):
   """
   fpanel fit applied to F10.7 flux

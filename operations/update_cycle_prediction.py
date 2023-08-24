@@ -139,8 +139,7 @@ for i in np.arange(nn):
 #------------------------------------------------------------------------------
 # choose fit type
 # 1: 2-parameter panel fit (A, t0)
-# 2: 2-parameter hath fit (A, t0)
-# 3: 2-parameter upton-hathaway 2023 (A,t0)
+# 2: 2-parameter upton-hathaway 2023 (A,t0)
 
 ftype = 1
 
@@ -153,10 +152,6 @@ pmonth = np.rint(tobs[-1]).astype(np.int32)
 print(f"Prediction month = {pmonth}")
 
 if ftype == 2:
-  lab = "hath2"
-  afit = curve_fit(u.fhath,tobs,ssn,p0=(170.0,0.0))
-  f = u.fhath(tpred,afit[0][0],afit[0][1])
-elif ftype == 3:
   lab = "uh"
   afit = curve_fit(u.fuh,tobs,ssn,p0=(170.0,0.0))
   f = u.fuh(tpred,afit[0][0],afit[0][1])
@@ -169,8 +164,8 @@ if (deltak > 0) and (pmonth > (deltak + 23)):
   lab = lab+f"_d{deltak}"
   k2 = pmonth - deltak
   if ftype == 2:
-    afit2 = curve_fit(u.fhath,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
-    f2 = u.fhath(tpred,afit2[0][0],afit2[0][1])
+    afit2 = curve_fit(u.fuh,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
+    f2 = u.fuh(tpred,afit2[0][0],afit2[0][1])
   else:
     afit2 = curve_fit(u.fpanel,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
     f2 = u.fpanel(tpred,afit2[0][0],afit2[0][1])

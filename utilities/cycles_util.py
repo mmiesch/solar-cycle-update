@@ -56,7 +56,10 @@ def ops_input_files():
   # Residual file used to compute error bars
   # set this to None for default naming convention
   # based on fit type
-  residual_file = indir + 'quartiles_panel2_d9.nc'
+  #residual_file = indir + 'quartiles_panel2_d9.nc'
+
+  # for validation runs
+  residual_file = valdir + '/residuals/quartiles_panel2_d9.nc'
 
   return obsfile, panel_ssn_prediction, panel_f10_prediction, residual_file
 
@@ -106,8 +109,9 @@ def get_cycles(tstart = False):
   #----------------------------------------------------------------------------
   # read data
 
-  dir = 'data/swpc_web_page/'
-  obsfile = open(dir+'observed-solar-cycle-indices.json')
+  indir, outdir, valdir = get_data_dirs()
+
+  obsfile = open(indir+'/observed-solar-cycle-indices.json')
 
   obsdata = json.loads(obsfile.read())
 
@@ -119,7 +123,6 @@ def get_cycles(tstart = False):
   tmon = []
   Nm = []
 
-  yref = t1[1].year
   cycle = 0
   tthis = Time(t1[cycle]).to_value('decimalyear')
   tnext = Time(t1[cycle+1]).to_value('decimalyear')

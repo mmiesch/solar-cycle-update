@@ -2,7 +2,6 @@
 The purpose of this function is to compute an updated prediction for the current solar cycle.  It is intended to be applied at least 3 years into the cycle, when there is enough SSN data to make a reasonable projection based on the average cycle progression (formula due to Hathaway et al).  The prediction is done by fitting the current data to the nonlinear function that approximates an average cycle.
 """
 
-import cycles_util as u
 import datetime
 import json
 import numpy as np
@@ -17,7 +16,7 @@ from scipy.io import netcdf_file
 from scipy.signal import savgol_filter
 
 sys.path.append("../utilities")
-import cycle_util as u
+import cycles_util as u
 
 #------------------------------------------------------------------------------
 # optionally average an earlier fit for stability
@@ -29,7 +28,7 @@ deltak = 9
 #------------------------------------------------------------------------------
 # Define files
 
-obsfile, pfile, f10file, rfile = u.ops_input_files()
+obsfile, ssnfile, f10file, resfile = u.ops_input_files()
 
 indir, outdir, valdir = u.get_data_dirs()
 
@@ -42,58 +41,12 @@ archive = True
 # json product
 outfile = outdir + "/predicted-solar-cycle.json"
 
-
 # official start time of cycle 25 from SIDC, in decimal year
 tstart = 2019.96
 
 #------------------------------------------------------------------------------
-# read SSN prediction data
-
-data = json.loads(pfile.read())
-N = len(data)
-nvar = 9
-
-time = []
-pr = np.zeros([nvar,N])
-
-idx = 0
-for d in data:
-    t = np.array(d['time-tag'].split('-'), dtype='int')
-    time.append(datetime.date(t[0], t[1], 15))
-    pr[0,idx] = d['smoothed_ssn_minus_6mo']
-    pr[1,idx] = d['smoothed_ssn_minus10_minus6mo']
-    pr[2,idx] = d['smoothed_ssn_plus10_minus6mo']
-    pr[3,idx] = d['smoothed_ssn_minus10']
-    pr[4,idx] = d['smoothed_ssn']
-    pr[5,idx] = d['smoothed_ssn_plus10']
-    pr[6,idx] = d['smoothed_ssn_plus_6mo']
-    pr[7,idx] = d['smoothed_ssn_minus10_plus6mo']
-    pr[8,idx] = d['smoothed_ssn_plus10_plus6mo']
-    idx += 1
-
-time = np.array(time)
-
-#------------------------------------------------------------------------------
-# read f10.7 prediction data
-
-data = json.loads(f10file.read())
-N = len(data)
-
-time10 = []
-prf10 = np.zeros(N)
-
-idx = 0
-for d in data:
-    t = np.array(d['time-tag'].split('-'), dtype='int')
-    time10.append(datetime.date(t[0], t[1], 15))
-    prf10[idx] = d['f10.7']
-    idx += 1
-
-time10 = np.array(time10)
-
-#------------------------------------------------------------------------------
-# read SSN prediction range
-rfile = open(dir+'solar-cycle-25-ssn-predicted-range.json')
+# read SSN panel prediction range
+rfile = open(ssnfile)
 
 data = json.loads(rfile.read())
 N = len(data)
@@ -113,8 +66,8 @@ pmin = np.array(pmin)
 pmax = np.array(pmax)
 
 #------------------------------------------------------------------------------
-# read F10.7 prediction range
-rfile10 = open(dir+'solar-cycle-25-f10-7-predicted-range.json')
+# read F10.7 panel prediction range
+rfile10 = open(f10file)
 
 data = json.loads(rfile10.read())
 N = len(data)
@@ -140,7 +93,7 @@ pmax10 = np.array(pmax10)
 # official start of Cycle 25
 tmin = datetime.date(2019,12,15)
 
-obsdata = json.loads(obsfile.read())
+obsdata = json.loads(open(obsfile).read())
 Nobs = len(obsdata)
 
 obstime = []
@@ -167,9 +120,6 @@ fobs10_sm = np.array(fobs10_sm)
 for i in np.arange(len(fobs10)):
    print(f"{obstime[i]} {fobs10[i]} {fobs10_sm[i]}")
 
-#for i in np.arange(len(ssn)):
-#    print(f"{obstime[i]} {ssn[i]} {d['ssn']} {ssn_sm[i]}")
-
 #------------------------------------------------------------------------------
 
 # time of available observations in decimal year
@@ -180,10 +130,10 @@ for i in np.arange(nobs):
     odect[i] = Time(dt).to_value('decimalyear')
 
 # time of predictions in decimal year
-nn = len(time)
+nn = len(ptime)
 pdect = np.zeros(nn)
 for i in np.arange(nn):
-    dt = datetime.datetime(time[i].year,time[i].month,time[i].day)
+    dt = datetime.datetime(ptime[i].year,ptime[i].month,ptime[i].day)
     pdect[i] = Time(dt).to_value('decimalyear')
 
 #------------------------------------------------------------------------------
@@ -229,7 +179,8 @@ if (deltak > 0) and (pmonth > (deltak + 23)):
 #------------------------------------------------------------------------------
 # read average residuals for this fit type
 
-resfile = 'fits/quartiles_'+lab+'.nc'
+if resfile is None:
+    resfile = valdir + '/residuals/quartiles_'+lab+'.nc'
 
 r = netcdf_file(resfile,'r')
 print(r.history)
@@ -256,7 +207,7 @@ kidx = pmonth - kmon[0]
 
 Nerr = len(rtime)
 
-Np = len(time)
+Np = len(ptime)
 Nmax = np.min([Np,Nerr])
 
 rmin = np.zeros(Np)
@@ -307,27 +258,22 @@ for i in np.arange(smax10.shape[1]):
    smax10[:,i] = smax10[:,i] - f10c + f10
    smin10[:,i] = smin10[:,i] - f10c + f10
 
-# this is a check that the same formula was used for the prediction
-s = pr[4,:]
-fcheck = c0 + c1*s + c2*s**2 + c3*s**3 + c4*s**4
-
 #------------------------------------------------------------------------------
 # find min index to plot prediction: fidx = forecast index
 
 tnow = np.max(obstime)
 print(f"Current time: {tnow}")
 
-fidx = np.where(time > tnow)
+fidx = np.where(ptime > tnow)
 
 #------------------------------------------------------------------------------
 # write prediction to a json file
 
-
 outdata = []
 for i in fidx[0]:
-   if time[i].year < 2033:
+   if ptime[i].year < 2033:
      out = {
-        "time-tag": f"{time[i].year}-{time[i].month:02d}",
+        "time-tag": f"{ptime[i].year}-{ptime[i].month:02d}",
         "predicted_ssn": f[i],
         "high_ssn": smax[i,1],
         "low_ssn": smin[i,1],
@@ -394,7 +340,7 @@ ymax = np.max(smax[fidx[0],2]) * 1.05
 
 ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
 
-tmin = np.min(time)
+tmin = np.min(ptime)
 tmax = datetime.date(2032,1,1)
 
 sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
@@ -404,16 +350,15 @@ ax[0].set_xlim([tmin,tmax])
 ax[0].set_ylim([0,ymax])
 
 #plt.fill_between(x=time[fidx], y1=smin[fidx[0],3], y2=smax[fidx[0],3], color='darkmagenta', alpha=0.05)
-ax[0].fill_between(x=time[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1)
-ax[0].fill_between(x=time[fidx], y1=smin[fidx[0],1], y2=smax[fidx[0],1], color='darkmagenta', alpha=0.2)
-ax[0].fill_between(x=time[fidx], y1=smin[fidx[0],0], y2=smax[fidx[0],0], color='darkmagenta', alpha=0.3)
+ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1)
+ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],1], y2=smax[fidx[0],1], color='darkmagenta', alpha=0.2)
+ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],0], y2=smax[fidx[0],0], color='darkmagenta', alpha=0.3)
 
 sns.lineplot(x=obstime, y=ssn_sm_nz, color='blue', linewidth = 4, ax = ax[0])
 
-#sns.lineplot(x=time,y=pr[4,:], color='red', ax = ax[0])
 ax[0].fill_between(x=ptime, y1=pmin, y2=pmax, color='red', alpha=0.3)
 
-sns.lineplot(x=time,y=f, color='darkmagenta', ax = ax[0])
+sns.lineplot(x=ptime,y=f, color='darkmagenta', ax = ax[0])
 
 ax[0].set_ylabel('Sunspot Number',fontsize=16)
 
@@ -421,7 +366,6 @@ ax[0].set_ylabel('Sunspot Number',fontsize=16)
 # plot F10.7
 
 fobs10_sm_nz = np.ma.masked_less(fobs10_sm, 0.0)
-prf10_nz = np.ma.masked_less(prf10, 0.0)
 
 ymax = np.max(smax10[fidx[0],2]) * 1.05
 
@@ -429,21 +373,16 @@ sns.lineplot(x=obstime,y=fobs10, color='black', ax = ax[1])
 ax[1].set_xlim([tmin,tmax])
 ax[1].set_ylim([50,ymax])
 
-##plt.fill_between(x=time[fidx], y1=smin[fidx[0],3], y2=smax[fidx[0],3], color='darkmagenta', alpha=0.05)
-ax[1].fill_between(x=time[fidx[0]], y1=smin10[fidx[0],2], y2=smax10[fidx[0],2], color='darkmagenta', alpha=0.1)
-ax[1].fill_between(x=time[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2)
-ax[1].fill_between(x=time[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3)
+ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],2], y2=smax10[fidx[0],2], color='darkmagenta', alpha=0.1)
+ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2)
+ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3)
 
 sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1])
 
 idx = np.where(pmin10 > 0.0)
-#sns.lineplot(x=time10,y=prf10_nz, color='red', ax = ax[1])
 ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.3)
 
-# check
-#sns.lineplot(x=time10,y=fcheck, color='blue', marker='o',linewidth=4,linestyle='')
-
-sns.lineplot(x=time,y=f10, color='darkmagenta', ax = ax[1])
+sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1])
 
 #------------------------------------------------------------------------------
 def checktime(t1, t2, t3):
@@ -461,13 +400,13 @@ i = np.argmax(f)
 i1 = np.argmax(smin[:,1])
 i2 = np.argmax(smax[:,1])
 arange = [int(smin[i1,1]), int(smax[i2,1])]
-trange = checktime(time[i1], time[i2], time[i])
+trange = checktime(ptime[i1], ptime[i2], ptime[i])
 
 i = np.argmax(f10)
 i1 = np.argmax(smin10[:,1])
 i2 = np.argmax(smax10[:,1])
 arange10 = [int(smin10[i1,1]), int(smax10[i2,1])]
-trange10 = checktime(time[i1], time[i2], time[i])
+trange10 = checktime(ptime[i1], ptime[i2], ptime[i])
 
 #------------------------------------------------------------------------------
 # labels

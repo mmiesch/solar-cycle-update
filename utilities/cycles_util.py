@@ -45,16 +45,18 @@ def ops_input_files():
   indir = dirs[0] + '/'
 
   # SSN and F10.7 observations (updated monthly)
-  obsfile = indir + open(dir+'observed-solar-cycle-indices.json')
+  obsfile = indir + 'observed-solar-cycle-indices.json'
 
   # SSN prediction from 2019 panel, with uncertainties
-  panel_ssn_prediction = indir + +'solar-cycle-25-ssn-predicted-high-low.json'
+  panel_ssn_prediction = indir + 'solar-cycle-25-ssn-predicted-range.json'
 
   # F10.7 prediction from 2019 panel, with uncertainties
-  panel_f10_prediction = indir + 'solar-cycle-25-f10-7cm-flux-predicted-high-low.json'
+  panel_f10_prediction = indir + 'solar-cycle-25-f10-7-predicted-range.json'
 
   # Residual file used to compute error bars
-  residual_file = indir + 'residuals.nc'
+  # set this to None for default naming convention
+  # based on fit type
+  residual_file = indir + 'quartiles_panel2_d9.nc'
 
   return obsfile, panel_ssn_prediction, panel_f10_prediction, residual_file
 

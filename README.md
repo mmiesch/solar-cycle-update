@@ -26,6 +26,9 @@ The user must specify the directory on the filesystem where the input files are 
 
 If non-standard filenames are used for Items 1 and 2, these can be specified by editing the `ops_input_files` function in the [cycles_util module](./utilities/cycles_util.py).
 
-#### Step 1: Acquire monthly observation files
+#### Step 1: Acquire monthly observation file
+
+The observation file must be downloaded every month from the [SWPC Services web site](https://services.swpc.noaa.gov/json/solar-cycle/) and placed in the input data directory.  This can be done either manually or automatically (automation is not yet implemented).  The name of the file in question is `observed-solar-cycle-indices.json`.
 
 ## Instructions for Preprocessing
+

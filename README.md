@@ -12,13 +12,13 @@ The following steps describe how to implement the operational code located in th
 
 In order to run the code operationally, the user must provide the requisite input files, including:
 
-1. An observations file containing monthly sunspot and F10.7 data: see [Step 1](#step-1-acquire-monthly-observation-files)
+1. An observations file containing monthly sunspot and F10.7 data
 2. json files from the SWPC services web site containing the 2019 panel predictions and associated uncertainties
 3. A residuals file that is used to compute the error bars on the operational products
 
 Items 1 and 2 are obtained from the [SWPC Services web site](https://services.swpc.noaa.gov/json/solar-cycle/).
 
-The prediction and residual data files (Items 2 and 3) do not change over the course of a given cycle.  So, they can be provided once and left alone.
+The prediction and residual data files (Items 2 and 3) do not change over the course of a given cycle.  So, they can be provided once and left alone.  Item 1 must be updated monthly as described in [Step 1](#step-1-acquire-monthly-observation-files).
 
 If it is necessary to recompute the residuals file because it has been lost or corrupted, this can be done as described in the [Instructions for Preprocessing](#instructions-for-preprocessing) section.
 

@@ -235,18 +235,11 @@ if (deltak > 0) and (pmonth > (deltak + 23)):
 #------------------------------------------------------------------------------
 # convert residuals to f10.7
 
-# Numbers used by Doug
-c0 = 6.77e1
-c1 = 3.368e-1
-c2 = 3.690e-3
-c3 = - 1.517e-5
-c4 = 1.974e-8
-
 # converted f10 as opposed to fitted
-f10c = c0 + c1*f + c2*f**2 + c3*f**3 + c4*f**4
+f10c = u.f10_from_ssn_2019(f)
 
-smax10 = c0 + c1*smax + c2*smax**2 + c3*smax**3 + c4*smax**4
-smin10 = c0 + c1*smin + c2*smin**2 + c3*smin**3 + c4*smin**4
+smax10 = u.f10_from_ssn_2019(smax)
+smin10 = u.f10_from_ssn_2019(smin)
 
 # recenter on direct curve fit
 for i in np.arange(smax10.shape[1]):

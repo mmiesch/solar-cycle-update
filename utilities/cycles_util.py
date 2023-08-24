@@ -181,6 +181,18 @@ def fuh(t,a,t0):
   return a * tt**3 / (np.exp((tt/b)**2) - c)
 
 #----------------------------------------------------------------------------
+def f10_from_ssn_2019(f):
+
+  # Numbers used by Doug for panel prediction
+  c0 = 6.77e1
+  c1 = 3.368e-1
+  c2 = 3.690e-3
+  c3 = - 1.517e-5
+  c4 = 1.974e-8
+
+  return c0 + c1*f + c2*f**2 + c3*f**3 + c4*f**4
+
+#----------------------------------------------------------------------------
 def fpanel10(t,amp,t0):
   """
   fpanel fit applied to F10.7 flux

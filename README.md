@@ -8,27 +8,24 @@ This is the operational implementation of software that is used to update the so
 
 The following steps describe how to implement the operational code located in the `operations` directory.
 
-#### Prerequisite: Define data directory and provide preprocessed data files
+#### Prerequisite: Define data directories and provide residual data file
 
-The base data directory is a directory on the filesystem that is used to store:
+In order to run the code operationally, the user must provide the requisite input files, including:
 
-* input observational data (monthly sunspot number and F10.7)
-* residual data (used to display error bars)
-* generated output products (images and json)
+1. An observations file containing monthly sunspot and F10.7 data: see [Step 1](#step-1-acquire-monthly-observation-files)
+2. json files from the SWPC services web site containing the 2019 panel predictions and associated uncertainties
+3. A residuals file that is used to compute the error bars on the operational products
 
-The path to this directory must be specified in the `get_base_data_dir` function in the [cycles_util module](./utilities/cycles_util.py)
+Items 1 and 2 are obtained from the [SWPC Services web site](https://services.swpc.noaa.gov/json/solar-cycle/).
 
-The input observational data is updated monthly as described in [Step 1](#step-1-acquire-monthly-observation-filesstep-1).
+The prediction and residual data files (Items 2 and 3) do not change over the course of a given cycle.  So, they can be provided once and left alone.
 
-The residual data files do not change over the course of a given cycle.  So, they can be provided once and left alone.  If it is necessary to recompute them because they have been lost or corrupted, this can be done as described in the [Instructions for Preprocessing](#instructions-for-preprocessing) section.
+If it is necessary to recompute the residuals file because it has been lost or corrupted, this can be done as described in the [Instructions for Preprocessing](#instructions-for-preprocessing) section.
 
-The proper structure for the residual files relative to the base directory is as follows:
+The user must specify the directory on the filesystem where the input files are located and a directory to place the output files (products).   This is done by editing the `get_data_dirs` function in the [cycles_util module](./utilities/cycles_util.py).
 
-This is used to compute the error bars that are displayed in the operational product.
-
-The base data directory is also used to store validation data but this is not needed for operational use.
+If non-standard filenames are used for Items 1 and 2, these can be specified by editing the `ops_input_files` function in the [cycles_util module](./utilities/cycles_util.py).
 
 #### Step 1: Acquire monthly observation files
-
 
 ## Instructions for Preprocessing

@@ -1,5 +1,5 @@
 """
-This module defines general purpose functions that are used by  
+This module defines general purpose functions that are used throughout the application
 """
 
 import datetime
@@ -10,11 +10,53 @@ from astropy.time import Time
 
 #------------------------------------------------------------------------------
 """
-This function is used to define the base data directory where input, calibration, and validation data are stored, along with the generated output products.
-"""
-def get_base_data_dir():
+This function is used to define the directories where input and output (product) files are stored for operations.
 
-  return '/home/mark.miesch/data/solar-cycle-update'
+It also optionally returns the directory used to store validation data. If you are only interested in running this operationally, then you can ignore this directory by setting it to None.
+"""
+def get_data_dirs():
+
+  basedir = '/home/mark.miesch/data/solar-cycle-update'
+
+  # put monthly observations and residual files here
+  indir = basedir + '/input'
+
+  # put generated product files here
+  outdir = basedir + '/output'
+
+  # put validation data here.  If you are only interested in 
+  # operations this can be set to None
+  valdir = basedir + '/validation'
+
+  return indir, outdir, valdir
+
+#------------------------------------------------------------------------------
+"""
+This function identifies the input files needed for operational execution.
+
+The obsfile, panel_ssn_prediction, and panel_f10_prediction are obtained from the public SWPC services page:
+
+https://services.swpc.noaa.gov/json/solar-cycle/
+
+"""
+def ops_input_files():
+
+  dirs = get_data_dirs()
+  indir = dirs[0] + '/'
+
+  # SSN and F10.7 observations (updated monthly)
+  obsfile = indir + open(dir+'observed-solar-cycle-indices.json')
+
+  # SSN prediction from 2019 panel, with uncertainties
+  panel_ssn_prediction = indir + +'solar-cycle-25-ssn-predicted-high-low.json'
+
+  # F10.7 prediction from 2019 panel, with uncertainties
+  panel_f10_prediction = indir + 'solar-cycle-25-f10-7cm-flux-predicted-high-low.json'
+
+  # Residual file used to compute error bars
+  residual_file = indir + 'residuals.nc'
+
+  return obsfile, panel_ssn_prediction, panel_f10_prediction, residual_file
 
 #------------------------------------------------------------------------------
 """

@@ -193,6 +193,18 @@ def f10_from_ssn_2019(f):
   return c0 + c1*f + c2*f**2 + c3*f**3 + c4*f**4
 
 #----------------------------------------------------------------------------
+def f10_from_ssn_2021(f):
+
+  # Numbers from F. Clette (J. Space Weather Space Clim. 2021, 11, 2)
+  c0 = 67.85
+  c1 = 3.845e-1
+  c2 = 2.881e-3
+  c3 = - 7.429e-6
+  c4 = 2.694e-10
+
+  return c0 + c1*f + c2*f**2 + c3*f**3 + c4*f**4
+
+#----------------------------------------------------------------------------
 def fpanel10(t,amp,t0):
   """
   fpanel fit applied to F10.7 flux
@@ -204,11 +216,18 @@ def fpanel10(t,amp,t0):
   c = 0.42
   s = a * tt**3 / (np.exp((tt/b)**2) - c)
 
-  # Numbers used by Doug
-  c0 = 6.77e1
-  c1 = 3.368e-1
-  c2 = 3.690e-3
-  c3 = - 1.517e-5
-  c4 = 1.974e-8
+  return f10_from_ssn_2019(s)
 
-  return c0 + c1*s + c2*s**2 + c3*s**3 + c4*s**4
+#----------------------------------------------------------------------------
+def fclette10(t,amp,t0):
+  """
+  fpanel fit applied to F10.7 flux with Clette (2021) conversion to f10.7
+  """
+
+  tt = t - t0
+  a =  0.000300057 + amp*(-7.12917e-6) + (amp**2)*(1.29379e-7)
+  b = 15.6 + 8.18 / (a**0.25)
+  c = 0.42
+  s = a * tt**3 / (np.exp((tt/b)**2) - c)
+
+  return f10_from_ssn_2021(s)

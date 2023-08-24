@@ -223,23 +223,23 @@ for q in np.arange(4):
 # fit f10.7 directly
 # for now assume that the time array is the same as ssn
 
-ffit = curve_fit(u.fpanel10,tobs,fobs10,p0=(170.0,0.0))
-f10 = u.fpanel10(tpred,ffit[0][0],ffit[0][1])
+ffit = curve_fit(u.fclette10,tobs,fobs10,p0=(170.0,0.0))
+f10 = u.fclette10(tpred,ffit[0][0],ffit[0][1])
 
 if (deltak > 0) and (pmonth > (deltak + 23)):
   k2 = pmonth - deltak
-  ffit2 = curve_fit(u.fpanel10,tobs[0:k2],fobs10[0:k2],p0=(170.0,0.0))
-  f102 = u.fpanel10(tpred,ffit2[0][0],ffit2[0][1])
+  ffit2 = curve_fit(u.fclette10,tobs[0:k2],fobs10[0:k2],p0=(170.0,0.0))
+  f102 = u.fclette10(tpred,ffit2[0][0],ffit2[0][1])
   f10 = 0.5*(f10+f102)
 
 #------------------------------------------------------------------------------
 # convert residuals to f10.7
 
 # converted f10 as opposed to fitted
-f10c = u.f10_from_ssn_2019(f)
+f10c = u.f10_from_ssn_2021(f)
 
-smax10 = u.f10_from_ssn_2019(smax)
-smin10 = u.f10_from_ssn_2019(smin)
+smax10 = u.f10_from_ssn_2021(smax)
+smin10 = u.f10_from_ssn_2021(smin)
 
 # recenter on direct curve fit
 for i in np.arange(smax10.shape[1]):

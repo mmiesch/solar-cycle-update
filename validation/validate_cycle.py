@@ -17,6 +17,7 @@ import sys
 from astropy.time import Time
 from scipy.optimize import curve_fit
 from scipy.io import netcdf_file
+from scipy.signal import savgol_filter
 
 sys.path.append("../utilities")
 import cycles_util as u
@@ -40,8 +41,8 @@ cycle_idx = cycle - 5
 # optionally average an earlier fit for stability
 # units are months.  Set to -1 to disable
 
-deltak = -1
-#deltak = 9
+#deltak = -1
+deltak = 9
 
 #------------------------------------------------------------------------------
 # read observations
@@ -81,7 +82,7 @@ else:
 
 if deltak > 0:
   lab = lab+f"_d{deltak}"
-  plot_lab = plot_lab + f"-{deltak} month avg"
+  plot_lab = plot_lab + f": -{deltak} month avg"
 
 #------------------------------------------------------------------------------
 # read average residuals for this fit type
@@ -121,6 +122,8 @@ Nerr = len(rtime)
 Nmax = np.min([nobs,Nerr])
 
 f = np.zeros((Nsam, nobs))
+perr = np.zeros((Nsam, nobs, 4))
+nerr = np.zeros((Nsam, nobs, 4))
 
 for kidx in np.arange(Nsam):
 
@@ -152,6 +155,10 @@ for kidx in np.arange(Nsam):
   f[kidx,:] = fk
 
   kk = k - kmon[0]
+  for i in np.arange(Nmax):
+    for q in np.arange(4):
+      perr[kidx,i,q] = presid[i,kk,q]
+      nerr[kidx,i,q] = nresid[i,kk,q]
 
 #------------------------------------------------------------------------------
 # plot positions
@@ -187,9 +194,18 @@ for iframe in np.arange(Nsam):
   a.set_xlim([tmin,tmax])
   a.set_ylim([0,ymax])
 
-  #rmin = f[iframe,:] - nerr[iframe,:]
-  #rmax = f[iframe,:] + perr[iframe,:]
-  #a.fill_between(x=time, y1=rmin, y2=rmax, color='blue', alpha=0.3)
+  rmin = savgol_filter(f[iframe,:] - nerr[iframe,:,2],21,3)
+  rmax = savgol_filter(f[iframe,:] + perr[iframe,:,2],21,3)
+  a.fill_between(x=time, y1=rmin, y2=rmax, color='blue', alpha=0.1)
+
+  rmin = savgol_filter(f[iframe,:] - nerr[iframe,:,1],21,3)
+  rmax = savgol_filter(f[iframe,:] + perr[iframe,:,1],21,3)
+  a.fill_between(x=time, y1=rmin, y2=rmax, color='blue', alpha=0.2)
+
+  rmin = savgol_filter(f[iframe,:] - nerr[iframe,:,0],21,3)
+  rmax = savgol_filter(f[iframe,:] + perr[iframe,:,0],21,3)
+  a.fill_between(x=time, y1=rmin, y2=rmax, color='blue', alpha=0.3)
+
 
   k = klist[iframe]
   a.plot(time[0:k], ssn_sm_nz[0:k], color='black', linewidth = 4)

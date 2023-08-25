@@ -431,8 +431,6 @@ ax[1].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='d
 
 #--------------------
 
-#ax[1].annotate("2019 NOAA/NASA/ISES Mean Panel Prediction", (.5,.5), xytext=(.47,.13),xycoords='figure fraction',color='red', ha='center')
-#ax[0].annotate("2019 NOAA/NASA/ISES Mean Panel Prediction", (.5,.5), xytext=(.48,.6),xycoords='figure fraction',color='red', ha='center')
 ax[1].annotate("2019 NOAA/NASA/ISES Panel Prediction", (.5,.5), xytext=(.49,.13),xycoords='figure fraction',color='red', ha='center')
 ax[0].annotate("2019 NOAA/NASA/ISES Panel Prediction", (.5,.5), xytext=(.5,.6),xycoords='figure fraction',color='red', ha='center')
 

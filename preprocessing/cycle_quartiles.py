@@ -86,9 +86,6 @@ for i in np.arange(Nc):
   for k in np.arange(kmin,N):
 
     if ftype == 2:
-      afit = curve_fit(u.fhath,t[0:k],ssn[0:k],p0=(178.,-4.))
-      f = u.fhath(t, afit[0][0], afit[0][1])
-    elif ftype == 3:
       afit = curve_fit(u.fuh,t[0:k],ssn[0:k],p0=(178.,-4.))
       f = u.fuh(t, afit[0][0], afit[0][1])
     else:
@@ -98,9 +95,6 @@ for i in np.arange(Nc):
     if (deltak > 0) and (k > (deltak + 23)):
       k2 = k - deltak
       if ftype == 2:
-        afit2 = curve_fit(u.fhath,t[0:k2],ssn[0:k2],p0=(178.,-4.))
-        f2 = u.fhath(t, afit2[0][0], afit2[0][1])
-      elif ftype == 3:
         afit2 = curve_fit(u.fuh,t[0:k2],ssn[0:k2],p0=(178.,-4.))
         f2 = u.fuh(t, afit2[0][0], afit2[0][1])
       else:

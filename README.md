@@ -60,6 +60,8 @@ cd preprocessing
 python cycle_quartiles.py
 ```
 
-The quartiles file is written to the `validation/residuals` data directory.  The appropriate file must then be copied to the input data directory.  Filenames reflect the type of fit used (`panel2` for 2-parameter fit to the function used by the 2019 panel, or `uh` for the function used by Upton & Hathaway 2023) and the (optional) averaging of different lead times (e.g. `d9` to average the current prediction with the prediction made 9 months prior).  The default operational configuration is `quartiles_panel2_d9.nc`.
+The quartiles file is written to the `validation/residuals` data directory.  The appropriate file must then be copied to the input data directory.  Filenames reflect the type of fit used (`panel2` for 2-parameter fit to the function used by the 2019 panel, or `uh` for the function used by Upton & Hathaway 2023) and the (optional) averaging of different lead times (e.g. `d9` to average the current prediction with the prediction made 9 months prior).  
+
+The default operational configuration is `quartiles_panel2_d9.nc`.  Other configurations for validation can be specified by changing the `ftype` and `deltak` parameters in the [cycle_quartiles](preprocessing/cycle_quartiles.py) script.
 
 

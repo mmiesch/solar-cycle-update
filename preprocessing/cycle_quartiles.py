@@ -180,3 +180,5 @@ nres[:,:,:] = nqt
 nres.units = 'ssn'
 
 file.close()
+
+print(f"Check {pres[48,25,3]}")

@@ -69,7 +69,7 @@ This function reads in sunspot number (ssn) data from a swpc services file and r
 """
 
 
-def get_cycles(full = False):
+def get_cycles(full = False, tstart = False):
 
   #----------------------------------------------------------------------------
   # Cycle begin dates according to SIDC
@@ -153,10 +153,15 @@ def get_cycles(full = False):
 
   n = Nc + 1
 
-  if (full):
-    return tmon[1:n], cycles[1:n], cycles_sm[1:n]
+  if full:
+    i = 1
   else:
-    return tmon[6:n], cycles[6:n], cycles_sm[6:n]
+    i = 6
+
+  if tstart:
+    return tmon[i:n], cycles[i:n], cycles_sm[i:n], t1[i:n]
+  else:
+    return tmon[i:n], cycles[i:n], cycles_sm[i:n]
 
 #----------------------------------------------------------------------------
 def fpanel(t,amp,t0):

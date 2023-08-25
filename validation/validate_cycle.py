@@ -1,0 +1,216 @@
+"""
+This is a validation for the method of fitting cycles and computing error bars.  It applies the method to previous cycles, one cycle at a time, to see how well it does.  Usage:
+
+python validate_cycle.py 22
+
+replace `22` here with other cycle numbers as desired.
+
+"""
+
+import datetime
+import json
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sys
+
+from astropy.time import Time
+from scipy.optimize import curve_fit
+from scipy.io import netcdf_file
+
+sys.path.append("../utilities")
+import cycles_util as u
+
+#------------------------------------------------------------------------------
+# which cycle do you want to fit?
+
+nargs = len(sys.argv)
+
+if nargs < 2:
+  cycle = 24
+else:
+  cycle = int(sys.argv[1])
+
+print(f"Cycle {cycle}")
+
+# exclude the first 5 cycles
+cycle_idx = cycle - 5
+
+#------------------------------------------------------------------------------
+# optionally average an earlier fit for stability
+# units are months.  Set to -1 to disable
+
+deltak = -1
+#deltak = 9
+
+#------------------------------------------------------------------------------
+# read observations
+
+tmon, d, dsm, t1 = u.get_cycles(tstart = True)
+t = t1[cycle_idx-1]
+tstart = Time(datetime.datetime(t.year,t.month,15)).to_value('decimalyear')
+
+tobs = tmon[cycle_idx-1]
+ssn = d[cycle_idx-1]
+ssn_sm = dsm[cycle_idx-1]
+
+# time of available observations in decimal year
+nobs = len(tobs)
+tdec = np.zeros(nobs)
+for i in np.arange(nobs):
+   tdec[i] = tstart + tobs[i]/12.
+
+# time as a datetime object
+time = []
+for i in np.arange(nobs):
+   time.append(Time(tdec[i],format='decimalyear').datetime)
+
+#------------------------------------------------------------------------------
+# choose fit type
+# 1: 2-parameter panel fit (A, t0)
+# 2: 2-parameter upton-hathaway (A, t0)
+
+ftype = 1
+
+if ftype == 2:
+  lab = "uh"
+else:
+  lab = "panel2"
+
+if deltak > 0:
+  lab = lab+f"_d{deltak}"
+
+#------------------------------------------------------------------------------
+# read average residuals for this fit type
+
+indir, outdir, valdir = u.get_data_dirs()
+
+resfile = valdir + '/residuals/quartiles_'+lab+'.nc'
+
+r = netcdf_file(resfile,'r')
+print(r.history)
+
+a = r.variables['time']
+rtime = a[:].copy()
+
+a = r.variables['prediction month']
+kmon = a[:].copy()
+
+a = r.variables['quartile']
+q = a[:].copy()
+
+a = r.variables['positive quartiles']
+presid = a[:,:,:].copy()
+
+a = r.variables['negative quartiles']
+nresid = a[:,:,:].copy()
+
+del a
+r.close()
+
+#------------------------------------------------------------------------------
+# choose a prediction every year for 10 years
+Nsam = 10
+klist = 12*np.arange(Nsam, dtype = 'int') + 11
+
+Nerr = len(rtime)
+Nmax = np.min([nobs,Nerr])
+
+f = np.zeros((Nsam, nobs))
+perr = np.zeros((Nsam, nobs))
+nerr = np.zeros((Nsam, nobs))
+
+for kidx in np.arange(Nsam):
+
+  k = klist[kidx]
+
+  if ftype == 2:
+    afit = curve_fit(u.fhath,tobs[0:k],ssn[0:k],p0=(170.0,0.0))
+    fk = u.fhath(tobs,afit[0][0],afit[0][1])
+  if ftype == 3:
+    afit = curve_fit(u.fuh,tobs[0:k],ssn[0:k],p0=(170.0,0.0))
+    fk = u.fuh(tobs,afit[0][0],afit[0][1])
+  else:
+    afit = curve_fit(u.fpanel,tobs[0:k],ssn[0:k],p0=(170.0,0.0))
+    fk = u.fpanel(tobs,afit[0][0],afit[0][1])
+
+  if (deltak > 0) and (k > (deltak + 23)):
+    k2 = k - deltak
+    if ftype == 2:
+      afit2 = curve_fit(u.fhath,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
+      fk2 = u.fhath(tobs,afit2[0][0],afit2[0][1])
+    elif ftype == 3:
+      afit2 = curve_fit(u.fuh,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
+      fk2 = u.fuh(tobs,afit2[0][0],afit2[0][1])
+    else:
+      afit2 = curve_fit(u.fpanel,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
+      fk2 = u.fpanel(tobs,afit2[0][0],afit2[0][1])
+    fk = 0.5*(fk+fk2)
+
+  f[kidx,:] = fk
+
+  kk = k - kmon[0]
+#  for i in np.arange(Nmax):
+#    perr[kidx,i] = presid[i,kk]
+#    nerr[kidx,i] = nresid[i,kk]
+
+#------------------------------------------------------------------------------
+# plot positions
+
+p = []
+p.append((0,0))
+p.append((0,1))
+p.append((1,0))
+p.append((1,1))
+p.append((2,0))
+p.append((2,1))
+p.append((3,0))
+p.append((3,1))
+p.append((4,0))
+p.append((4,1))
+
+#------------------------------------------------------------------------------
+# plot
+
+ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
+
+tmin = np.min(time)
+tmax = np.max(time)
+
+sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
+
+fig, ax = plt.subplots(5,2,figsize=[12,12])
+
+title = f"Cycle {cycle}"
+fig.suptitle(title,fontsize=20,fontweight='bold')
+
+ymax = np.max(ssn) + 30
+
+for iframe in np.arange(Nsam):
+
+  a = ax[p[iframe][0],p[iframe][1]]
+
+  a.plot(time,ssn, color='black', linestyle=':')
+  a.set_xlim([tmin,tmax])
+  a.set_ylim([0,ymax])
+
+  #rmin = f[iframe,:] - nerr[iframe,:]
+  #rmax = f[iframe,:] + perr[iframe,:]
+  #a.fill_between(x=time, y1=rmin, y2=rmax, color='blue', alpha=0.3)
+
+  k = klist[iframe]
+  a.plot(time[0:k], ssn_sm_nz[0:k], color='black', linewidth = 4)
+  a.plot(time, f[iframe,:], color='blue')
+
+fig.tight_layout()
+
+#------------------------------------------------------------------------------
+# save to a file
+dir = valdir + '/output/'
+
+fname = f"validation_cycle{cycle}_{lab}.png"
+
+plt.savefig(dir+fname)
+
+#------------------------------------------------------------------------------
+plt.show()

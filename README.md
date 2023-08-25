@@ -65,3 +65,7 @@ The quartiles file is written to the `validation/residuals` data directory.  The
 The default operational configuration is `quartiles_panel2_d9.nc`.  Other configurations for validation can be specified by changing the `ftype` and `deltak` parameters in the [cycle_quartiles](preprocessing/cycle_quartiles.py) script.
 
 
+## Validation
+
+The first step in the validation process is to compute residuals (quartiles) for different fit types and dual lead times as described in the [Preprocessing](#instructions-for-preprocessing) section.  These are stored in the `validation/residuals` data directory.
+

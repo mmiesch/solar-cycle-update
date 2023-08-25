@@ -74,11 +74,14 @@ ftype = 1
 
 if ftype == 2:
   lab = "uh"
+  plot_lab = "Upton-Hathaway 2023 fit"
 else:
   lab = "panel2"
+  plot_lab = "Panel fit"
 
 if deltak > 0:
   lab = lab+f"_d{deltak}"
+  plot_lab = plot_lab + f"-{deltak} month avg"
 
 #------------------------------------------------------------------------------
 # read average residuals for this fit type
@@ -109,16 +112,15 @@ del a
 r.close()
 
 #------------------------------------------------------------------------------
-# choose a prediction every year for 10 years
-Nsam = 10
-klist = 12*np.arange(Nsam, dtype = 'int') + 11
+# choose four years for illustration
+years = np.array([3, 5, 7, 9])
+klist = 12*years - 1
+Nsam = len(klist)
 
 Nerr = len(rtime)
 Nmax = np.min([nobs,Nerr])
 
 f = np.zeros((Nsam, nobs))
-perr = np.zeros((Nsam, nobs))
-nerr = np.zeros((Nsam, nobs))
 
 for kidx in np.arange(Nsam):
 
@@ -150,9 +152,6 @@ for kidx in np.arange(Nsam):
   f[kidx,:] = fk
 
   kk = k - kmon[0]
-#  for i in np.arange(Nmax):
-#    perr[kidx,i] = presid[i,kk]
-#    nerr[kidx,i] = nresid[i,kk]
 
 #------------------------------------------------------------------------------
 # plot positions
@@ -162,12 +161,6 @@ p.append((0,0))
 p.append((0,1))
 p.append((1,0))
 p.append((1,1))
-p.append((2,0))
-p.append((2,1))
-p.append((3,0))
-p.append((3,1))
-p.append((4,0))
-p.append((4,1))
 
 #------------------------------------------------------------------------------
 # plot
@@ -179,10 +172,10 @@ tmax = np.max(time)
 
 sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
 
-fig, ax = plt.subplots(5,2,figsize=[12,12])
+fig, ax = plt.subplots(2,2,figsize=[12,6])
 
 title = f"Cycle {cycle}"
-fig.suptitle(title,fontsize=20,fontweight='bold')
+fig.suptitle(title,fontsize=20,x=0.05,y=.97,fontweight='bold', horizontalalignment = 'left')
 
 ymax = np.max(ssn) + 30
 
@@ -203,6 +196,25 @@ for iframe in np.arange(Nsam):
   a.plot(time, f[iframe,:], color='blue')
 
 fig.tight_layout()
+
+#------------------------------------------------------------------------------
+# label
+
+x1 = .41
+y1 = .37
+
+x2 = .91
+y2 = .82
+
+ax[0,0].annotate(f"{years[0]} years", (x1,y2), xycoords='figure fraction', weight = "bold")
+
+ax[0,1].annotate(f"{years[1]} years", (x2,y2), xycoords='figure fraction', weight = "bold")
+
+ax[1,0].annotate(f"{years[2]} years", (x1,y1), xycoords='figure fraction', weight = "bold")
+
+ax[1,1].annotate(f"{years[3]} years", (x2,y1), xycoords='figure fraction', weight = "bold")
+
+ax[0,0].annotate(plot_lab, (.94,.92), xycoords='figure fraction', weight = "bold", fontsize = 12, horizontalalignment='right')
 
 #------------------------------------------------------------------------------
 # save to a file

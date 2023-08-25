@@ -129,9 +129,6 @@ for kidx in np.arange(Nsam):
   k = klist[kidx]
 
   if ftype == 2:
-    afit = curve_fit(u.fhath,tobs[0:k],ssn[0:k],p0=(170.0,0.0))
-    fk = u.fhath(tobs,afit[0][0],afit[0][1])
-  if ftype == 3:
     afit = curve_fit(u.fuh,tobs[0:k],ssn[0:k],p0=(170.0,0.0))
     fk = u.fuh(tobs,afit[0][0],afit[0][1])
   else:
@@ -141,9 +138,6 @@ for kidx in np.arange(Nsam):
   if (deltak > 0) and (k > (deltak + 23)):
     k2 = k - deltak
     if ftype == 2:
-      afit2 = curve_fit(u.fhath,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
-      fk2 = u.fhath(tobs,afit2[0][0],afit2[0][1])
-    elif ftype == 3:
       afit2 = curve_fit(u.fuh,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
       fk2 = u.fuh(tobs,afit2[0][0],afit2[0][1])
     else:

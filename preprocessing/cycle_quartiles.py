@@ -82,6 +82,8 @@ for i in np.arange(Nc):
 
   N = len(ssn)
 
+  print(f"Cycle {i+6} {N} {kmin}")
+
   for k in np.arange(kmin,N):
 
     if ftype == 2:
@@ -101,10 +103,14 @@ for i in np.arange(Nc):
         f2 = u.fpanel(t, afit2[0][0], afit2[0][1])
       f = 0.5*(f+f2)
 
-    diff = ssn_sm - f
+    diff = f - ssn_sm
     kidx = k - kmin
 
     res[:N,kidx,i] = diff
+
+    if k == 36:
+      m = 48
+      print(f"check {f[m]} {ssn_sm[m]} {res[m,25,i]}")
 
 #------------------------------------------------------------------------------
 # Now compute positive and negative quartiles
@@ -113,29 +119,30 @@ pqt = np.zeros((Nm,Nk,4), dtype='float32')
 nqt = np.zeros((Nm,Nk,4), dtype='float32')
 
 for m in np.arange(Nm):
-  for k in np.arange(Nk):
+  for kidx in np.arange(Nk):
 
     pos = []
     neg = []
     for c in np.arange(Nc):
-      if res[m,k,c] < 0.0:
-        neg.append(res[m,k,c])
-      elif res[m,k,c] > 0.0:
-        pos.append(np.absolute(res[m,k,c]))
+      if res[m,kidx,c] < 0.0:
+        neg.append(np.absolute(res[m,kidx,c]))
+      elif res[m,kidx,c] > 0.0:
+        pos.append(np.absolute(res[m,kidx,c]))
 
     if len(pos) > 0:
       xp = np.array(pos)
-      pqt[m,k,:] = np.percentile(xp, [25,50,75,100])
+      pqt[m,kidx,:] = np.percentile(xp, [25,50,75,100])
+      #print(f"pqt {np.max(xp)} {pqt[m,kidx,3]}")
 
     if len(neg) > 0:
       xn = np.absolute(np.array(neg))
-      nqt[m,k,:] = np.percentile(xn, [25,50,75,100])
+      nqt[m,kidx,:] = np.percentile(xn, [25,50,75,100])
 
-      if np.absolute(np.min(res[m,k,:]) + nqt[m,k,3]) > .01:
-        print(f"min is outside quartile! {np.min(res[m,k,:])} {-nqt[m,k,3]}")
+    if (np.absolute(np.min(res[m,kidx,:]) + nqt[m,kidx,3]) > .01) and len(neg) > 0:
+      print(f"min is outside quartile! {np.min(res[m,kidx,:])} {-nqt[m,kidx,3]}")
 
-      if np.absolute(np.max(res[m,k,:]) - pqt[m,k,3]) > .01:
-        print(f"max is outside quartile! {np.max(res[m,k,:])} {pqt[m,k,3]}")
+    if (np.absolute(np.max(res[m,kidx,:]) - pqt[m,kidx,3]) > .01) and len(pos) > 0:
+      print(f"max is outside quartile! {np.max(res[m,kidx,:])} {pqt[m,kidx,3]}")
 
 #------------------------------------------------------------------------------
 # write quartiles to a file

@@ -35,7 +35,7 @@ else:
 # optionally average an earlier fit for stability
 # units are months.  Set to -1 to disable
 
-deltak = 9
+deltak = -1
 
 if deltak > 0:
   lab = lab+f"_d{deltak}"
@@ -123,13 +123,19 @@ for m in np.arange(Nm):
       elif res[m,k,c] > 0.0:
         pos.append(np.absolute(res[m,k,c]))
 
-      if len(pos) > 0:
-        xp = np.array(pos)
-        pqt[m,k,:] = np.percentile(xp, [25,50,75,100])
+    if len(pos) > 0:
+      xp = np.array(pos)
+      pqt[m,k,:] = np.percentile(xp, [25,50,75,100])
 
-      if len(neg) > 0:
-        xn = np.absolute(np.array(neg))
-        nqt[m,k,:] = np.percentile(xn, [25,50,75,100])
+    if len(neg) > 0:
+      xn = np.absolute(np.array(neg))
+      nqt[m,k,:] = np.percentile(xn, [25,50,75,100])
+
+      if np.absolute(np.min(res[m,k,:]) + nqt[m,k,3]) > .01:
+        print(f"min is outside quartile! {np.min(res[m,k,:])} {-nqt[m,k,3]}")
+
+      if np.absolute(np.max(res[m,k,:]) - pqt[m,k,3]) > .01:
+        print(f"max is outside quartile! {np.max(res[m,k,:])} {pqt[m,k,3]}")
 
 #------------------------------------------------------------------------------
 # write quartiles to a file

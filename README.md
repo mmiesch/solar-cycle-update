@@ -69,3 +69,9 @@ The default operational configuration is `quartiles_panel2_d9.nc`.  Other config
 
 The first step in the validation process is to compute residuals (quartiles) for different fit types and dual lead times as described in the [Preprocessing](#instructions-for-preprocessing) section.  These are stored in the `validation/residuals` data directory.
 
+Then, edit the [validate_cycle](validation/validate_cycle.py) script to select values for `ftype` and `deltak`.  And run the script by passing it the cycle that you wish to investigate:
+
+```
+cd validation
+python validate_cycle.py 22
+```

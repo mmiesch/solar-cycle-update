@@ -41,8 +41,7 @@ cycle_idx = cycle - 5
 # optionally average an earlier fit for stability
 # units are months.  Set to -1 to disable
 
-#deltak = -1
-deltak = 9
+deltak = -1
 
 #------------------------------------------------------------------------------
 # read observations
@@ -193,6 +192,11 @@ for iframe in np.arange(Nsam):
   a.plot(time,ssn, color='black', linestyle=':')
   a.set_xlim([tmin,tmax])
   a.set_ylim([0,ymax])
+
+  rmin = f[iframe,:] - nerr[iframe,:,2]
+  rmax = f[iframe,:] + perr[iframe,:,2]
+  a.plot(time, rmin, color='red')
+  a.plot(time, rmax, color='red')
 
   rmin = savgol_filter(f[iframe,:] - nerr[iframe,:,2],21,3)
   rmax = savgol_filter(f[iframe,:] + perr[iframe,:,2],21,3)

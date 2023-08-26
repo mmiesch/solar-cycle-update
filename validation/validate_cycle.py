@@ -114,7 +114,7 @@ r.close()
 #------------------------------------------------------------------------------
 # choose four years for illustration
 years = np.array([3, 5, 7, 9])
-klist = 12*years - 1
+klist = 12*years
 Nsam = len(klist)
 
 Nerr = len(rtime)
@@ -148,6 +148,7 @@ for kidx in np.arange(Nsam):
   f[kidx,:] = fk
 
   kk = k - kmon[0]
+
   for i in np.arange(Nmax):
     for q in np.arange(4):
       perr[kidx,i,q] = presid[i,kk,q]
@@ -187,8 +188,8 @@ for iframe in np.arange(Nsam):
   a.set_xlim([tmin,tmax])
   a.set_ylim([0,ymax])
 
-  rmin = f[iframe,:] - nerr[iframe,:,2]
-  rmax = f[iframe,:] + perr[iframe,:,2]
+  rmin = f[iframe,:] - nerr[iframe,:,3]
+  rmax = f[iframe,:] + perr[iframe,:,3]
   a.plot(time, rmin, color='red')
   a.plot(time, rmax, color='red')
 
@@ -203,7 +204,6 @@ for iframe in np.arange(Nsam):
   rmin = savgol_filter(f[iframe,:] - nerr[iframe,:,0],21,3)
   rmax = savgol_filter(f[iframe,:] + perr[iframe,:,0],21,3)
   a.fill_between(x=time, y1=rmin, y2=rmax, color='blue', alpha=0.3)
-
 
   k = klist[iframe]
   a.plot(time[0:k], ssn_sm_nz[0:k], color='black', linewidth = 4)

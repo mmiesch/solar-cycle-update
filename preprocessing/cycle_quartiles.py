@@ -82,8 +82,6 @@ for i in np.arange(Nc):
 
   N = len(ssn)
 
-  print(f"Cycle {i+6} {N} {kmin}")
-
   for k in np.arange(kmin,N):
 
     if ftype == 2:
@@ -103,14 +101,10 @@ for i in np.arange(Nc):
         f2 = u.fpanel(t, afit2[0][0], afit2[0][1])
       f = 0.5*(f+f2)
 
-    diff = f - ssn_sm
+    diff = ssn_sm - f
     kidx = k - kmin
 
     res[:N,kidx,i] = diff
-
-    if k == 36:
-      m = 48
-      print(f"check {f[m]} {ssn_sm[m]} {res[m,25,i]}")
 
 #------------------------------------------------------------------------------
 # Now compute positive and negative quartiles
@@ -132,7 +126,6 @@ for m in np.arange(Nm):
     if len(pos) > 0:
       xp = np.array(pos)
       pqt[m,kidx,:] = np.percentile(xp, [25,50,75,100])
-      #print(f"pqt {np.max(xp)} {pqt[m,kidx,3]}")
 
     if len(neg) > 0:
       xn = np.absolute(np.array(neg))
@@ -180,5 +173,3 @@ nres[:,:,:] = nqt
 nres.units = 'ssn'
 
 file.close()
-
-print(f"Check {pres[48,25,3]}")

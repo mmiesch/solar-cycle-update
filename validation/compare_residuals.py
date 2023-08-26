@@ -17,7 +17,7 @@ import cycles_util as u
 #------------------------------------------------------------------------------
 # choose comparison
 
-comp = 2
+comp = 6
 
 if comp == 2:
    lab1 = 'panel2'
@@ -45,7 +45,7 @@ else:
    title = 'Panel fit (blue) vs UH 2023 fit (red): -9 month avg'
 
 # choose quartile to plot (typically 1 for median or 3 for full range)
-qplot = 1
+qplot = 3
 
 #------------------------------------------------------------------------------
 # label with quartile choice
@@ -173,4 +173,4 @@ fname = f"compare_{lab1}_vs_{lab2}_{lab3}.png"
 plt.savefig(dir+fname)
 
 #------------------------------------------------------------------------------
-plt.show()
+#plt.show()

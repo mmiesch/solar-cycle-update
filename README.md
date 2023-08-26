@@ -71,7 +71,14 @@ The first step in the validation process is to compute residuals (quartiles) for
 
 Then, edit the [validate_cycle](validation/validate_cycle.py) script to select values for `ftype` and `deltak`.  And run the script by passing it the cycle that you wish to investigate:
 
-```
+```bash
 cd validation
 python validate_cycle.py 22
+```
+
+Similarly, edit the [compare_residuals](validation/compare_residuals.py) script to pick a comparison (`comp`) and quartile (`qplot`) to plot.  Then run the script
+
+```bash
+cd validation
+python compare_residuals.py
 ```

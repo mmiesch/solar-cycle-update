@@ -261,17 +261,36 @@ fidx_json = np.where(ptime >= pstart)
 #------------------------------------------------------------------------------
 # write prediction to a json file
 
+# but replace first 6 months with a 13-month smoothing between
+# observed monthly values and prediction
+# this gives a smooth transition from the smoothed observations
+# to the prediction
+
+ptimej = ptime[fidx_json[0]]
+
+fj = f[fidx_json[0]]
+sminj = smin[fidx_json[0],1]
+smaxj = smax[fidx_json[0],1]
+
+f10j = f10[fidx_json[0]]
+smin10j = smin[fidx_json[0],1]
+smax10j = smin[fidx_json[0],1]
+
+Nj = len(fj)
+
+#for i in 
+
 outdata = []
-for i in fidx_json[0]:
-   if ptime[i].year < 2033:
+for i in np.arange(Nj):
+   if ptimej[i].year < 2033:
      out = {
-        "time-tag": f"{ptime[i].year}-{ptime[i].month:02d}",
-        "predicted_ssn": f[i],
-        "high_ssn": smax[i,1],
-        "low_ssn": smin[i,1],
-        "predicted_f10.7": f10[i],
-        "high_f10.7": smax10[i,1],
-        "low_f10.7": smin10[i,1]
+        "time-tag": f"{ptimej[i].year}-{ptimej[i].month:02d}",
+        "predicted_ssn": fj[i],
+        "high_ssn": smaxj[i],
+        "low_ssn": sminj[i],
+        "predicted_f10.7": f10j[i],
+        "high_f10.7": smax10j[i],
+        "low_f10.7": smin10j[i]
      }
      outdata.append(out)
 

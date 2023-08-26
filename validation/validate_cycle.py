@@ -41,7 +41,7 @@ cycle_idx = cycle - 5
 # optionally average an earlier fit for stability
 # units are months.  Set to -1 to disable
 
-deltak = -1
+deltak = 9
 
 #------------------------------------------------------------------------------
 # read observations

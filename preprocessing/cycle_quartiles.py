@@ -35,7 +35,7 @@ else:
 # optionally average an earlier fit for stability
 # units are months.  Set to -1 to disable
 
-deltak = -1
+deltak = 9
 
 if deltak > 0:
   lab = lab+f"_d{deltak}"

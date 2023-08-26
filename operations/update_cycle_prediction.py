@@ -278,7 +278,25 @@ smax10j = smin[fidx_json[0],1]
 
 Nj = len(fj)
 
-#for i in 
+x = np.zeros(13, dtype='float')
+
+fs = np.zeros(6, dtype='float')
+f10s = np.zeros(6, dtype='float')
+
+for i in np.arange(6):
+   # construct averaging array for ssn
+   nn = 6-i
+   x[:nn] = ssn[-nn:]
+   x[nn:] = fj[:i+7]
+   fs[i] = np.sum(x)/13.0
+
+   # construct averaging array for f10.7
+   x[:nn] = fobs10[-nn:]
+   x[nn:] = f10j[:i+7]
+   f10s[i] = np.sum(x)/13.0
+
+fj[:6] = fs
+f10j[:6] = f10s
 
 outdata = []
 for i in np.arange(Nj):

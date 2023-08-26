@@ -83,6 +83,13 @@ pssn = np.array(pssn)
 pf10 = np.array(pf10)
 
 #------------------------------------------------------------------------------
+# copy last smoothed point into prediction for plotting continuity
+
+ptime = np.insert(ptime, 0, obstime[-7])
+pssn = np.insert(pssn, 0, ssn_sm[-7])
+pf10 = np.insert(pf10, 0, fobs10_sm[-7])
+
+#------------------------------------------------------------------------------
 # plot SSN
 
 fig, ax = plt.subplots(2, 1, figsize = [12.8,6.5])
@@ -125,4 +132,10 @@ sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1])
 sns.lineplot(x=ptime,y=pf10, color='darkmagenta', ax = ax[1])
 
 #------------------------------------------------------------------------------
+tmin = datetime.date(2022,11,1)
+tmax = datetime.date(2023,11,1)
+
+#ax[0].set_xlim([tmin,tmax])
+#ax[1].set_xlim([tmin,tmax])
+
 plt.show()

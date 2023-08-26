@@ -56,10 +56,12 @@ def ops_input_files():
   # Residual file used to compute error bars
   # set this to None for default naming convention
   # based on fit type
-  #residual_file = indir + 'quartiles_panel2_d9.nc'
+
+  # for operational use
+  residual_file = indir + 'quartiles_panel2_d9.nc'
 
   # for validation runs
-  residual_file = dirs[2] + '/residuals/quartiles_panel2_d9.nc'
+  #residual_file = dirs[2] + '/residuals/quartiles_panel2_d9.nc'
 
   return obsfile, panel_ssn_prediction, panel_f10_prediction, residual_file
 

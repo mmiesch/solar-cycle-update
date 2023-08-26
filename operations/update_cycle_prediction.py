@@ -22,7 +22,6 @@ import cycles_util as u
 # optionally average an earlier fit for stability
 # units are months.  Set to -1 to disable
 
-#deltak = -1
 deltak = 9
 
 #------------------------------------------------------------------------------
@@ -254,11 +253,16 @@ print(f"Current time: {tnow}")
 
 fidx = np.where(ptime > tnow)
 
+# time to start the prediction in the json file
+pstart = ptime[fidx[0][0] - 6]
+
+fidx_json = np.where(ptime >= pstart)
+
 #------------------------------------------------------------------------------
 # write prediction to a json file
 
 outdata = []
-for i in fidx[0]:
+for i in fidx_json[0]:
    if ptime[i].year < 2033:
      out = {
         "time-tag": f"{ptime[i].year}-{ptime[i].month:02d}",

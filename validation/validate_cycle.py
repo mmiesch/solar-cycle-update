@@ -8,7 +8,6 @@ replace `22` here with other cycle numbers as desired.
 """
 
 import datetime
-import json
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns

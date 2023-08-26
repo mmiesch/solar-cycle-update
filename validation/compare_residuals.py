@@ -24,24 +24,32 @@ comp = 6
 if comp == 2:
    lab1 = 'panel2'
    lab2 = 'panel2_d9'
+   title = 'panel fit: no avg (blue) vs -9 month avg (red)'
 elif comp == 3:
    lab1 = 'panel2_d9'
    lab2 = 'panel2_d6'
+   title = 'panel fit: -9 (blue) vs -6 month (red) avg'
 elif comp == 4:
    lab1 = 'panel2_d9'
    lab2 = 'panel2_d12'
+   title = 'panel fit: -9 (blue) vs -12 month (red) avg'
 elif comp == 5:
    lab1 = 'uh'
    lab2 = 'uh_d9'
+   title = 'UH 2023 fit: no avg (blue) vs -9 month (red) avg'
 elif comp == 6:
    lab1 = 'panel2'
    lab2 = 'uh'
+   title = 'Panel fit (blue) vs UH 2023 fit (red): no avg'
 else:
    lab1 = 'panel2_d9'
    lab2 = 'uh_d9'
+   title = 'Panel fit (blue) vs UH 2023 fit (red): -9 month avg'
 
 # choose quartile to plot (typically 1 for median or 3 for full range)
 qplot = 1
+
+title = "Residuals: " + title
 
 #------------------------------------------------------------------------------
 
@@ -87,19 +95,17 @@ p.append((0,0))
 p.append((0,1))
 p.append((1,0))
 p.append((1,1))
-p.append((2,0))
-p.append((2,1))
-p.append((3,0))
-p.append((3,1))
-p.append((4,0))
-p.append((4,1))
 
 #------------------------------------------------------------------------------
-# plot
-Nsam = 10
-klist = 12*np.arange(Nsam, dtype = 'int') + 11
+# plot - choose four years for illustration
+years = np.array([3, 5, 7, 9])
+klist = 12*years
+Nsam = len(klist)
 
-fig, ax = plt.subplots(5,2,figsize=[12,12])
+sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
+
+fig, ax = plt.subplots(2,2,figsize=[12,6])
+fig.suptitle(title,fontsize=16,x=0.05,y=.97,fontweight='bold', horizontalalignment = 'left')
 
 for iframe in np.arange(Nsam):
 
@@ -114,6 +120,31 @@ for iframe in np.arange(Nsam):
   a.plot(presid2[:,k,qplot],color='red')
   a.plot(-nresid2[:,k,qplot],color='red')
   a.fill_between(x=rtime2, y1=presid2[:,k,qplot], y2=-nresid2[:,k,qplot],color='red', alpha = 0.3)
+
+  if iframe == 2 or iframe == 3:
+     a.set_xlabel('time (months)')
+
+  if iframe == 0 or iframe == 2:
+     a.set_ylabel('SSN residual')
+
+#------------------------------------------------------------------------------
+# label
+
+x1 = .09
+y1 = .16
+
+x2 = .57
+y2 = .59
+
+ax[0,0].annotate(f"{years[0]} years", (x1,y2), xycoords='figure fraction', weight = "bold")
+
+ax[0,1].annotate(f"{years[1]} years", (x2,y2), xycoords='figure fraction', weight = "bold")
+
+ax[1,0].annotate(f"{years[2]} years", (x1,y1), xycoords='figure fraction', weight = "bold")
+
+ax[1,1].annotate(f"{years[3]} years", (x2,y1), xycoords='figure fraction', weight = "bold")
+
+fig.tight_layout()
 
 #------------------------------------------------------------------------------
 # save to a file

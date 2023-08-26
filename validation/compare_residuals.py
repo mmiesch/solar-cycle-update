@@ -19,7 +19,7 @@ import cycles_util as u
 #------------------------------------------------------------------------------
 # choose comparison
 
-comp = 6
+comp = 1
 
 if comp == 2:
    lab1 = 'panel2'
@@ -107,22 +107,25 @@ sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
 fig, ax = plt.subplots(2,2,figsize=[12,6])
 fig.suptitle(title,fontsize=16,x=0.05,y=.97,fontweight='bold', horizontalalignment = 'left')
 
+ytime1 = rtime1 / 12.0
+ytime2 = rtime2 / 12.0
+
 for iframe in np.arange(Nsam):
 
   a = ax[p[iframe][0],p[iframe][1]]
 
   k = klist[iframe]
 
-  a.plot(presid1[:,k,qplot],color='blue')
-  a.plot(-nresid1[:,k,qplot],color='blue')
-  a.fill_between(x=rtime1, y1=presid1[:,k,qplot], y2=-nresid1[:,k,qplot],color='blue', alpha = 0.3)
+  a.plot(ytime1,presid1[:,k,qplot],color='blue')
+  a.plot(ytime1,-nresid1[:,k,qplot],color='blue')
+  a.fill_between(x=ytime1, y1=presid1[:,k,qplot], y2=-nresid1[:,k,qplot],color='blue', alpha = 0.3)
 
-  a.plot(presid2[:,k,qplot],color='red')
-  a.plot(-nresid2[:,k,qplot],color='red')
-  a.fill_between(x=rtime2, y1=presid2[:,k,qplot], y2=-nresid2[:,k,qplot],color='red', alpha = 0.3)
+  a.plot(ytime2,presid2[:,k,qplot],color='red')
+  a.plot(ytime2,-nresid2[:,k,qplot],color='red')
+  a.fill_between(x=ytime2, y1=presid2[:,k,qplot], y2=-nresid2[:,k,qplot],color='red', alpha = 0.3)
 
   if iframe == 2 or iframe == 3:
-     a.set_xlabel('time (months)')
+     a.set_xlabel('years since cycle beginning')
 
   if iframe == 0 or iframe == 2:
      a.set_ylabel('SSN residual')

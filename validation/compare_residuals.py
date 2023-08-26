@@ -2,8 +2,6 @@
 The purpose of this function is to compute an updated prediction for the current solar cycle.  It is intended to be applied at least 3 years into the cycle, when there is enough SSN data to make a reasonable projection based on the average cycle progression (formula due to Hathaway et al).  The prediction is done by fitting the current data to the nonlinear function that approximates an average cycle.
 """
 
-import datetime
-import json
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -19,7 +17,7 @@ import cycles_util as u
 #------------------------------------------------------------------------------
 # choose comparison
 
-comp = 1
+comp = 2
 
 if comp == 2:
    lab1 = 'panel2'
@@ -49,7 +47,23 @@ else:
 # choose quartile to plot (typically 1 for median or 3 for full range)
 qplot = 1
 
-title = "Residuals: " + title
+#------------------------------------------------------------------------------
+# label with quartile choice
+
+if qplot == 0:
+   lab3 = 'q25'
+   plab3 = '25th percentile'
+elif qplot == 1:
+   lab3 = 'q50'
+   plab3 = 'median'
+elif qplot == 2:
+   lab3 = 'q75'
+   plab3 = '75th percentile'
+else:
+   lab3 = 'q100'
+   plab3 = 'full range'
+
+title = f"Residuals ({plab3}): " + title
 
 #------------------------------------------------------------------------------
 
@@ -147,20 +161,12 @@ ax[1,0].annotate(f"{years[2]} years", (x1,y1), xycoords='figure fraction', weigh
 
 ax[1,1].annotate(f"{years[3]} years", (x2,y1), xycoords='figure fraction', weight = "bold")
 
+
 fig.tight_layout()
 
 #------------------------------------------------------------------------------
 # save to a file
 dir = valdir + '/output/'
-
-if qplot == 0:
-   lab3 = 'q25'
-elif qplot == 1:
-   lab3 = 'q50'
-elif qplot == 2:
-   lab3 = 'q75'
-else:
-   lab3 = 'q100'
 
 fname = f"compare_{lab1}_vs_{lab2}_{lab3}.png"
 

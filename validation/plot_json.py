@@ -19,7 +19,6 @@ obsfile, ssnfile, f10file, resfile = u.ops_input_files()
 
 indir, outdir, valdir = u.get_data_dirs()
 
-
 # json product
 jfile = outdir + "/predicted-solar-cycle.json"
 
@@ -99,7 +98,8 @@ ax[1].xaxis.set_tick_params(labelsize=14)
 ax[0].yaxis.set_tick_params(labelsize=12)
 ax[1].yaxis.set_tick_params(labelsize=12)
 
-tmax = datetime.date(2032,1,1)
+#tmax = datetime.date(2032,1,1)
+tmax = datetime.date(2028,1,1)
 ymax = np.max([np.max(ssn),np.max(pssn)]) * 1.05
 
 print(np.max(pssn))
@@ -116,26 +116,42 @@ sns.lineplot(x=obstime, y=ssn_sm_nz, color='blue', linewidth = 4, ax = ax[0])
 
 sns.lineplot(x=ptime,y=pssn, color='darkmagenta', ax = ax[0])
 
+
 #------------------------------------------------------------------------------
 # plot f10.7
 
 fobs10_sm_nz = np.ma.masked_less(fobs10_sm, 0.0)
 
-ymax = np.max([np.max(fobs10),np.max(pf10)]) * 1.05
+ymax10 = np.max([np.max(fobs10),np.max(pf10)]) * 1.05
 
 sns.lineplot(x=obstime,y=fobs10, color='black', ax = ax[1])
 ax[1].set_xlim([tmin,tmax])
-ax[1].set_ylim([50,ymax])
+ax[1].set_ylim([50,ymax10])
 
 sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1])
 
 sns.lineplot(x=ptime,y=pf10, color='darkmagenta', ax = ax[1])
 
 #------------------------------------------------------------------------------
-tmin = datetime.date(2022,11,1)
-tmax = datetime.date(2023,11,1)
+# indicate range in json file
 
-#ax[0].set_xlim([tmin,tmax])
-#ax[1].set_xlim([tmin,tmax])
+ax[0].plot((ptime[0],ptime[0]), (0,ymax), linewidth=2, color='green')
+ax[1].plot((ptime[0],ptime[0]), (50,ymax10), linewidth=2, color='green')
+
+#------------------------------------------------------------------------------
+# annotate
+
+xx = .24
+ax[0].annotate("SSN", (xx,.85), xycoords='figure fraction', weight='bold',fontsize = 16)
+ax[1].annotate("F10.7", (xx,.35), xycoords='figure fraction', weight='bold',fontsize = 16)
+
+#------------------------------------------------------------------------------
+# save to a file
+
+fname = valdir + '/output/plot_json.png'
+
+plt.savefig(fname, dpi = 100)
+
+#------------------------------------------------------------------------------
 
 plt.show()

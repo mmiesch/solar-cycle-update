@@ -261,10 +261,13 @@ fidx_json = np.where(ptime >= pstart)
 #------------------------------------------------------------------------------
 # write prediction to a json file
 
-# but replace first 6 months with a 13-month smoothing between
+# but replace first months with a 13-month smoothing between
 # observed monthly values and prediction
 # this gives a smooth transition from the smoothed observations
 # to the prediction
+
+#number of months to replace with smoothed values
+Ntransition = 6
 
 ptimej = ptime[fidx_json[0]]
 
@@ -279,24 +282,34 @@ smax10j = smin[fidx_json[0],1]
 Nj = len(fj)
 
 x = np.zeros(13, dtype='float')
+y = np.zeros(13, dtype='float')
 
-fs = np.zeros(6, dtype='float')
-f10s = np.zeros(6, dtype='float')
+fs = np.zeros(Ntransition, dtype='float')
+f10s = np.zeros(Ntransition, dtype='float')
 
-for i in np.arange(6):
-   # construct averaging array for ssn
-   nn = 6-i
-   x[:nn] = ssn[-nn:]
-   x[nn:] = fj[:i+7]
-   fs[i] = np.sum(x)/13.0
+for i in np.arange(Ntransition):
 
-   # construct averaging array for f10.7
-   x[:nn] = fobs10[-nn:]
-   x[nn:] = f10j[:i+7]
-   f10s[i] = np.sum(x)/13.0
+  if i > 5:
 
-fj[:6] = fs
-f10j[:6] = f10s
+    x[:] = fj[i-6:i+7]
+    y[:] = f10j[i-6:i+7]
+
+  else:
+    nn = 6-i
+
+    # construct averaging array for ssn
+    x[:nn] = ssn[-nn:]
+    x[nn:] = fj[:i+7]
+
+    # construct averaging array for f10.7
+    y[:nn] = fobs10[-nn:]
+    y[nn:] = f10j[:i+7]
+
+  fs[i] = np.sum(x)/13.0
+  f10s[i] = np.sum(y)/13.0
+
+fj[:Ntransition] = fs
+f10j[:Ntransition] = f10s
 
 outdata = []
 for i in np.arange(Nj):

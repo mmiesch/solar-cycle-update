@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
+import os
 
 from astropy.time import Time
 from scipy.optimize import curve_fit
@@ -17,7 +18,7 @@ import cycles_util as u
 #------------------------------------------------------------------------------
 # choose comparison
 
-comp = 6
+comp = 2
 
 if comp == 2:
    lab1 = 'panel2'
@@ -45,7 +46,7 @@ else:
    title = 'Panel fit (blue) vs UH 2023 fit (red): -9 month avg'
 
 # choose quartile to plot (typically 1 for median or 3 for full range)
-qplot = 3
+qplot = 1
 
 #------------------------------------------------------------------------------
 # label with quartile choice
@@ -112,8 +113,8 @@ p.append((1,1))
 
 #------------------------------------------------------------------------------
 # plot - choose four years for illustration
-years = np.array([3, 5, 7, 9])
-klist = 12*years
+years = np.array([3.6, 5, 7, 9])
+klist = np.int64(12*years)
 Nsam = len(klist)
 
 sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
@@ -173,4 +174,35 @@ fname = f"compare_{lab1}_vs_{lab2}_{lab3}.png"
 plt.savefig(dir+fname)
 
 #------------------------------------------------------------------------------
-plt.show()
+# compute a quantitative measure of predictive skill
+
+Nk1 = presid1.shape[1]
+kmin = kmon1[0]
+
+median_err1 = 0.0
+full_err1 = 0.0
+for i in np.arange(Nk1):
+   k = i + kmin
+   median_err1 += 0.5 * np.mean(presid1[k:,i,1])
+   median_err1 += 0.5 * np.mean(nresid1[k:,i,1])
+   full_err1 += 0.5 * np.mean(presid1[k:,i,3])
+   full_err1 += 0.5 * np.mean(nresid1[k:,i,3])
+
+Nk2 = presid2.shape[1]
+kmin = kmon2[0]
+
+median_err2 = 0.0
+full_err2 = 0.0
+for i in np.arange(Nk2):
+   k = i + kmin
+   median_err2 += 0.5 * np.mean(presid2[k:,i,1])
+   median_err2 += 0.5 * np.mean(nresid2[k:,i,1])
+   full_err2 += 0.5 * np.mean(presid2[k:,i,3])
+   full_err2 += 0.5 * np.mean(nresid2[k:,i,3])
+
+print("Avg resid")
+print(f"{os.path.basename(file1)} {median_err1/Nk1} {full_err1/Nk1}")
+print(f"{os.path.basename(file2)} {median_err2/Nk2} {full_err2/Nk2}")
+
+#------------------------------------------------------------------------------
+#plt.show()

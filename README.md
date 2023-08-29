@@ -82,3 +82,5 @@ Similarly, edit the [compare_residuals](validation/compare_residuals.py) script 
 cd validation
 python compare_residuals.py
 ```
+
+The [plot_json.py](validation/plot_json.py) script in the validation directory can be used to plot the `predicted-solar-cycle.json` product.

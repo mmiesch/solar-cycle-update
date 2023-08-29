@@ -128,15 +128,15 @@ for iframe in np.arange(Nsam):
 
   a = ax[p[iframe][0],p[iframe][1]]
 
-  k = klist[iframe]
-
+  k = klist[iframe] - kmon1[0]
   a.plot(ytime1,presid1[:,k,qplot],color='blue')
   a.plot(ytime1,-nresid1[:,k,qplot],color='blue')
-  a.fill_between(x=ytime1, y1=presid1[:,k,qplot], y2=-nresid1[:,k,qplot],color='blue', alpha = 0.3)
+  a.fill_between(x=ytime1, y1=-nresid1[:,k,qplot], y2=presid1[:,k,qplot],color='blue', alpha = 0.3)
 
+  k = klist[iframe] - kmon1[0]
   a.plot(ytime2,presid2[:,k,qplot],color='red')
   a.plot(ytime2,-nresid2[:,k,qplot],color='red')
-  a.fill_between(x=ytime2, y1=presid2[:,k,qplot], y2=-nresid2[:,k,qplot],color='red', alpha = 0.3)
+  a.fill_between(x=ytime2, y1=-nresid2[:,k,qplot], y2=presid2[:,k,qplot],color='red', alpha = 0.3)
 
   if iframe == 2 or iframe == 3:
      a.set_xlabel('years since cycle beginning')
@@ -173,4 +173,4 @@ fname = f"compare_{lab1}_vs_{lab2}_{lab3}.png"
 plt.savefig(dir+fname)
 
 #------------------------------------------------------------------------------
-#plt.show()
+plt.show()

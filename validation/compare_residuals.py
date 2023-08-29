@@ -175,13 +175,14 @@ plt.savefig(dir+fname)
 
 #------------------------------------------------------------------------------
 # compute a quantitative measure of predictive skill
+# start at three years in (kidx = 25 corresponds to k = 36).
 
 Nk1 = presid1.shape[1]
 kmin = kmon1[0]
 
 median_err1 = 0.0
 full_err1 = 0.0
-for i in np.arange(Nk1):
+for i in np.arange(25,Nk1):
    k = i + kmin
    median_err1 += 0.5 * np.mean(presid1[k:,i,1])
    median_err1 += 0.5 * np.mean(nresid1[k:,i,1])
@@ -193,7 +194,7 @@ kmin = kmon2[0]
 
 median_err2 = 0.0
 full_err2 = 0.0
-for i in np.arange(Nk2):
+for i in np.arange(25,Nk2):
    k = i + kmin
    median_err2 += 0.5 * np.mean(presid2[k:,i,1])
    median_err2 += 0.5 * np.mean(nresid2[k:,i,1])

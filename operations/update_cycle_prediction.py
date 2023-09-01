@@ -358,7 +358,7 @@ month = {
 #fig, ax = plt.subplots(2, 1, figsize = [12.8,6.5])
 fig, ax = plt.subplots(2, 1, figsize = [12.8,9.0])
 
-fig.tight_layout(rect=(0.14,0.3,0.9,1.))
+fig.tight_layout(rect=(0.14,0.26,0.9,.96))
 ax[0].xaxis.set_tick_params(labelsize=14)
 ax[1].xaxis.set_tick_params(labelsize=14)
 ax[0].yaxis.set_tick_params(labelsize=12)
@@ -405,12 +405,13 @@ sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1],
 
 sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1], label = "Updated NOAA/SWPC prediction")
 
+idx = np.where(pmin10 > 0.0)
+ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.2, label = "2019 NOAA/NASA/ISES Panel Prediction (range)")
+
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3, label = "25% quartile")
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2, label = "50% quartile")
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],2], y2=smax10[fidx[0],2], color='darkmagenta', alpha=0.1, label = "75% quartile")
 
-idx = np.where(pmin10 > 0.0)
-ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.2, label = "2019 NOAA/NASA/ISES Panel Prediction (range)")
 #------------------------------------------------------------------------------
 def checktime(t1, t2, t3):
 
@@ -482,9 +483,24 @@ ax[1].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='d
 plt.ylabel('F10.7 Flux (solar flux units)',fontsize=16)
 plt.xlabel('Universal Time',fontsize=16)
 
+fig.suptitle("Updated Prediction for Solar Cycle 25", weight="bold")
+
 #--------------------
 
-plt.legend(loc="lower center", bbox_to_anchor=(0.5,-1.0), frameon = False)
+plt.legend(loc="lower center", bbox_to_anchor=(0.64,-0.8), frameon = False, ncol = 2)
+
+from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
+import matplotlib.image as mpimg
+logo = mpimg.imread("noaa-logo-rgb-withspace-2022.png")
+
+imagebox = OffsetImage(logo, zoom = 0.03)
+ab = AnnotationBbox(imagebox, (.22, .15), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ax[1].add_artist(ab)
+
+# creation date
+cdate = datetime.datetime.now()
+clab = f"creation date: {month[cdate.month]} {cdate.year}"
+ax[1].annotate(clab, (.22,.08),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
 
 #--------------------
 

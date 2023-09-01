@@ -337,22 +337,6 @@ def get_label(tm, tstart):
     t = Time(tdec,format='decimalyear').datetime
     return f"{t.year}-{t.month}-{t.day}"
 
-def qlabels(ax, top = False):
-
-  if top:
-     yy = .78
-  else:
-     yy = .3
-
-  xx = .74
-  ax.annotate("quartiles: ", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='right', weight='bold')
-  ax.annotate("25% ", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='left', weight='bold', alpha=0.7)
-  dx = .04
-  xx += dx
-  ax.annotate("50% ", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='left', weight='bold', alpha = 0.5)
-  xx += dx
-  ax.annotate("75% ", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='left', weight='bold', alpha = 0.36)
-
 #------------------------------------------------------------------------------
 month = {
    1:"January",
@@ -371,8 +355,10 @@ month = {
 #------------------------------------------------------------------------------
 # plot SSN
 
-fig, ax = plt.subplots(2, 1, figsize = [12.8,6.5])
-fig.tight_layout(rect=(0.14,0.04,0.9,1.))
+#fig, ax = plt.subplots(2, 1, figsize = [12.8,6.5])
+fig, ax = plt.subplots(2, 1, figsize = [12.8,9.0])
+
+fig.tight_layout(rect=(0.14,0.3,0.9,1.))
 ax[0].xaxis.set_tick_params(labelsize=14)
 ax[1].xaxis.set_tick_params(labelsize=14)
 ax[0].yaxis.set_tick_params(labelsize=12)
@@ -391,12 +377,13 @@ sns.lineplot(x=obstime,y=ssn, color='black', ax = ax[0])
 ax[0].set_xlim([tmin,tmax])
 ax[0].set_ylim([0,ymax])
 
-#plt.fill_between(x=time[fidx], y1=smin[fidx[0],3], y2=smax[fidx[0],3], color='darkmagenta', alpha=0.05)
-ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1)
-ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],1], y2=smax[fidx[0],1], color='darkmagenta', alpha=0.2)
-ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],0], y2=smax[fidx[0],0], color='darkmagenta', alpha=0.3)
-
 sns.lineplot(x=obstime, y=ssn_sm_nz, color='blue', linewidth = 4, ax = ax[0])
+
+#plt.fill_between(x=time[fidx], y1=smin[fidx[0],3], y2=smax[fidx[0],3], color='darkmagenta', alpha=0.05)
+ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],0], y2=smax[fidx[0],0], color='darkmagenta', alpha=0.3)
+ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],1], y2=smax[fidx[0],1], color='darkmagenta', alpha=0.2)
+ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1)
+
 
 ax[0].fill_between(x=ptime, y1=pmin, y2=pmax, color='red', alpha=0.3)
 
@@ -411,21 +398,21 @@ fobs10_sm_nz = np.ma.masked_less(fobs10_sm, 0.0)
 
 ymax = np.max(smax10[fidx[0],2]) * 1.05
 
-sns.lineplot(x=obstime,y=fobs10, color='black', ax = ax[1])
+sns.lineplot(x=obstime,y=fobs10, color='black', ax = ax[1], label = 'Monthly observations')
 ax[1].set_xlim([tmin,tmax])
 ax[1].set_ylim([50,ymax])
 
-ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],2], y2=smax10[fidx[0],2], color='darkmagenta', alpha=0.1)
-ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2)
-ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3)
+sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1], label = "Smoothed monthly observations")
 
-sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1])
+
+han3 = sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1], label = "Updated NOAA/SWPC prediction")
+
+ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3, label = "25% quartile")
+ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2, label = "50% quartile")
+ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],2], y2=smax10[fidx[0],2], color='darkmagenta', alpha=0.1, label = "75% quartile")
 
 idx = np.where(pmin10 > 0.0)
-ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.3)
-
-sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1])
-
+ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.2, label = "2019 NOAA/NASA/ISES Panel Prediction (range)")
 #------------------------------------------------------------------------------
 def checktime(t1, t2, t3):
 
@@ -444,11 +431,17 @@ i2 = np.argmax(smax[:,1])
 arange = [int(smin[i1,1]), int(smax[i2,1])]
 trange = checktime(ptime[i1], ptime[i2], ptime[i])
 
-i = np.argmax(f10)
+i10 = np.argmax(f10)
 i1 = np.argmax(smin10[:,1])
 i2 = np.argmax(smax10[:,1])
 arange10 = [int(smin10[i1,1]), int(smax10[i2,1])]
-trange10 = checktime(ptime[i1], ptime[i2], ptime[i])
+trange10 = checktime(ptime[i1], ptime[i2], ptime[i10])
+
+print(80*'*')
+print("Mean prediction:")
+print(f"SSN: {f[i]} {month[ptime[i].month]} {ptime[i].year}")
+print(f"F10.7: {f10[i10]} {month[ptime[i10].month]} {ptime[i10].year}")
+print(80*'*')
 
 #------------------------------------------------------------------------------
 # labels
@@ -473,7 +466,7 @@ yy = .46
 
 lab1 = f"Cycle 25 Predicted Max: {arange10[0]} - {arange10[1]}"
 if trange10[0].year == trange10[1].year:
-  lab2 = f"In: {month[trange10[0].month]} - {month[trange10[1].month]}, {trange10[1].year}"
+  lab2 = f"In: {month[trange10[0].month]} - {month[trange10[1].month]} {trange10[1].year}"
 else:
   lab2 = f"In: {month[trange10[0].month]}, {trange10[0].year} - {month[trange10[1].month]}, {trange10[1].year}"
 
@@ -485,27 +478,16 @@ ax[1].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='d
 
 #--------------------
 
-ax[1].annotate("2019 NOAA/NASA/ISES Panel Prediction", (.5,.5), xytext=(.49,.13),xycoords='figure fraction',color='red', ha='center')
-ax[0].annotate("2019 NOAA/NASA/ISES Panel Prediction", (.5,.5), xytext=(.5,.6),xycoords='figure fraction',color='red', ha='center')
-
-xx = .24
-yy = .72
-dy = .03
-
-ax[0].annotate("smoothed", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='blue', ha='center',weight='bold')
-yy -= dy
-ax[0].annotate("observations", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='blue', ha='center',weight='bold')
-
-yy = .3
-ax[1].annotate("smoothed", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='blue', ha='center',weight='bold')
-yy -= dy
-ax[1].annotate("observations", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='blue', ha='center',weight='bold')
-
-qlabels(ax[0], top = True)
-qlabels(ax[1])
-
 plt.ylabel('F10.7 Flux (solar flux units)',fontsize=16)
 plt.xlabel('Universal Time',fontsize=16)
+
+#--------------------
+
+#ax[1].legend(handles=[han1, han2, han3, han4, han5, han6, han7], loc="lower center", bbox_to_anchor=(0,0))
+#ax[1].legend(loc="lower center", bbox_to_anchor=(0,0))
+plt.legend(loc="lower center", bbox_to_anchor=(0.5,-1.0))
+
+#--------------------
 
 plt.savefig(outfig, dpi = 100)
 

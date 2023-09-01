@@ -384,8 +384,7 @@ ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],0], y2=smax[fidx[0],0], color=
 ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],1], y2=smax[fidx[0],1], color='darkmagenta', alpha=0.2)
 ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1)
 
-
-ax[0].fill_between(x=ptime, y1=pmin, y2=pmax, color='red', alpha=0.3)
+ax[0].fill_between(x=ptime, y1=pmin, y2=pmax, color='red', alpha=0.2)
 
 sns.lineplot(x=ptime,y=f, color='darkmagenta', ax = ax[0])
 
@@ -404,8 +403,7 @@ ax[1].set_ylim([50,ymax])
 
 sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1], label = "Smoothed monthly observations")
 
-
-han3 = sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1], label = "Updated NOAA/SWPC prediction")
+sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1], label = "Updated NOAA/SWPC prediction")
 
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3, label = "25% quartile")
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2, label = "50% quartile")
@@ -452,9 +450,12 @@ if trange[0].year == trange[1].year:
 else:
   lab2 = f"In: {month[trange[0].month]}, {trange[0].year} - {month[trange[1].month]}, {trange[1].year}"
 
-xx = .69
-yy = .92
-dy = .034
+top0 = ax[0].get_position().get_points()[1][1]
+top1 = ax[1].get_position().get_points()[1][1]
+
+xx = .74
+yy = top0 - .06
+dy = .03
 
 ax[0].annotate("International Sunspot Number", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='black', ha='center', weight = 'bold')
 yy -= dy
@@ -462,7 +463,7 @@ ax[0].annotate(lab1, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='d
 yy -= dy
 ax[0].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='center')
 
-yy = .46
+yy = top1 - .06
 
 lab1 = f"Cycle 25 Predicted Max: {arange10[0]} - {arange10[1]}"
 if trange10[0].year == trange10[1].year:
@@ -483,9 +484,7 @@ plt.xlabel('Universal Time',fontsize=16)
 
 #--------------------
 
-#ax[1].legend(handles=[han1, han2, han3, han4, han5, han6, han7], loc="lower center", bbox_to_anchor=(0,0))
-#ax[1].legend(loc="lower center", bbox_to_anchor=(0,0))
-plt.legend(loc="lower center", bbox_to_anchor=(0.5,-1.0))
+plt.legend(loc="lower center", bbox_to_anchor=(0.5,-1.0), frameon = False)
 
 #--------------------
 

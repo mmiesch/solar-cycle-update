@@ -514,8 +514,29 @@ if archive == True:
 
     basename = os.path.basename(outfig).split('.png')[0]
 
-    fname = f"{dir}/{basename}_{obstime[-1].year}_{obstime[-1].month}.png"
+    mymonth = f"{obstime[-1].month:02d}"
+
+    fname = f"{dir}/{basename}_{obstime[-1].year}_{mymonth}.png"
     plt.savefig(fname, dpi = 100)
 
+#--------------------
+# Write first 13 rows of the prediction json file to a csv file for SWFO monitoring 
+
+import csv
+
+fields = ["date","predicted ssn"]
+
+csvfile = outdir + '/cycle_short_term_prediction.csv'
+
+rows = []
+for i in np.arange(13):
+   date = f"{ptimej[i].month:02d}/{ptimej[i].year}"
+   rows.append([date, fj[i]])
+
+with open(csvfile, 'w') as csvfile:
+   csvwriter = csv.writer(csvfile)
+   csvwriter.writerow(fields)
+   csvwriter.writerows(rows)
+
 #------------------------------------------------------------------------------
-plt.show()
+#plt.show()

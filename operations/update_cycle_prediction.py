@@ -403,10 +403,10 @@ ax[1].set_ylim([50,ymax])
 
 sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1], label = "Smoothed monthly observations")
 
-sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1], label = "Updated NOAA/SWPC prediction")
-
 idx = np.where(pmin10 > 0.0)
 ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.2, label = "2019 NOAA/NASA/ISES Panel Prediction (range)")
+
+sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1], label = "Updated NOAA/SWPC prediction")
 
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3, label = "25% quartile")
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2, label = "50% quartile")
@@ -487,25 +487,32 @@ fig.suptitle("Experimental Solar Cycle 25 Prediction", weight="bold")
 
 #--------------------
 
-plt.legend(loc="lower center", bbox_to_anchor=(0.64,-0.6), frameon = False, ncol = 2)
+#plt.legend(loc="lower center", bbox_to_anchor=(0.64,-0.6), frameon = False, ncol = 2)
+
+hh, ss = ax[1].get_legend_handles_labels()
+
+leg1 = ax[1].legend(hh[0:3],ss[0:3],loc="lower center", bbox_to_anchor=(0.44,-0.514), frameon = False)
+
+plt.legend(hh[3:],ss[3:],loc="lower center", bbox_to_anchor=(0.86,-0.59), frameon = False)
+ax[1].add_artist(leg1)
 
 from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
 import matplotlib.image as mpimg
 
 logo = mpimg.imread("noaa-logo-rgb-2022.png")
 imagebox = OffsetImage(logo, zoom = 0.03)
-ab = AnnotationBbox(imagebox, (.19, .12), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ab = AnnotationBbox(imagebox, (.17, .12), frameon = False, xycoords='figure fraction', annotation_clip = False)
 ax[1].add_artist(ab)
 
 nwslogo = mpimg.imread("NWS_logo.png")
 imagebox = OffsetImage(nwslogo, zoom = 0.05)
-ab = AnnotationBbox(imagebox, (.25, .12), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ab = AnnotationBbox(imagebox, (.23, .12), frameon = False, xycoords='figure fraction', annotation_clip = False)
 ax[1].add_artist(ab)
 
 # creation date
 cdate = datetime.datetime.now()
 clab = f"issued {cdate.day} {month[cdate.month]} {cdate.year}"
-ax[1].annotate(clab, (.22,.05),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
+ax[1].annotate(clab, (.2,.05),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
 
 #--------------------
 

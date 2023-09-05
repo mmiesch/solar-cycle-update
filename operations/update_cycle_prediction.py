@@ -339,18 +339,18 @@ def get_label(tm, tstart):
 
 #------------------------------------------------------------------------------
 month = {
-   1:"January",
-   2:"February",
-   3:"March",
-   4:"April",
+   1:"Jan",
+   2:"Feb",
+   3:"Mar",
+   4:"Apr",
    5:"May",
-   6:"June",
-   7:"July",
-   8:"August",
-   9:"September",
-   10:"October",
-   11:"November",
-   12:"December"
+   6:"Jun",
+   7:"Jul",
+   8:"Aug",
+   9:"Sep",
+   10:"Oct",
+   11:"Nov",
+   12:"Dec"
 }
 #------------------------------------------------------------------------------
 # plot SSN
@@ -358,7 +358,7 @@ month = {
 #fig, ax = plt.subplots(2, 1, figsize = [12.8,6.5])
 fig, ax = plt.subplots(2, 1, figsize = [12.8,9.0])
 
-fig.tight_layout(rect=(0.14,0.26,0.9,.96))
+fig.tight_layout(rect=(0.12,0.18,0.9,.96))
 ax[0].xaxis.set_tick_params(labelsize=14)
 ax[1].xaxis.set_tick_params(labelsize=14)
 ax[0].yaxis.set_tick_params(labelsize=12)
@@ -445,11 +445,11 @@ print(80*'*')
 #------------------------------------------------------------------------------
 # labels
 
-lab1 = f"Cycle 25 Predicted Max: {arange[0]} - {arange[1]}"
+lab1 = f"Predicted Max {arange[0]} - {arange[1]}"
 if trange[0].year == trange[1].year:
-  lab2 = f"In: {month[trange[0].month]} - {month[trange[1].month]}, {trange[1].year}"
+  lab2 = f"{month[trange[0].month]} - {month[trange[1].month]} {trange[1].year}"
 else:
-  lab2 = f"In: {month[trange[0].month]}, {trange[0].year} - {month[trange[1].month]}, {trange[1].year}"
+  lab2 = f"{month[trange[0].month]} {trange[0].year} - {month[trange[1].month]} {trange[1].year}"
 
 top0 = ax[0].get_position().get_points()[1][1]
 top1 = ax[1].get_position().get_points()[1][1]
@@ -466,11 +466,11 @@ ax[0].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='d
 
 yy = top1 - .06
 
-lab1 = f"Cycle 25 Predicted Max: {arange10[0]} - {arange10[1]}"
+lab1 = f"Predicted Max {arange10[0]} - {arange10[1]}"
 if trange10[0].year == trange10[1].year:
-  lab2 = f"In: {month[trange10[0].month]} - {month[trange10[1].month]} {trange10[1].year}"
+  lab2 = f"{month[trange10[0].month]} - {month[trange10[1].month]} {trange10[1].year}"
 else:
-  lab2 = f"In: {month[trange10[0].month]}, {trange10[0].year} - {month[trange10[1].month]}, {trange10[1].year}"
+  lab2 = f"{month[trange10[0].month]} {trange10[0].year} - {month[trange10[1].month]} {trange10[1].year}"
 
 ax[1].annotate("F10.7cm Radio Flux", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='black', ha='center', weight = 'bold')
 yy -= dy
@@ -480,27 +480,32 @@ ax[1].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='d
 
 #--------------------
 
-plt.ylabel('F10.7 Flux (solar flux units)',fontsize=16)
-plt.xlabel('Universal Time',fontsize=16)
+plt.ylabel('Solar Flux Units',fontsize=16)
+plt.xlabel('Years',fontsize=16)
 
-fig.suptitle("Updated Prediction for Solar Cycle 25", weight="bold")
+fig.suptitle("Experimental Solar Cycle 25 Prediction", weight="bold")
 
 #--------------------
 
-plt.legend(loc="lower center", bbox_to_anchor=(0.64,-0.8), frameon = False, ncol = 2)
+plt.legend(loc="lower center", bbox_to_anchor=(0.64,-0.6), frameon = False, ncol = 2)
 
 from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
 import matplotlib.image as mpimg
-logo = mpimg.imread("noaa-logo-rgb-withspace-2022.png")
 
+logo = mpimg.imread("noaa-logo-rgb-2022.png")
 imagebox = OffsetImage(logo, zoom = 0.03)
-ab = AnnotationBbox(imagebox, (.22, .15), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ab = AnnotationBbox(imagebox, (.19, .12), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ax[1].add_artist(ab)
+
+nwslogo = mpimg.imread("NWS_logo.png")
+imagebox = OffsetImage(nwslogo, zoom = 0.05)
+ab = AnnotationBbox(imagebox, (.25, .12), frameon = False, xycoords='figure fraction', annotation_clip = False)
 ax[1].add_artist(ab)
 
 # creation date
 cdate = datetime.datetime.now()
-clab = f"creation date: {month[cdate.month]} {cdate.year}"
-ax[1].annotate(clab, (.22,.08),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
+clab = f"issued {cdate.day} {month[cdate.month]} {cdate.year}"
+ax[1].annotate(clab, (.22,.05),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
 
 #--------------------
 
@@ -539,4 +544,4 @@ with open(csvfile, 'w') as csvfile:
    csvwriter.writerows(rows)
 
 #------------------------------------------------------------------------------
-#plt.show()
+plt.show()

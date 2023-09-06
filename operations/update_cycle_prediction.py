@@ -14,6 +14,7 @@ from astropy.time import Time
 from scipy.optimize import curve_fit
 from scipy.io import netcdf_file
 from scipy.signal import savgol_filter
+from matplotlib.ticker import AutoMinorLocator
 
 sys.path.append("../utilities")
 import cycles_util as u
@@ -364,6 +365,10 @@ ax[1].xaxis.set_tick_params(labelsize=14)
 ax[0].yaxis.set_tick_params(labelsize=12)
 ax[1].yaxis.set_tick_params(labelsize=12)
 
+minor_locator = AutoMinorLocator(2)
+ax[0].xaxis.set_minor_locator(minor_locator)
+ax[1].xaxis.set_minor_locator(minor_locator)
+
 ymax = np.max(smax[fidx[0],2]) * 1.05
 
 ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
@@ -406,7 +411,7 @@ sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1],
 idx = np.where(pmin10 > 0.0)
 ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.2, label = "2019 NOAA/NASA/ISES Panel Prediction (range)")
 
-sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1], label = "Updated NOAA/SWPC prediction")
+sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1], label = "Experimental Prediction")
 
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3, label = "25% quartile")
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2, label = "50% quartile")
@@ -456,7 +461,7 @@ top1 = ax[1].get_position().get_points()[1][1]
 
 xx = .74
 yy = top0 - .06
-dy = .03
+dy = .026
 
 ax[0].annotate("International Sunspot Number", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='black', ha='center', weight = 'bold')
 yy -= dy
@@ -487,8 +492,6 @@ fig.suptitle("Experimental Solar Cycle 25 Prediction", weight="bold")
 
 #--------------------
 
-#plt.legend(loc="lower center", bbox_to_anchor=(0.64,-0.6), frameon = False, ncol = 2)
-
 hh, ss = ax[1].get_legend_handles_labels()
 
 leg1 = ax[1].legend(hh[0:3],ss[0:3],loc="lower center", bbox_to_anchor=(0.44,-0.514), frameon = False)
@@ -501,18 +504,19 @@ import matplotlib.image as mpimg
 
 logo = mpimg.imread("noaa-logo-rgb-2022.png")
 imagebox = OffsetImage(logo, zoom = 0.03)
-ab = AnnotationBbox(imagebox, (.17, .12), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ab = AnnotationBbox(imagebox, (.13, .12), frameon = False, xycoords='figure fraction', annotation_clip = False)
 ax[1].add_artist(ab)
 
 nwslogo = mpimg.imread("NWS_logo.png")
 imagebox = OffsetImage(nwslogo, zoom = 0.05)
-ab = AnnotationBbox(imagebox, (.23, .12), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ab = AnnotationBbox(imagebox, (.19, .12), frameon = False, xycoords='figure fraction', annotation_clip = False)
 ax[1].add_artist(ab)
 
 # creation date
 cdate = datetime.datetime.now()
 clab = f"issued {cdate.day} {month[cdate.month]} {cdate.year}"
-ax[1].annotate(clab, (.2,.05),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
+ax[1].annotate("Space Weather Prediction Testbed", (.16,.06),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
+ax[1].annotate(clab, (.16,.04),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
 
 #--------------------
 

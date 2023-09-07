@@ -519,7 +519,7 @@ ax[1].annotate(clab, (.16,.03),xycoords='figure fraction', ha='center', annotati
 
 #--------------------
 
-plt.savefig(outfig, dpi = 300)
+plt.savefig(outfig, dpi = 100)
 
 # save another copy for the archive
 if archive == True:
@@ -532,7 +532,7 @@ if archive == True:
     mymonth = f"{obstime[-1].month:02d}"
 
     fname = f"{dir}/{basename}_{obstime[-1].year}_{mymonth}.png"
-    plt.savefig(fname, dpi = 100)
+    plt.savefig(fname, dpi = 300)
 
 #--------------------
 # Write first 13 rows of the prediction json file to a csv file for SWFO monitoring 

@@ -357,7 +357,6 @@ month = {
 # plot SSN
 
 fig, ax = plt.subplots(2, 1, figsize = [12.8,6.5])
-#fig, ax = plt.subplots(2, 1, figsize = [12.8,9.0])
 
 fig.tight_layout(rect=(0.12,0.18,0.9,.96))
 ax[0].xaxis.set_tick_params(labelsize=14)
@@ -520,7 +519,7 @@ ax[1].annotate(clab, (.16,.03),xycoords='figure fraction', ha='center', annotati
 
 #--------------------
 
-plt.savefig(outfig, dpi = 100)
+plt.savefig(outfig, dpi = 300)
 
 # save another copy for the archive
 if archive == True:

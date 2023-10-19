@@ -46,7 +46,7 @@ else:
    title = 'Panel fit (blue) vs UH 2023 fit (red): -9 month avg'
 
 # choose quartile to plot (typically 1 for median or 3 for full range)
-qplot = 1
+qplot = 3
 
 #------------------------------------------------------------------------------
 # label with quartile choice
@@ -161,7 +161,7 @@ y1 = .16
 x2 = .57
 y2 = .59
 
-ax[0,0].annotate(f"{years[0]} years", (.39,.84), xycoords='figure fraction', weight = "bold")
+ax[0,0].annotate(f"{years[0]} years", (.42,.84), xycoords='figure fraction', weight = "bold")
 
 ax[0,1].annotate(f"{years[1]} years", (x2,y2), xycoords='figure fraction', weight = "bold")
 

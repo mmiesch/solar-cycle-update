@@ -171,6 +171,9 @@ if (deltak > 0) and (pmonth > (deltak + 23)):
     f2 = u.fpanel(tpred,afit2[0][0],afit2[0][1])
   f = 0.5*(f+f2)
 
+print(f"fit 1: {afit[0][0]} {afit[0][1]}")
+print(f"fit 2: {afit2[0][0]} {afit2[0][1]}")
+
 #------------------------------------------------------------------------------
 # read average residuals for this fit type
 

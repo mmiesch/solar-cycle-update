@@ -143,7 +143,8 @@ for iframe in np.arange(Nsam):
   a.plot(ytime2[i2[0]],-nresid2[i2[0],k,qplot],color='red')
   a.fill_between(x=ytime2[i2[0]], y1=-nresid2[i2[0],k,qplot], y2=presid2[i2[0],k,qplot],color='red', alpha = 0.3)
 
-  a.set_xlim([years[iframe] - 2, 13])
+  #a.set_xlim([years[iframe] - 2, 13])
+  a.set_xlim([2.5, 13])
 
   if iframe == 2 or iframe == 3:
      a.set_xlabel('years since cycle beginning')
@@ -160,7 +161,7 @@ y1 = .16
 x2 = .57
 y2 = .59
 
-ax[0,0].annotate(f"{years[0]} years", (x1,y2), xycoords='figure fraction', weight = "bold")
+ax[0,0].annotate(f"{years[0]} years", (.39,.84), xycoords='figure fraction', weight = "bold")
 
 ax[0,1].annotate(f"{years[1]} years", (x2,y2), xycoords='figure fraction', weight = "bold")
 

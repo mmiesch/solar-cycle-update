@@ -327,6 +327,11 @@ for i in np.arange(Ntransition):
   fs[i] = np.sum(x)/13.0
   f10s[i] = np.sum(y)/13.0
 
+sminj[:Ntransition] = sminj[:Ntransition] - fj[:Ntransition] + fs
+smaxj[:Ntransition] = smaxj[:Ntransition] - fj[:Ntransition] + fs
+smin10j[:Ntransition] = smin10j[:Ntransition] - f10j[:Ntransition] + f10s
+smax10j[:Ntransition] = smax10j[:Ntransition] - f10j[:Ntransition] + f10s
+
 fj[:Ntransition] = fs
 f10j[:Ntransition] = f10s
 

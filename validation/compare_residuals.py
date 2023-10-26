@@ -18,20 +18,20 @@ import cycles_util as u
 #------------------------------------------------------------------------------
 # choose comparison
 
-comp = 2
+comp = 7
 
 if comp == 2:
    lab1 = 'panel2'
    lab2 = 'panel2_d9'
    title = 'panel fit: no avg (blue) vs -9 month avg (red)'
 elif comp == 3:
-   lab1 = 'panel2_d9'
-   lab2 = 'panel2_d6'
-   title = 'panel fit: -9 (blue) vs -6 month (red) avg'
+   lab1 = 'panel2_d6'
+   lab2 = 'panel2_d9'
+   title = 'panel fit: -6 (blue) vs -9 month (red) avg'
 elif comp == 4:
-   lab1 = 'panel2_d9'
-   lab2 = 'panel2_d12'
-   title = 'panel fit: -9 (blue) vs -12 month (red) avg'
+   lab1 = 'panel2_d12'
+   lab2 = 'panel2_d9'
+   title = 'panel fit: -12 (blue) vs -9 month (red) avg'
 elif comp == 5:
    lab1 = 'uh'
    lab2 = 'uh_d9'
@@ -46,7 +46,7 @@ else:
    title = 'Panel fit (blue) vs UH 2023 fit (red): -9 month avg'
 
 # choose quartile to plot (typically 1 for median or 3 for full range)
-qplot = 3
+qplot = 1
 
 #------------------------------------------------------------------------------
 # label with quartile choice
@@ -113,8 +113,8 @@ p.append((1,1))
 
 #------------------------------------------------------------------------------
 # plot - choose four years for illustration
-#years = np.array([3.6, 5, 7, 9])
-years = np.array([3, 5, 7, 9])
+years = np.array([3.6, 5, 7, 9])
+#years = np.array([3, 5, 7, 9])
 klist = np.int64(12*years)
 Nsam = len(klist)
 
@@ -161,7 +161,7 @@ y1 = .16
 x2 = .57
 y2 = .59
 
-ax[0,0].annotate(f"{years[0]} years", (.42,.84), xycoords='figure fraction', weight = "bold")
+ax[0,0].annotate(f"{years[0]} years", (.41,.84), xycoords='figure fraction', weight = "bold")
 
 ax[0,1].annotate(f"{years[1]} years", (x2,y2), xycoords='figure fraction', weight = "bold")
 

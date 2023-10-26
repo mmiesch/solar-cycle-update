@@ -208,19 +208,27 @@ Nerr = len(rtime)
 Np = len(ptime)
 Nmax = np.min([Np,Nerr])
 
-rmin = np.zeros(Np)
-rmax = np.zeros(Np)
-
 smin = np.zeros((Np,4))
 smax = np.zeros((Np,4))
 
 for q in np.arange(4):
-  for i in np.arange(Nmax):
-    rmin[i] = f[i] - nresid[i,kidx,q]
-    rmax[i] = f[i] + presid[i,kidx,q]
+  srn = savgol_filter(nresid[:,kidx,q], 21, 3)
+  srp = savgol_filter(presid[:,kidx,q], 21, 3)
+  np.clip(srn, 0.0, None, out = srn)
+  np.clip(srp, 0.0, None, out = srp)
 
-  smin[:,q] = savgol_filter(rmin, 21, 3)
-  smax[:,q] = savgol_filter(rmax, 21, 3)
+  for i in np.arange(Nmax):
+    smin[i,q] = f[i] - srn[i]
+    smax[i,q] = f[i] + srp[i]
+
+  # if prediction extends beyond residual data, then duplicate residual data
+  for i in np.arange(Nmax,Np):
+    smin[i,q] = f[i] - srn[-1]
+    smax[i,q] = f[i] + srp[-1]
+
+# make sure SSN does not go negative
+np.clip(smin, 0.0, None, out = smin)
+np.clip(smax, 0.0, None, out = smax)
 
 #------------------------------------------------------------------------------
 # fit f10.7 directly
@@ -244,10 +252,17 @@ f10c = u.f10_from_ssn_2021(f)
 smax10 = u.f10_from_ssn_2021(smax)
 smin10 = u.f10_from_ssn_2021(smin)
 
+# minimum value
+sclip10 = np.min(smin10)
+
 # recenter on direct curve fit
 for i in np.arange(smax10.shape[1]):
    smax10[:,i] = smax10[:,i] - f10c + f10
    smin10[:,i] = smin10[:,i] - f10c + f10
+
+# make sure you haven't changed the min
+np.clip(smin10, sclip10, None, out = smin10)
+np.clip(smax10, sclip10, None, out = smax10)
 
 #------------------------------------------------------------------------------
 # find min index to plot prediction: fidx = forecast index
@@ -280,8 +295,8 @@ sminj = smin[fidx_json[0],1]
 smaxj = smax[fidx_json[0],1]
 
 f10j = f10[fidx_json[0]]
-smin10j = smin[fidx_json[0],1]
-smax10j = smin[fidx_json[0],1]
+smin10j = smin10[fidx_json[0],1]
+smax10j = smax10[fidx_json[0],1]
 
 Nj = len(fj)
 
@@ -318,6 +333,21 @@ f10j[:Ntransition] = f10s
 outdata = []
 for i in np.arange(Nj):
    if ptimej[i].year < 2033:
+
+     # sanity check
+     if sminj[i] > fj[i]:
+        print(f"ERROR in SSN min {i} {ptimej[i]} {sminj[i]} {fj[i]}")
+        sminj[i] = fj[i]
+     if smaxj[i] < fj[i]:
+        print(f"ERROR in SSN max {i} {ptimej[i]} {fj[i]} {smaxj[i]}")
+        smaxj[i] = fj[i]
+     if smin10j[i] > f10j[i]:
+        print(f"ERROR in F10.7 min {i} {ptimej[i]} {smin10j[i]} {f10j[i]}")
+        smin10j[i] = f10j[i]
+     if smax10j[i] < f10j[i]:
+        print(f"ERROR in F10.7 max {i} {ptimej[i]} {f10j[i]} {smax10j[i]}")
+        smax10j[j] = f10j[i]
+
      out = {
         "time-tag": f"{ptimej[i].year}-{ptimej[i].month:02d}",
         "predicted_ssn": fj[i],
@@ -557,4 +587,4 @@ with open(csvfile, 'w') as csvfile:
    csvwriter.writerows(rows)
 
 #------------------------------------------------------------------------------
-plt.show()
+#plt.show()

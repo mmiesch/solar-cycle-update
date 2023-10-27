@@ -377,6 +377,56 @@ def get_label(tm, tstart):
     return f"{t.year}-{t.month}-{t.day}"
 
 #------------------------------------------------------------------------------
+# estimate date range of max
+def get_date(t, g, gmin, gmax, tnow = None, label = None):
+
+  # First see where the mean prediction peaks
+  i = np.argmax(g)
+
+  tmean = t[i]
+
+  # now see where the min and max curves peak on either side 
+  # of the mean
+
+  iin = np.where(t <= tmean)
+  iip = np.where(t >= tmean)
+
+  tn = t[iin]
+  tp = t[iip]
+
+  tmin1 = tn[np.argmax(gmin[iin])]
+  tmin2 = tn[np.argmax(gmax[iin])]
+
+  tmax1 = tp[np.argmax(gmin[iip])]
+  tmax2 = tp[np.argmax(gmax[iip])]
+
+  tt = np.array([tmin1, tmax1, tmean, tmin2, tmax2])
+
+  if tnow is None:
+     tnow = datetime.date.today()
+
+  ttmin = np.min(tt)
+  if ttmin < tnow:
+     ttmin = tnow
+
+  # now find amplitude range for the future
+  idx = np.where(t > tnow)
+  amin = int(np.max(gmin[idx]))
+  amax = int(np.max(gmax[idx]))
+
+  msg = f"{f[i]} {month[ptime[i].month]} {ptime[i].year}"
+
+  if label is not None:
+     msg = label + ': ' + msg
+
+  print(80*'*')
+  print("Mean prediction:")
+  print(msg)
+  print(80*'*')
+
+  return [ttmin, np.max(tt), amin, amax]
+
+#------------------------------------------------------------------------------
 month = {
    1:"Jan",
    2:"Feb",
@@ -466,23 +516,13 @@ def checktime(t1, t2, t3):
 #------------------------------------------------------------------------------
 # compute amplitude and date ranges based on median values
 
-i = np.argmax(f)
-i1 = np.argmax(smin[:,1])
-i2 = np.argmax(smax[:,1])
-arange = [int(smin[i1,1]), int(smax[i2,1])]
-trange = checktime(ptime[i1], ptime[i2], ptime[i])
+t1, t2, a1, a2 = get_date(ptime, f, smin[:,1], smax[:,1], label = "SSN")
+trange = [t1, t2]
+arange = [a1, a2]
 
-i10 = np.argmax(f10)
-i1 = np.argmax(smin10[:,1])
-i2 = np.argmax(smax10[:,1])
-arange10 = [int(smin10[i1,1]), int(smax10[i2,1])]
-trange10 = checktime(ptime[i1], ptime[i2], ptime[i10])
-
-print(80*'*')
-print("Mean prediction:")
-print(f"SSN: {f[i]} {month[ptime[i].month]} {ptime[i].year}")
-print(f"F10.7: {f10[i10]} {month[ptime[i10].month]} {ptime[i10].year}")
-print(80*'*')
+t1, t2, a1, a2 = get_date(ptime, f10, smin10[:,1], smax10[:,1], label = "F10.7")
+trange10 = [t1, t2]
+arange10 = [a1, a2]
 
 #------------------------------------------------------------------------------
 # labels
@@ -592,4 +632,4 @@ with open(csvfile, 'w') as csvfile:
    csvwriter.writerows(rows)
 
 #------------------------------------------------------------------------------
-#plt.show()
+plt.show()

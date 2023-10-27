@@ -71,15 +71,28 @@ ptime = []
 pssn = []
 pf10 = []
 
+pssn_low = []
+pssn_high = []
+pf10_low = []
+pf10_high = []
+
 for d in data:
     t = np.array(d['time-tag'].split('-'), dtype='int')
     ptime.append(datetime.date(t[0], t[1], 15))
     pssn.append(d['predicted_ssn'])
     pf10.append(d['predicted_f10.7'])
+    pssn_low.append(d['low_ssn'])
+    pssn_high.append(d['high_ssn'])
+    pf10_low.append(d['low_f10.7'])
+    pf10_high.append(d['high_f10.7'])
 
 ptime = np.array(ptime)
 pssn = np.array(pssn)
 pf10 = np.array(pf10)
+pssn_low = np.array(pssn_low)
+pssn_high = np.array(pssn_high)
+pf10_low = np.array(pf10_low)
+pf10_high = np.array(pf10_high)
 
 #------------------------------------------------------------------------------
 # copy last smoothed point into prediction for plotting continuity
@@ -98,8 +111,8 @@ ax[1].xaxis.set_tick_params(labelsize=14)
 ax[0].yaxis.set_tick_params(labelsize=12)
 ax[1].yaxis.set_tick_params(labelsize=12)
 
-#tmax = datetime.date(2032,1,1)
-tmax = datetime.date(2028,1,1)
+tmax = datetime.date(2033,1,1)
+#tmax = datetime.date(2028,1,1)
 ymax = np.max([np.max(ssn),np.max(pssn)]) * 1.05
 
 print(np.max(pssn))
@@ -114,6 +127,7 @@ ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
 
 sns.lineplot(x=obstime, y=ssn_sm_nz, color='blue', linewidth = 4, ax = ax[0])
 
+ax[0].fill_between(x = ptime[1:], y1 = pssn_low, y2 = pssn_high, color='darkmagenta', alpha = 0.2)
 sns.lineplot(x=ptime,y=pssn, color='darkmagenta', ax = ax[0])
 
 
@@ -130,6 +144,7 @@ ax[1].set_ylim([50,ymax10])
 
 sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1])
 
+ax[1].fill_between(x = ptime[1:], y1 = pf10_low, y2 = pf10_high, color='darkmagenta', alpha = 0.2)
 sns.lineplot(x=ptime,y=pf10, color='darkmagenta', ax = ax[1])
 
 #------------------------------------------------------------------------------

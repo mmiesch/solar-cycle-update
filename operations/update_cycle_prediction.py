@@ -45,6 +45,83 @@ outfile = outdir + "/predicted-solar-cycle.json"
 tstart = 2019.96
 
 #------------------------------------------------------------------------------
+def get_label(tm, tstart):
+    # given input in decimal year, write as a date
+    tdec = tstart + tm/12.
+    t = Time(tdec,format='decimalyear').datetime
+    return f"{t.year}-{t.month}-{t.day}"
+
+#------------------------------------------------------------------------------
+# estimate date range of max
+def get_date(t, g, gmin, gmax, tnow = None, label = None):
+
+  # First see where the mean prediction peaks
+  i = np.argmax(g)
+
+  tmean = t[i]
+
+  # now see where the min and max curves peak on either side 
+  # of the mean
+
+  iin = np.where(t <= tmean)
+  iip = np.where(t >= tmean)
+
+  tn = t[iin]
+  tp = t[iip]
+
+  tmin1 = tn[np.argmax(gmin[iin])]
+  tmin2 = tn[np.argmax(gmax[iin])]
+
+  tmax1 = tp[np.argmax(gmin[iip])]
+  tmax2 = tp[np.argmax(gmax[iip])]
+
+  tt = np.array([tmin1, tmax1, tmean, tmin2, tmax2])
+
+  if tnow is None:
+     tnow = datetime.date.today()
+
+  ttmin = np.min(tt)
+  if ttmin < tnow:
+     ttmin = tnow
+
+  # now find amplitude range for the future
+  idx = np.where(t > tnow)
+  amin = int(np.max(gmin[idx]))
+  amax = int(np.max(gmax[idx]))
+
+  msg = f"{f[i]} {month[ptime[i].month]} {ptime[i].year}"
+
+  if label is not None:
+     msg = label + ': ' + msg
+
+  print(80*'*')
+  print("Mean prediction:")
+  print(msg)
+  print(80*'*')
+
+  return [ttmin, np.max(tt), amin, amax]
+
+#------------------------------------------------------------------------------
+# determine whether or not you are in the declining phase
+
+def declining_phase(tp, p, pmin, pmax, td, data, tnow = None):
+  # input parameters
+  # tp = time axis for p, pmin, and pmax
+  # p = mean prediction
+  # pmin = lower median quartile for p
+  # pmax = upper median quartile for p
+  # td = time axis for data
+  # data = smoothed observations
+
+  print(f"MSM DEC {tp.shape} {p.shape} {pmin.shape} {pmax.shape}")
+  print(f"MSM DECOBS {data.shape} {td.shape}")
+
+  if tnow is None:
+     tnow = datetime.date.today()
+
+  return False
+
+#------------------------------------------------------------------------------
 # read SSN panel prediction range
 rfile = open(ssnfile)
 
@@ -112,6 +189,7 @@ for d in obsdata:
         fobs10.append(d['f10.7'])
         fobs10_sm.append(d['smoothed_f10.7'])
 
+obstime = np.array(obstime)
 ssn = np.array(ssn)
 ssn_sm = np.array(ssn_sm)
 fobs10 = np.array(fobs10)
@@ -370,63 +448,6 @@ with open(outfile, "w") as file:
    file.write(jout)
 
 #------------------------------------------------------------------------------
-def get_label(tm, tstart):
-    # given input in decimal year, write as a date
-    tdec = tstart + tm/12.
-    t = Time(tdec,format='decimalyear').datetime
-    return f"{t.year}-{t.month}-{t.day}"
-
-#------------------------------------------------------------------------------
-# estimate date range of max
-def get_date(t, g, gmin, gmax, tnow = None, label = None):
-
-  # First see where the mean prediction peaks
-  i = np.argmax(g)
-
-  tmean = t[i]
-
-  # now see where the min and max curves peak on either side 
-  # of the mean
-
-  iin = np.where(t <= tmean)
-  iip = np.where(t >= tmean)
-
-  tn = t[iin]
-  tp = t[iip]
-
-  tmin1 = tn[np.argmax(gmin[iin])]
-  tmin2 = tn[np.argmax(gmax[iin])]
-
-  tmax1 = tp[np.argmax(gmin[iip])]
-  tmax2 = tp[np.argmax(gmax[iip])]
-
-  tt = np.array([tmin1, tmax1, tmean, tmin2, tmax2])
-
-  if tnow is None:
-     tnow = datetime.date.today()
-
-  ttmin = np.min(tt)
-  if ttmin < tnow:
-     ttmin = tnow
-
-  # now find amplitude range for the future
-  idx = np.where(t > tnow)
-  amin = int(np.max(gmin[idx]))
-  amax = int(np.max(gmax[idx]))
-
-  msg = f"{f[i]} {month[ptime[i].month]} {ptime[i].year}"
-
-  if label is not None:
-     msg = label + ': ' + msg
-
-  print(80*'*')
-  print("Mean prediction:")
-  print(msg)
-  print(80*'*')
-
-  return [ttmin, np.max(tt), amin, amax]
-
-#------------------------------------------------------------------------------
 month = {
    1:"Jan",
    2:"Feb",
@@ -441,6 +462,13 @@ month = {
    11:"Nov",
    12:"Dec"
 }
+#------------------------------------------------------------------------------
+# determine whether or not you have already passed the peak
+
+declining_ssn = declining_phase(ptime, f, smin[:,1], smax[:,1], obstime, ssn_sm)
+
+#declining_ssn = declining_phase(ptime, f10, smin10[:,1], smax10[:,1], obstime, fobs10_sm)
+
 #------------------------------------------------------------------------------
 # plot SSN
 
@@ -505,15 +533,6 @@ ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1],
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],2], y2=smax10[fidx[0],2], color='darkmagenta', alpha=0.1, label = "75% quartile")
 
 #------------------------------------------------------------------------------
-def checktime(t1, t2, t3):
-
-  rng = []
-  rng.append(np.min((t1, t2, t3)))
-  rng.append(np.max((t1, t2, t3)))
-
-  return rng
-
-#------------------------------------------------------------------------------
 # compute amplitude and date ranges based on median values
 
 t1, t2, a1, a2 = get_date(ptime, f, smin[:,1], smax[:,1], label = "SSN")
@@ -523,6 +542,7 @@ arange = [a1, a2]
 t1, t2, a1, a2 = get_date(ptime, f10, smin10[:,1], smax10[:,1], label = "F10.7")
 trange10 = [t1, t2]
 arange10 = [a1, a2]
+
 
 #------------------------------------------------------------------------------
 # labels

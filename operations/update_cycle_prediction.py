@@ -104,22 +104,41 @@ def get_date(t, g, gmin, gmax, tnow = None, label = None):
 #------------------------------------------------------------------------------
 # determine whether or not you are in the declining phase
 
-def declining_phase(tp, p, pmin, pmax, td, data, tnow = None):
+def declining_phase(tp, p, pmin, pmax, data, tnow = None):
   # input parameters
   # tp = time axis for p, pmin, and pmax
   # p = mean prediction
   # pmin = lower median quartile for p
   # pmax = upper median quartile for p
-  # td = time axis for data
   # data = smoothed observations
-
-  print(f"MSM DEC {tp.shape} {p.shape} {pmin.shape} {pmax.shape}")
-  print(f"MSM DECOBS {data.shape} {td.shape}")
 
   if tnow is None:
      tnow = datetime.date.today()
 
-  return False
+  pif = np.where(tp > tnow)
+
+  print(f"p {p[pif[0][0]]} {np.max(p[pif])}")
+  print(f"pmin {pmin[pif[0][0]]} {np.max(pmin[pif])}")
+  print(f"pmax {pmax[pif[0][0]]} {np.max(pmax[pif])}")
+
+  if np.max(p[pif]) < p[pif[0][0]] and \
+     np.max(pmin[pif]) < pmin[pif[0][0]] and \
+     np.max(pmax[pif]) < pmax[pif[0][0]]:
+    decp = True
+  else:
+    decp = False
+
+  # in addition to the prediction declining, the smoothed
+  # observations should also be declining
+
+  if np.max(data) > data[-1]:
+     deco = True
+  else:
+     deco = False
+
+  dec = decp and deco
+
+  return dec
 
 #------------------------------------------------------------------------------
 # read SSN panel prediction range
@@ -465,9 +484,12 @@ month = {
 #------------------------------------------------------------------------------
 # determine whether or not you have already passed the peak
 
-declining_ssn = declining_phase(ptime, f, smin[:,1], smax[:,1], obstime, ssn_sm)
+declining_ssn = declining_phase(ptime, f, smin[:,1], smax[:,1], ssn_sm)
+declining_f10 = declining_phase(ptime, f10, smin10[:,1], smax10[:,1], fobs10_sm)
 
-#declining_ssn = declining_phase(ptime, f10, smin10[:,1], smax10[:,1], obstime, fobs10_sm)
+# you can manually override the automated determination here
+#declining_ssn = True
+#declining_f10 = True
 
 #------------------------------------------------------------------------------
 # plot SSN
@@ -499,7 +521,6 @@ ax[0].set_ylim([0,ymax])
 
 sns.lineplot(x=obstime, y=ssn_sm_nz, color='blue', linewidth = 4, ax = ax[0])
 
-#plt.fill_between(x=time[fidx], y1=smin[fidx[0],3], y2=smax[fidx[0],3], color='darkmagenta', alpha=0.05)
 ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],0], y2=smax[fidx[0],0], color='darkmagenta', alpha=0.3)
 ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],1], y2=smax[fidx[0],1], color='darkmagenta', alpha=0.2)
 ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1)
@@ -547,11 +568,17 @@ arange10 = [a1, a2]
 #------------------------------------------------------------------------------
 # labels
 
-lab1 = f"Predicted Max {arange[0]} - {arange[1]}"
-if trange[0].year == trange[1].year:
-  lab2 = f"{month[trange[0].month]} - {month[trange[1].month]} {trange[1].year}"
+if declining_ssn:
+   idx = np.argmax(ssn_sm)
+   lab1 = f"Max {ssn[idx]}"
+   lab2 = f"{month[obstime[idx].month]} {obstime[idx].year}"
+
 else:
-  lab2 = f"{month[trange[0].month]} {trange[0].year} - {month[trange[1].month]} {trange[1].year}"
+  lab1 = f"Predicted Max {arange[0]} - {arange[1]}"
+  if trange[0].year == trange[1].year:
+    lab2 = f"{month[trange[0].month]} - {month[trange[1].month]} {trange[1].year}"
+  else:
+    lab2 = f"{month[trange[0].month]} {trange[0].year} - {month[trange[1].month]} {trange[1].year}"
 
 top0 = ax[0].get_position().get_points()[1][1]
 top1 = ax[1].get_position().get_points()[1][1]
@@ -568,11 +595,16 @@ ax[0].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='d
 
 yy = top1 - .06
 
-lab1 = f"Predicted Max {arange10[0]} - {arange10[1]}"
-if trange10[0].year == trange10[1].year:
-  lab2 = f"{month[trange10[0].month]} - {month[trange10[1].month]} {trange10[1].year}"
+if declining_f10:
+  idx = np.argmax(fobs10_sm)
+  lab1 = f"Max {fobs10[idx]}"
+  lab2 = f"{month[obstime[idx].month]} {obstime[idx].year}"
 else:
-  lab2 = f"{month[trange10[0].month]} {trange10[0].year} - {month[trange10[1].month]} {trange10[1].year}"
+  lab1 = f"Predicted Max {arange10[0]} - {arange10[1]}"
+  if trange10[0].year == trange10[1].year:
+    lab2 = f"{month[trange10[0].month]} - {month[trange10[1].month]} {trange10[1].year}"
+  else:
+    lab2 = f"{month[trange10[0].month]} {trange10[0].year} - {month[trange10[1].month]} {trange10[1].year}"
 
 ax[1].annotate("F10.7cm Radio Flux", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='black', ha='center', weight = 'bold')
 yy -= dy

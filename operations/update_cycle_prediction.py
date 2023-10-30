@@ -466,6 +466,21 @@ jout = json.dumps(outdata)
 with open(outfile, "w") as file:
    file.write(jout)
 
+# save another copy for the archive
+if archive == True:
+
+    dir = outdir + '/archive'
+    os.makedirs(dir, exist_ok = True)
+
+    basename = os.path.basename(outfile).split('.json')[0]
+
+    mymonth = f"{obstime[-1].month:02d}"
+
+    fname = f"{dir}/{basename}_{obstime[-1].year}_{mymonth}.json"
+    with open(fname, "w") as file:
+       file.write(jout)
+
+
 #------------------------------------------------------------------------------
 month = {
    1:"Jan",

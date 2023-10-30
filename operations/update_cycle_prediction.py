@@ -45,6 +45,102 @@ outfile = outdir + "/predicted-solar-cycle.json"
 tstart = 2019.96
 
 #------------------------------------------------------------------------------
+def get_label(tm, tstart):
+    # given input in decimal year, write as a date
+    tdec = tstart + tm/12.
+    t = Time(tdec,format='decimalyear').datetime
+    return f"{t.year}-{t.month}-{t.day}"
+
+#------------------------------------------------------------------------------
+# estimate date range of max
+def get_date(t, g, gmin, gmax, tnow = None, label = None):
+
+  # First see where the mean prediction peaks
+  i = np.argmax(g)
+
+  tmean = t[i]
+
+  # now see where the min and max curves peak on either side 
+  # of the mean
+
+  iin = np.where(t <= tmean)
+  iip = np.where(t >= tmean)
+
+  tn = t[iin]
+  tp = t[iip]
+
+  tmin1 = tn[np.argmax(gmin[iin])]
+  tmin2 = tn[np.argmax(gmax[iin])]
+
+  tmax1 = tp[np.argmax(gmin[iip])]
+  tmax2 = tp[np.argmax(gmax[iip])]
+
+  tt = np.array([tmin1, tmax1, tmean, tmin2, tmax2])
+
+  if tnow is None:
+     tnow = datetime.date.today()
+
+  ttmin = np.min(tt)
+  if ttmin < tnow:
+     ttmin = tnow
+
+  # now find amplitude range for the future
+  idx = np.where(t > tnow)
+  amin = int(np.max(gmin[idx]))
+  amax = int(np.max(gmax[idx]))
+
+  msg = f"{f[i]} {month[ptime[i].month]} {ptime[i].year}"
+
+  if label is not None:
+     msg = label + ': ' + msg
+
+  print(80*'*')
+  print("Mean prediction:")
+  print(msg)
+  print(80*'*')
+
+  return [ttmin, np.max(tt), amin, amax]
+
+#------------------------------------------------------------------------------
+# determine whether or not you are in the declining phase
+
+def declining_phase(tp, p, pmin, pmax, data, tnow = None):
+  # input parameters
+  # tp = time axis for p, pmin, and pmax
+  # p = mean prediction
+  # pmin = lower median quartile for p
+  # pmax = upper median quartile for p
+  # data = smoothed observations
+
+  if tnow is None:
+     tnow = datetime.date.today()
+
+  pif = np.where(tp > tnow)
+
+  print(f"p {p[pif[0][0]]} {np.max(p[pif])}")
+  print(f"pmin {pmin[pif[0][0]]} {np.max(pmin[pif])}")
+  print(f"pmax {pmax[pif[0][0]]} {np.max(pmax[pif])}")
+
+  if np.max(p[pif]) < p[pif[0][0]] and \
+     np.max(pmin[pif]) < pmin[pif[0][0]] and \
+     np.max(pmax[pif]) < pmax[pif[0][0]]:
+    decp = True
+  else:
+    decp = False
+
+  # in addition to the prediction declining, the smoothed
+  # observations should also be declining
+
+  if np.max(data) > data[-1]:
+     deco = True
+  else:
+     deco = False
+
+  dec = decp and deco
+
+  return dec
+
+#------------------------------------------------------------------------------
 # read SSN panel prediction range
 rfile = open(ssnfile)
 
@@ -112,6 +208,7 @@ for d in obsdata:
         fobs10.append(d['f10.7'])
         fobs10_sm.append(d['smoothed_f10.7'])
 
+obstime = np.array(obstime)
 ssn = np.array(ssn)
 ssn_sm = np.array(ssn_sm)
 fobs10 = np.array(fobs10)
@@ -171,6 +268,9 @@ if (deltak > 0) and (pmonth > (deltak + 23)):
     f2 = u.fpanel(tpred,afit2[0][0],afit2[0][1])
   f = 0.5*(f+f2)
 
+print(f"fit 1: {afit[0][0]} {afit[0][1]}")
+print(f"fit 2: {afit2[0][0]} {afit2[0][1]}")
+
 #------------------------------------------------------------------------------
 # read average residuals for this fit type
 
@@ -205,19 +305,27 @@ Nerr = len(rtime)
 Np = len(ptime)
 Nmax = np.min([Np,Nerr])
 
-rmin = np.zeros(Np)
-rmax = np.zeros(Np)
-
 smin = np.zeros((Np,4))
 smax = np.zeros((Np,4))
 
 for q in np.arange(4):
-  for i in np.arange(Nmax):
-    rmin[i] = f[i] - nresid[i,kidx,q]
-    rmax[i] = f[i] + presid[i,kidx,q]
+  srn = savgol_filter(nresid[:,kidx,q], 21, 3)
+  srp = savgol_filter(presid[:,kidx,q], 21, 3)
+  np.clip(srn, 0.0, None, out = srn)
+  np.clip(srp, 0.0, None, out = srp)
 
-  smin[:,q] = savgol_filter(rmin, 21, 3)
-  smax[:,q] = savgol_filter(rmax, 21, 3)
+  for i in np.arange(Nmax):
+    smin[i,q] = f[i] - srn[i]
+    smax[i,q] = f[i] + srp[i]
+
+  # if prediction extends beyond residual data, then duplicate residual data
+  for i in np.arange(Nmax,Np):
+    smin[i,q] = f[i] - srn[-1]
+    smax[i,q] = f[i] + srp[-1]
+
+# make sure SSN does not go negative
+np.clip(smin, 0.0, None, out = smin)
+np.clip(smax, 0.0, None, out = smax)
 
 #------------------------------------------------------------------------------
 # fit f10.7 directly
@@ -241,10 +349,17 @@ f10c = u.f10_from_ssn_2021(f)
 smax10 = u.f10_from_ssn_2021(smax)
 smin10 = u.f10_from_ssn_2021(smin)
 
+# minimum value
+sclip10 = np.min(smin10)
+
 # recenter on direct curve fit
 for i in np.arange(smax10.shape[1]):
    smax10[:,i] = smax10[:,i] - f10c + f10
    smin10[:,i] = smin10[:,i] - f10c + f10
+
+# make sure you haven't changed the min
+np.clip(smin10, sclip10, None, out = smin10)
+np.clip(smax10, sclip10, None, out = smax10)
 
 #------------------------------------------------------------------------------
 # find min index to plot prediction: fidx = forecast index
@@ -277,8 +392,8 @@ sminj = smin[fidx_json[0],1]
 smaxj = smax[fidx_json[0],1]
 
 f10j = f10[fidx_json[0]]
-smin10j = smin[fidx_json[0],1]
-smax10j = smin[fidx_json[0],1]
+smin10j = smin10[fidx_json[0],1]
+smax10j = smax10[fidx_json[0],1]
 
 Nj = len(fj)
 
@@ -309,12 +424,32 @@ for i in np.arange(Ntransition):
   fs[i] = np.sum(x)/13.0
   f10s[i] = np.sum(y)/13.0
 
+sminj[:Ntransition] = sminj[:Ntransition] - fj[:Ntransition] + fs
+smaxj[:Ntransition] = smaxj[:Ntransition] - fj[:Ntransition] + fs
+smin10j[:Ntransition] = smin10j[:Ntransition] - f10j[:Ntransition] + f10s
+smax10j[:Ntransition] = smax10j[:Ntransition] - f10j[:Ntransition] + f10s
+
 fj[:Ntransition] = fs
 f10j[:Ntransition] = f10s
 
 outdata = []
 for i in np.arange(Nj):
    if ptimej[i].year < 2033:
+
+     # sanity check
+     if sminj[i] > fj[i]:
+        print(f"ERROR in SSN min {i} {ptimej[i]} {sminj[i]} {fj[i]}")
+        sminj[i] = fj[i]
+     if smaxj[i] < fj[i]:
+        print(f"ERROR in SSN max {i} {ptimej[i]} {fj[i]} {smaxj[i]}")
+        smaxj[i] = fj[i]
+     if smin10j[i] > f10j[i]:
+        print(f"ERROR in F10.7 min {i} {ptimej[i]} {smin10j[i]} {f10j[i]}")
+        smin10j[i] = f10j[i]
+     if smax10j[i] < f10j[i]:
+        print(f"ERROR in F10.7 max {i} {ptimej[i]} {f10j[i]} {smax10j[i]}")
+        smax10j[j] = f10j[i]
+
      out = {
         "time-tag": f"{ptimej[i].year}-{ptimej[i].month:02d}",
         "predicted_ssn": fj[i],
@@ -331,12 +466,20 @@ jout = json.dumps(outdata)
 with open(outfile, "w") as file:
    file.write(jout)
 
-#------------------------------------------------------------------------------
-def get_label(tm, tstart):
-    # given input in decimal year, write as a date
-    tdec = tstart + tm/12.
-    t = Time(tdec,format='decimalyear').datetime
-    return f"{t.year}-{t.month}-{t.day}"
+# save another copy for the archive
+if archive == True:
+
+    dir = outdir + '/archive'
+    os.makedirs(dir, exist_ok = True)
+
+    basename = os.path.basename(outfile).split('.json')[0]
+
+    mymonth = f"{obstime[-1].month:02d}"
+
+    fname = f"{dir}/{basename}_{obstime[-1].year}_{mymonth}.json"
+    with open(fname, "w") as file:
+       file.write(jout)
+
 
 #------------------------------------------------------------------------------
 month = {
@@ -353,6 +496,16 @@ month = {
    11:"Nov",
    12:"Dec"
 }
+#------------------------------------------------------------------------------
+# determine whether or not you have already passed the peak
+
+declining_ssn = declining_phase(ptime, f, smin[:,1], smax[:,1], ssn_sm)
+declining_f10 = declining_phase(ptime, f10, smin10[:,1], smax10[:,1], fobs10_sm)
+
+# you can manually override the automated determination here
+#declining_ssn = True
+#declining_f10 = True
+
 #------------------------------------------------------------------------------
 # plot SSN
 
@@ -383,7 +536,6 @@ ax[0].set_ylim([0,ymax])
 
 sns.lineplot(x=obstime, y=ssn_sm_nz, color='blue', linewidth = 4, ax = ax[0])
 
-#plt.fill_between(x=time[fidx], y1=smin[fidx[0],3], y2=smax[fidx[0],3], color='darkmagenta', alpha=0.05)
 ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],0], y2=smax[fidx[0],0], color='darkmagenta', alpha=0.3)
 ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],1], y2=smax[fidx[0],1], color='darkmagenta', alpha=0.2)
 ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1)
@@ -417,43 +569,31 @@ ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1],
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],2], y2=smax10[fidx[0],2], color='darkmagenta', alpha=0.1, label = "75% quartile")
 
 #------------------------------------------------------------------------------
-def checktime(t1, t2, t3):
-
-  rng = []
-  rng.append(np.min((t1, t2, t3)))
-  rng.append(np.max((t1, t2, t3)))
-
-  return rng
-
-#------------------------------------------------------------------------------
 # compute amplitude and date ranges based on median values
 
-i = np.argmax(f)
-i1 = np.argmax(smin[:,1])
-i2 = np.argmax(smax[:,1])
-arange = [int(smin[i1,1]), int(smax[i2,1])]
-trange = checktime(ptime[i1], ptime[i2], ptime[i])
+t1, t2, a1, a2 = get_date(ptime, f, smin[:,1], smax[:,1], label = "SSN")
+trange = [t1, t2]
+arange = [a1, a2]
 
-i10 = np.argmax(f10)
-i1 = np.argmax(smin10[:,1])
-i2 = np.argmax(smax10[:,1])
-arange10 = [int(smin10[i1,1]), int(smax10[i2,1])]
-trange10 = checktime(ptime[i1], ptime[i2], ptime[i10])
+t1, t2, a1, a2 = get_date(ptime, f10, smin10[:,1], smax10[:,1], label = "F10.7")
+trange10 = [t1, t2]
+arange10 = [a1, a2]
 
-print(80*'*')
-print("Mean prediction:")
-print(f"SSN: {f[i]} {month[ptime[i].month]} {ptime[i].year}")
-print(f"F10.7: {f10[i10]} {month[ptime[i10].month]} {ptime[i10].year}")
-print(80*'*')
 
 #------------------------------------------------------------------------------
 # labels
 
-lab1 = f"Predicted Max {arange[0]} - {arange[1]}"
-if trange[0].year == trange[1].year:
-  lab2 = f"{month[trange[0].month]} - {month[trange[1].month]} {trange[1].year}"
+if declining_ssn:
+   idx = np.argmax(ssn_sm)
+   lab1 = f"Max {ssn[idx]}"
+   lab2 = f"{month[obstime[idx].month]} {obstime[idx].year}"
+
 else:
-  lab2 = f"{month[trange[0].month]} {trange[0].year} - {month[trange[1].month]} {trange[1].year}"
+  lab1 = f"Predicted Max {arange[0]} - {arange[1]}"
+  if trange[0].year == trange[1].year:
+    lab2 = f"{month[trange[0].month]} - {month[trange[1].month]} {trange[1].year}"
+  else:
+    lab2 = f"{month[trange[0].month]} {trange[0].year} - {month[trange[1].month]} {trange[1].year}"
 
 top0 = ax[0].get_position().get_points()[1][1]
 top1 = ax[1].get_position().get_points()[1][1]
@@ -470,11 +610,16 @@ ax[0].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='d
 
 yy = top1 - .06
 
-lab1 = f"Predicted Max {arange10[0]} - {arange10[1]}"
-if trange10[0].year == trange10[1].year:
-  lab2 = f"{month[trange10[0].month]} - {month[trange10[1].month]} {trange10[1].year}"
+if declining_f10:
+  idx = np.argmax(fobs10_sm)
+  lab1 = f"Max {fobs10[idx]}"
+  lab2 = f"{month[obstime[idx].month]} {obstime[idx].year}"
 else:
-  lab2 = f"{month[trange10[0].month]} {trange10[0].year} - {month[trange10[1].month]} {trange10[1].year}"
+  lab1 = f"Predicted Max {arange10[0]} - {arange10[1]}"
+  if trange10[0].year == trange10[1].year:
+    lab2 = f"{month[trange10[0].month]} - {month[trange10[1].month]} {trange10[1].year}"
+  else:
+    lab2 = f"{month[trange10[0].month]} {trange10[0].year} - {month[trange10[1].month]} {trange10[1].year}"
 
 ax[1].annotate("F10.7cm Radio Flux", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='black', ha='center', weight = 'bold')
 yy -= dy

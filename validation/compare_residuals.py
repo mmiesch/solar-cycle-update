@@ -18,20 +18,20 @@ import cycles_util as u
 #------------------------------------------------------------------------------
 # choose comparison
 
-comp = 2
+comp = 7
 
 if comp == 2:
    lab1 = 'panel2'
    lab2 = 'panel2_d9'
    title = 'panel fit: no avg (blue) vs -9 month avg (red)'
 elif comp == 3:
-   lab1 = 'panel2_d9'
-   lab2 = 'panel2_d6'
-   title = 'panel fit: -9 (blue) vs -6 month (red) avg'
+   lab1 = 'panel2_d6'
+   lab2 = 'panel2_d9'
+   title = 'panel fit: -6 (blue) vs -9 month (red) avg'
 elif comp == 4:
-   lab1 = 'panel2_d9'
-   lab2 = 'panel2_d12'
-   title = 'panel fit: -9 (blue) vs -12 month (red) avg'
+   lab1 = 'panel2_d12'
+   lab2 = 'panel2_d9'
+   title = 'panel fit: -12 (blue) vs -9 month (red) avg'
 elif comp == 5:
    lab1 = 'uh'
    lab2 = 'uh_d9'
@@ -114,6 +114,7 @@ p.append((1,1))
 #------------------------------------------------------------------------------
 # plot - choose four years for illustration
 years = np.array([3.6, 5, 7, 9])
+#years = np.array([3, 5, 7, 9])
 klist = np.int64(12*years)
 Nsam = len(klist)
 
@@ -127,17 +128,23 @@ ytime2 = rtime2 / 12.0
 
 for iframe in np.arange(Nsam):
 
+  i1 = np.where(ytime1 >= years[iframe])
+  i2 = np.where(ytime2 >= years[iframe])
+
   a = ax[p[iframe][0],p[iframe][1]]
 
   k = klist[iframe] - kmon1[0]
-  a.plot(ytime1,presid1[:,k,qplot],color='blue')
-  a.plot(ytime1,-nresid1[:,k,qplot],color='blue')
-  a.fill_between(x=ytime1, y1=-nresid1[:,k,qplot], y2=presid1[:,k,qplot],color='blue', alpha = 0.3)
+  a.plot(ytime1[i1[0]],presid1[i1[0],k,qplot],color='blue')
+  a.plot(ytime1[i1[0]],-nresid1[i1[0],k,qplot],color='blue')
+  a.fill_between(x=ytime1[i1[0]], y1=-nresid1[i1[0],k,qplot], y2=presid1[i1[0],k,qplot],color='blue', alpha = 0.3)
 
   k = klist[iframe] - kmon1[0]
-  a.plot(ytime2,presid2[:,k,qplot],color='red')
-  a.plot(ytime2,-nresid2[:,k,qplot],color='red')
-  a.fill_between(x=ytime2, y1=-nresid2[:,k,qplot], y2=presid2[:,k,qplot],color='red', alpha = 0.3)
+  a.plot(ytime2[i2[0]],presid2[i2[0],k,qplot],color='red')
+  a.plot(ytime2[i2[0]],-nresid2[i2[0],k,qplot],color='red')
+  a.fill_between(x=ytime2[i2[0]], y1=-nresid2[i2[0],k,qplot], y2=presid2[i2[0],k,qplot],color='red', alpha = 0.3)
+
+  #a.set_xlim([years[iframe] - 2, 13])
+  a.set_xlim([2.5, 13])
 
   if iframe == 2 or iframe == 3:
      a.set_xlabel('years since cycle beginning')
@@ -154,7 +161,7 @@ y1 = .16
 x2 = .57
 y2 = .59
 
-ax[0,0].annotate(f"{years[0]} years", (x1,y2), xycoords='figure fraction', weight = "bold")
+ax[0,0].annotate(f"{years[0]} years", (.41,.84), xycoords='figure fraction', weight = "bold")
 
 ax[0,1].annotate(f"{years[1]} years", (x2,y2), xycoords='figure fraction', weight = "bold")
 

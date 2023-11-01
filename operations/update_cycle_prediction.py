@@ -637,9 +637,9 @@ fig.suptitle("Experimental Solar Cycle 25 Prediction", weight="bold")
 
 hh, ss = ax[1].get_legend_handles_labels()
 
-leg1 = ax[1].legend(hh[0:3],ss[0:3],loc="lower center", bbox_to_anchor=(0.46,-0.76), frameon = False)
+leg1 = ax[1].legend(hh[0:3],ss[0:3],loc="lower center", bbox_to_anchor=(0.47,-0.76), frameon = False)
 
-plt.legend(hh[3:],ss[3:],loc="lower center", bbox_to_anchor=(0.88,-0.76), frameon = False)
+plt.legend(hh[3:],ss[3:],loc="lower center", bbox_to_anchor=(0.89,-0.76), frameon = False)
 ax[1].add_artist(leg1)
 
 from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
@@ -647,19 +647,19 @@ import matplotlib.image as mpimg
 
 logo = mpimg.imread("noaa-logo-rgb-2022.png")
 imagebox = OffsetImage(logo, zoom = 0.024)
-ab = AnnotationBbox(imagebox, (.175, .13), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ab = AnnotationBbox(imagebox, (.185, .13), frameon = False, xycoords='figure fraction', annotation_clip = False)
 ax[1].add_artist(ab)
 
 nwslogo = mpimg.imread("NWS_logo.png")
 imagebox = OffsetImage(nwslogo, zoom = 0.042)
-ab = AnnotationBbox(imagebox, (.225, .13), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ab = AnnotationBbox(imagebox, (.235, .13), frameon = False, xycoords='figure fraction', annotation_clip = False)
 ax[1].add_artist(ab)
 
 # creation date
 cdate = datetime.datetime.now()
 clab = f"issued {cdate.day} {month[cdate.month]} {cdate.year}"
-ax[1].annotate("Space Weather Prediction Testbed", (.2,.055),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
-ax[1].annotate(clab, (.2,.03),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
+ax[1].annotate("Space Weather Prediction Testbed", (.21,.055),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
+ax[1].annotate(clab, (.21,.03),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
 
 #--------------------
 

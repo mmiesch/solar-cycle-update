@@ -184,6 +184,17 @@ tmax = datetime.date(2032,1,1)
 
 #------------------------------------------------------------------------------
 fig = plt.figure(figsize = (12,4))
+ax = fig.add_subplot(111)
+
+plt.rcParams.update({'font.size': 12, 'font.weight': 'bold'})
+
+plt.xlim(tmin, tmax)
+plt.ylim(0, 200)
+
+plt.xlabel('year', weight = 'bold')
+plt.ylabel('SSN', weight = 'bold')
+
+fig.tight_layout()
 
 #------------------------------------------------------------------------------
 
@@ -266,9 +277,13 @@ for pmonth in np.arange(mstart, mend+1):
   #------------------------------------------------------------------------------
   # plot SSN
 
-  im = plt.plot(obstime[:pmonth],ssn[:pmonth])
-  frames.append(im)
+  p0, = ax.plot(obstime[:pmonth],ssn[:pmonth], color='black')
 
-mov = animation.ArtistAnimation(fig, frames, interval = 50, blit = False,
+  sidx = pmonth - 6
+  p1, = ax.plot(obstime[:sidx], ssn_sm[:sidx], color='blue', linewidth = 4)
+
+  frames.append([p0,p1])
+
+mov = animation.ArtistAnimation(fig, frames, interval = 200, blit = True,
               repeat = True, repeat_delay = 1000)
 mov.save(mfile)

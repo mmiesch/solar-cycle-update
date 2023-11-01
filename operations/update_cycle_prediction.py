@@ -371,7 +371,6 @@ fidx = np.where(ptime > tnow)
 
 # time to start the prediction in the json file
 pstart = ptime[fidx[0][0] - 6]
-
 fidx_json = np.where(ptime >= pstart)
 
 #------------------------------------------------------------------------------
@@ -542,7 +541,7 @@ ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color=
 
 ax[0].fill_between(x=ptime, y1=pmin, y2=pmax, color='red', alpha=0.2)
 
-sns.lineplot(x=ptime,y=f, color='darkmagenta', ax = ax[0])
+sns.lineplot(x=ptimej,y=fj, color='darkmagenta', ax = ax[0])
 
 ax[0].set_ylabel('Sunspot Number',fontsize=16)
 
@@ -562,7 +561,7 @@ sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1],
 idx = np.where(pmin10 > 0.0)
 ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.2, label = "2019 NOAA/NASA/ISES Panel Prediction (range)")
 
-sns.lineplot(x=ptime,y=f10, color='darkmagenta', ax = ax[1], label = "Experimental Prediction")
+sns.lineplot(x=ptimej,y=f10j, color='darkmagenta', ax = ax[1], label = "Experimental Prediction")
 
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3, label = "25% quartile")
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2, label = "50% quartile")
@@ -638,9 +637,9 @@ fig.suptitle("Experimental Solar Cycle 25 Prediction", weight="bold")
 
 hh, ss = ax[1].get_legend_handles_labels()
 
-leg1 = ax[1].legend(hh[0:3],ss[0:3],loc="lower center", bbox_to_anchor=(0.44,-0.76), frameon = False)
+leg1 = ax[1].legend(hh[0:3],ss[0:3],loc="lower center", bbox_to_anchor=(0.46,-0.76), frameon = False)
 
-plt.legend(hh[3:],ss[3:],loc="lower center", bbox_to_anchor=(0.86,-0.76), frameon = False)
+plt.legend(hh[3:],ss[3:],loc="lower center", bbox_to_anchor=(0.88,-0.76), frameon = False)
 ax[1].add_artist(leg1)
 
 from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
@@ -648,19 +647,19 @@ import matplotlib.image as mpimg
 
 logo = mpimg.imread("noaa-logo-rgb-2022.png")
 imagebox = OffsetImage(logo, zoom = 0.024)
-ab = AnnotationBbox(imagebox, (.135, .13), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ab = AnnotationBbox(imagebox, (.175, .13), frameon = False, xycoords='figure fraction', annotation_clip = False)
 ax[1].add_artist(ab)
 
 nwslogo = mpimg.imread("NWS_logo.png")
 imagebox = OffsetImage(nwslogo, zoom = 0.042)
-ab = AnnotationBbox(imagebox, (.185, .13), frameon = False, xycoords='figure fraction', annotation_clip = False)
+ab = AnnotationBbox(imagebox, (.225, .13), frameon = False, xycoords='figure fraction', annotation_clip = False)
 ax[1].add_artist(ab)
 
 # creation date
 cdate = datetime.datetime.now()
 clab = f"issued {cdate.day} {month[cdate.month]} {cdate.year}"
-ax[1].annotate("Space Weather Prediction Testbed", (.16,.055),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
-ax[1].annotate(clab, (.16,.03),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
+ax[1].annotate("Space Weather Prediction Testbed", (.2,.055),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
+ax[1].annotate(clab, (.2,.03),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
 
 #--------------------
 

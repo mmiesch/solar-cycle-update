@@ -187,7 +187,7 @@ if mstart < kmon[0]:
 mend = np.rint(tobs[-1]).astype(np.int32)
 print(f"Movie range = {mstart} {mend} {tobs[-1]}")
 
-tmin = np.min(ptime)
+tmin = datetime.date(2020,1,15)
 tmax = datetime.date(2032,1,1)
 
 #------------------------------------------------------------------------------
@@ -289,18 +289,18 @@ for pmonth in np.arange(mstart, mend+1):
   #------------------------------------------------------------------------------
   # plot SSN
 
-  p0, = ax.plot(obstime[:pmonth],ssn[:pmonth], color='black')
+  p0, = ax.plot(obstime[:pmonth],ssn[:pmonth], color='black', label = 'Monthly observations')
 
   sidx = pmonth - 6
-  p1, = ax.plot(obstime[:sidx], ssn_sm[:sidx], color='blue', linewidth = 4)
-
-  p3 = ax.fill_between(x=ptime[fidx], y1=smin[fidx[0],0], y2=smax[fidx[0],0], color='darkmagenta', alpha=0.3)
-  p4 = ax.fill_between(x=ptime[fidx], y1=smin[fidx[0],1], y2=smax[fidx[0],1], color='darkmagenta', alpha=0.2)
-  p5 = ax.fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1)
+  p1, = ax.plot(obstime[:sidx], ssn_sm[:sidx], color='blue', linewidth = 4, label = 'Smoothed monthly observations')
 
   px = np.insert(ptimej,0,obstime[sidx-1])
   py = np.insert(fj,0,ssn_sm[sidx-1])
-  p2, = ax.plot(px,py, color='darkmagenta')
+  p2, = ax.plot(px,py, color='darkmagenta', label = "Experimental Prediction")
+
+  p3 = ax.fill_between(x=ptime[fidx], y1=smin[fidx[0],0], y2=smax[fidx[0],0], color='darkmagenta', alpha=0.3, label = "25% quartile")
+  p4 = ax.fill_between(x=ptime[fidx], y1=smin[fidx[0],1], y2=smax[fidx[0],1], color='darkmagenta', alpha=0.2, label = "50% quartile")
+  p5 = ax.fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1, label = "75% quartile")
 
   #------------------------------------------------------------------------------
   # annotations
@@ -327,7 +327,13 @@ for pmonth in np.arange(mstart, mend+1):
   a5 = ax.annotate("Space Weather Prediction Testbed", (.18,.07),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
   a6 = ax.annotate(clab, (.18,.03),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
 
-  frames.append([p0,p1,p2,p3,p4,p5,a1,a2,a3,a4,a5,a6])
+  if len(frames) == 0:
+    hh, ss = ax.get_legend_handles_labels()
+    leg1 = ax.legend(hh[0:3],ss[0:3],loc="lower center", bbox_to_anchor=(0.56,-0.48), frameon = False)
+    l1 = ax.add_artist(leg1)
+    leg2 = ax.legend(hh[3:],ss[3:],loc="lower center", bbox_to_anchor=(0.9,-0.48), frameon = False)
+    l2 = ax.add_artist(leg2)
+  frames.append([p0,p1,p2,p3,p4,p5,a1,a2,a3,a4,a5,a6,l1,l2])
 
 mov = animation.ArtistAnimation(fig, frames, interval = 200, blit = True,
               repeat = True, repeat_delay = 1000)

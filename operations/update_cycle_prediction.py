@@ -547,7 +547,9 @@ ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color=
 
 ax[0].fill_between(x=ptime, y1=pmin, y2=pmax, color='red', alpha=0.2)
 
-sns.lineplot(x=ptimej,y=fj, color='darkmagenta', ax = ax[0])
+px = np.insert(ptimej,0,obstime[:-6])
+py = np.insert(fj,0,ssn_sm[:-6])
+sns.lineplot(x=px,y=py, color='darkmagenta', ax = ax[0])
 
 ax[0].set_ylabel('Sunspot Number',fontsize=16)
 
@@ -567,7 +569,8 @@ sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1],
 idx = np.where(pmin10 > 0.0)
 ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.2, label = "2019 NOAA/NASA/ISES Panel Prediction (range)")
 
-sns.lineplot(x=ptimej,y=f10j, color='darkmagenta', ax = ax[1], label = "Experimental Prediction")
+py10 = np.insert(f10j,0,fobs10_sm[:-6])
+sns.lineplot(x=px,y=py10, color='darkmagenta', ax = ax[1], label = "Experimental Prediction")
 
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3, label = "25% quartile")
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2, label = "50% quartile")

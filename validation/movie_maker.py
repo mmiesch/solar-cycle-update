@@ -261,7 +261,6 @@ for pmonth in np.arange(mstart, mend+1):
   ptimej = ptime[fidx_json[0]]
   fj = f[fidx_json[0]]
 
-
   Nj = len(fj)
   x = np.zeros(13, dtype='float')
   y = np.zeros(13, dtype='float')
@@ -287,11 +286,15 @@ for pmonth in np.arange(mstart, mend+1):
   sidx = pmonth - 6
   p1, = ax.plot(obstime[:sidx], ssn_sm[:sidx], color='blue', linewidth = 4)
 
+  p3 = ax.fill_between(x=ptime[fidx], y1=smin[fidx[0],0], y2=smax[fidx[0],0], color='darkmagenta', alpha=0.3)
+  p4 = ax.fill_between(x=ptime[fidx], y1=smin[fidx[0],1], y2=smax[fidx[0],1], color='darkmagenta', alpha=0.2)
+  p5 = ax.fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1)
+
   px = np.insert(ptimej,0,obstime[sidx-1])
   py = np.insert(fj,0,ssn_sm[sidx-1])
   p2, = ax.plot(px,py, color='darkmagenta')
 
-  frames.append([p0,p1,p2])
+  frames.append([p0,p1,p2,p3,p4,p5])
 
 mov = animation.ArtistAnimation(fig, frames, interval = 200, blit = True,
               repeat = True, repeat_delay = 1000)

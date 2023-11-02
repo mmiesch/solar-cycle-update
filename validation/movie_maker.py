@@ -6,9 +6,7 @@ import datetime
 import json
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 import sys
-import os
 import matplotlib.animation as animation
 import matplotlib.image as mpimg
 

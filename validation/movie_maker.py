@@ -212,6 +212,9 @@ ax.xaxis.set_minor_locator(minor_locator)
 #------------------------------------------------------------------------------
 
 frames = []
+amps = []
+pdates = []
+maxdates = []
 
 for pmonth in np.arange(mstart, mend):
   print(f"pmonth {pmonth}")
@@ -303,17 +306,24 @@ for pmonth in np.arange(mstart, mend):
 
   #------------------------------------------------------------------------------
   # annotations
-  lab = f"max of mean prediction: {np.max(f).astype(np.int32)}"
+
+  # first accumulate some information for later output
+  idx = np.argmax(f)
+  amp = np.rint(f[idx]).astype(np.int32)
+  maxdate = ptime[idx]
+  amps.append(amp)
+  maxdates.append(maxdate)
+  pdates.append(tnow)
+  print(f"{amp} {maxdate.month}/{maxdate.year}")
+
+  lab = f"Max of Mean Prediction: {amp}"
   a1 = ax.annotate(lab,(.5,.5),xytext = (.8,.86), xycoords='figure fraction',color='darkmagenta', ha='center')
 
-  idx = np.argmax(f)
   lab2 = f"{ptime[idx].month}/{ptime[idx].year}"
   a2 = ax.annotate(lab2,(.5,.5),xytext = (.8,.8), xycoords='figure fraction',color='darkmagenta', ha='center')
 
-  lab3 = f"prediction date: {tnow.month}/{tnow.year}"
+  lab3 = f"Prediction Date: {tnow.month}/{tnow.year}"
   a7 = ax.annotate(lab3,(.5,.5),xytext = (.1,.86), xycoords='figure fraction',color='black', ha='left')
-
-  print(f"{np.max(f).astype(np.int32)} {ptime[idx].month}/{ptime[idx].year}")
 
   logo = mpimg.imread("../operations/noaa-logo-rgb-2022.png")
   imagebox = OffsetImage(logo, zoom = 0.024)
@@ -342,3 +352,21 @@ for pmonth in np.arange(mstart, mend):
 mov = animation.ArtistAnimation(fig, frames, interval = 200, blit = True,
               repeat = True, repeat_delay = 1000)
 mov.save(mfile)
+
+#------------------------------------------------------------------------------
+# output results to a csv file
+
+import csv
+
+fields = ["prediction month","prediction year", "max", "max month", "max year"]
+
+csvfile = outdir + '/prediction_evolution.csv'
+
+rows = []
+for i in np.arange(len(amps)):
+   rows.append([pdates[i].month, pdates[i].year, amps[i], maxdates[i].month, maxdates[i].year])
+
+with open(csvfile, 'w') as csvfile:
+   csvwriter = csv.writer(csvfile)
+   csvwriter.writerow(fields)
+   csvwriter.writerows(rows)

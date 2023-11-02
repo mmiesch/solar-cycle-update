@@ -294,7 +294,12 @@ for pmonth in np.arange(mstart, mend+1):
   py = np.insert(fj,0,ssn_sm[sidx-1])
   p2, = ax.plot(px,py, color='darkmagenta')
 
-  frames.append([p0,p1,p2,p3,p4,p5])
+  #------------------------------------------------------------------------------
+  # annotations
+  lab = f"max of mean prediction: {np.max(f).astype(np.int32)}"
+  a1 = ax.annotate(lab,(.5,.5),xytext = (.78,.86), xycoords='figure fraction',color='darkmagenta', ha='center')
+
+  frames.append([p0,p1,p2,p3,p4,p5,a1])
 
 mov = animation.ArtistAnimation(fig, frames, interval = 200, blit = True,
               repeat = True, repeat_delay = 1000)

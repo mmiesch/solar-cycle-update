@@ -20,6 +20,12 @@ sys.path.append("../utilities")
 import cycles_util as u
 
 #------------------------------------------------------------------------------
+# set the issue date
+
+issue_date = datetime.date.today()
+#issue_date = datetime.date(2023,11,1)
+
+#------------------------------------------------------------------------------
 # optionally average an earlier fit for stability
 # units are months.  Set to -1 to disable
 
@@ -656,8 +662,8 @@ ab = AnnotationBbox(imagebox, (.235, .13), frameon = False, xycoords='figure fra
 ax[1].add_artist(ab)
 
 # creation date
-cdate = datetime.datetime.now()
-clab = f"issued {cdate.day} {month[cdate.month]} {cdate.year}"
+cd = issue_date
+clab = f"issued {cd.day} {month[cd.month]} {cd.year}"
 ax[1].annotate("Space Weather Prediction Testbed", (.21,.055),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
 ax[1].annotate(clab, (.21,.03),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
 

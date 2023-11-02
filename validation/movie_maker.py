@@ -10,15 +10,23 @@ import seaborn as sns
 import sys
 import os
 import matplotlib.animation as animation
+import matplotlib.image as mpimg
 
 from astropy.time import Time
 from scipy.optimize import curve_fit
 from scipy.io import netcdf_file
 from scipy.signal import savgol_filter
 from matplotlib.ticker import AutoMinorLocator
+from matplotlib.offsetbox import (OffsetImage, AnnotationBbox)
 
 sys.path.append("../utilities")
 import cycles_util as u
+
+#------------------------------------------------------------------------------
+# set the issue date
+
+issue_date = datetime.date.today()
+#issue_date = datetime.date(2023,11,1)
 
 #------------------------------------------------------------------------------
 # optionally average an earlier fit for stability
@@ -297,9 +305,29 @@ for pmonth in np.arange(mstart, mend+1):
   #------------------------------------------------------------------------------
   # annotations
   lab = f"max of mean prediction: {np.max(f).astype(np.int32)}"
-  a1 = ax.annotate(lab,(.5,.5),xytext = (.78,.86), xycoords='figure fraction',color='darkmagenta', ha='center')
+  a1 = ax.annotate(lab,(.5,.5),xytext = (.8,.86), xycoords='figure fraction',color='darkmagenta', ha='center')
 
-  frames.append([p0,p1,p2,p3,p4,p5,a1])
+  idx = np.argmax(f)
+  lab2 = f"{ptime[idx].month}/{ptime[idx].year}"
+  a2 = ax.annotate(lab2,(.5,.5),xytext = (.8,.8), xycoords='figure fraction',color='darkmagenta', ha='center')
+
+  logo = mpimg.imread("../operations/noaa-logo-rgb-2022.png")
+  imagebox = OffsetImage(logo, zoom = 0.024)
+  ab = AnnotationBbox(imagebox, (.14, .18), frameon = False, xycoords='figure fraction', annotation_clip = False)
+  a3 = ax.add_artist(ab)
+
+  nwslogo = mpimg.imread("../operations/NWS_logo.png")
+  imagebox = OffsetImage(nwslogo, zoom = 0.042)
+  ab = AnnotationBbox(imagebox, (.2, .18), frameon = False, xycoords='figure fraction', annotation_clip = False)
+  a4 = ax.add_artist(ab)
+
+  # creation date
+  cd = issue_date
+  clab = f"issued {cd.month}/{cd.year}"
+  a5 = ax.annotate("Space Weather Prediction Testbed", (.18,.07),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
+  a6 = ax.annotate(clab, (.18,.03),xycoords='figure fraction', ha='center', annotation_clip = False, fontsize = 10)
+
+  frames.append([p0,p1,p2,p3,p4,p5,a1,a2,a3,a4,a5,a6])
 
 mov = animation.ArtistAnimation(fig, frames, interval = 200, blit = True,
               repeat = True, repeat_delay = 1000)

@@ -346,6 +346,7 @@ if (deltak > 0) and (pmonth > (deltak + 23)):
   f102 = u.fclette10(tpred,ffit2[0][0],ffit2[0][1])
   f10 = 0.5*(f10+f102)
 
+
 #------------------------------------------------------------------------------
 # convert residuals to f10.7
 
@@ -410,21 +411,15 @@ f10s = np.zeros(Ntransition, dtype='float')
 
 for i in np.arange(Ntransition):
 
-  if i > 5:
+  nn = 13-i-1
 
-    x[:] = fj[i-6:i+7]
-    y[:] = f10j[i-6:i+7]
+  # construct averaging array for ssn
+  x[:nn] = ssn[-nn:]
+  x[nn:] = fj[5:i+6]
 
-  else:
-    nn = 6-i
-
-    # construct averaging array for ssn
-    x[:nn] = ssn[-nn:]
-    x[nn:] = fj[:i+7]
-
-    # construct averaging array for f10.7
-    y[:nn] = fobs10[-nn:]
-    y[nn:] = f10j[:i+7]
+  # construct averaging array for f10.7
+  y[:nn] = fobs10[-nn:]
+  y[nn:] = f10j[5:i+6]
 
   fs[i] = np.sum(x)/13.0
   f10s[i] = np.sum(y)/13.0

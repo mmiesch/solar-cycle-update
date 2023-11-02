@@ -28,6 +28,9 @@ import cycles_util as u
 issue_date = datetime.date.today()
 #issue_date = datetime.date(2023,11,1)
 
+# start month for movie
+mstart = 36
+
 #------------------------------------------------------------------------------
 # optionally average an earlier fit for stability
 # units are months.  Set to -1 to disable
@@ -121,8 +124,8 @@ ssn_sm = np.array(ssn_sm)
 fobs10 = np.array(fobs10)
 fobs10_sm = np.array(fobs10_sm)
 
-for i in np.arange(len(fobs10)):
-   print(f"{obstime[i]} {fobs10[i]} {fobs10_sm[i]}")
+for i in np.arange(len(obstime)):
+   print(f"{i} {obstime[i]} {ssn[i]} {ssn_sm[i]}")
 
 #------------------------------------------------------------------------------
 
@@ -177,14 +180,11 @@ Nmax = np.min([Np,Nerr])
 tobs = (odect - tstart)*12
 tpred = (pdect - tstart)*12
 
-# start month for movie
-mstart = 36
-
 if mstart < kmon[0]:
     mstart = kmon[0]
 
 # end at current prediction month 
-mend = np.rint(tobs[-1]).astype(np.int32)
+mend = len(obstime)
 print(f"Movie range = {mstart} {mend} {tobs[-1]}")
 
 tmin = datetime.date(2020,1,15)
@@ -213,10 +213,10 @@ ax.xaxis.set_minor_locator(minor_locator)
 
 frames = []
 
-for pmonth in np.arange(mstart, mend+1):
+for pmonth in np.arange(mstart, mend):
   print(f"pmonth {pmonth}")
 
-  afit = curve_fit(u.fpanel,tobs[:pmonth],ssn[:pmonth],p0=(170.0,0.0))
+  afit = curve_fit(u.fpanel,tobs[:pmonth+1],ssn[:pmonth+1],p0=(170.0,0.0))
   f = u.fpanel(tpred,afit[0][0],afit[0][1])
 
   if (deltak > 0) and (pmonth > (deltak + 23)):
@@ -224,6 +224,9 @@ for pmonth in np.arange(mstart, mend+1):
     afit2 = curve_fit(u.fpanel,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
     f2 = u.fpanel(tpred,afit2[0][0],afit2[0][1])
     f = 0.5*(f+f2)
+
+  print(f"fit 1: {afit[0][0]} {afit[0][1]}")
+  print(f"fit 2: {afit2[0][0]} {afit2[0][1]}")
 
   # compute quartiles
   kidx = pmonth - kmon[0]
@@ -252,7 +255,7 @@ for pmonth in np.arange(mstart, mend+1):
   #------------------------------------------------------------------------------
   # find min index to plot prediction: fidx = forecast index
 
-  tnow = np.max(obstime[:pmonth])
+  tnow = np.max(obstime[:pmonth+1])
 
   fidx = np.where(ptime > tnow)
 
@@ -275,13 +278,10 @@ for pmonth in np.arange(mstart, mend+1):
   fs = np.zeros(Ntransition, dtype='float')
 
   for i in np.arange(Ntransition):
-    if i > 5:
-      x[:] = fj[i-6:i+7]
-    else:
-      nn = 6-i
-      # construct averaging array for ssn
-      x[:nn] = ssn[pmonth-nn:pmonth]
-      x[nn:] = fj[:i+7]
+    nn = 13-i-1
+    # construct averaging array for ssn
+    x[:nn] = ssn[pmonth-nn+1:pmonth+1]
+    x[nn:] = fj[5:i+6]
     fs[i] = np.sum(x)/13.0
 
   fj[:Ntransition] = fs

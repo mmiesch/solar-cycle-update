@@ -183,10 +183,10 @@ tmin = np.min(ptime)
 tmax = datetime.date(2032,1,1)
 
 #------------------------------------------------------------------------------
-fig = plt.figure(figsize = (12,4))
+fig = plt.figure(figsize = (11,5))
 ax = fig.add_subplot(111)
 
-plt.rcParams.update({'font.size': 12, 'font.weight': 'bold'})
+plt.rcParams.update({'font.size': 12., 'font.weight': 'bold'})
 
 plt.xlim(tmin, tmax)
 plt.ylim(0, 200)
@@ -194,7 +194,12 @@ plt.ylim(0, 200)
 plt.xlabel('year', weight = 'bold')
 plt.ylabel('SSN', weight = 'bold')
 
-fig.tight_layout()
+fig.tight_layout(rect=(0.02,0.18,0.99,.98))
+
+ax.yaxis.set_tick_params(labelsize=12)
+
+minor_locator = AutoMinorLocator(2)
+ax.xaxis.set_minor_locator(minor_locator)
 
 #------------------------------------------------------------------------------
 
@@ -254,8 +259,8 @@ for pmonth in np.arange(mstart, mend+1):
   Ntransition = 6
 
   ptimej = ptime[fidx_json[0]]
-
   fj = f[fidx_json[0]]
+
 
   Nj = len(fj)
   x = np.zeros(13, dtype='float')
@@ -268,7 +273,7 @@ for pmonth in np.arange(mstart, mend+1):
     else:
       nn = 6-i
       # construct averaging array for ssn
-      x[:nn] = ssn[-nn:]
+      x[:nn] = ssn[pmonth-nn:pmonth]
       x[nn:] = fj[:i+7]
     fs[i] = np.sum(x)/13.0
 
@@ -282,7 +287,11 @@ for pmonth in np.arange(mstart, mend+1):
   sidx = pmonth - 6
   p1, = ax.plot(obstime[:sidx], ssn_sm[:sidx], color='blue', linewidth = 4)
 
-  frames.append([p0,p1])
+  px = np.insert(ptimej,0,obstime[sidx-1])
+  py = np.insert(fj,0,ssn_sm[sidx-1])
+  p2, = ax.plot(px,py, color='darkmagenta')
+
+  frames.append([p0,p1,p2])
 
 mov = animation.ArtistAnimation(fig, frames, interval = 200, blit = True,
               repeat = True, repeat_delay = 1000)

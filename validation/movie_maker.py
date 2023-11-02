@@ -29,7 +29,7 @@ issue_date = datetime.date.today()
 #issue_date = datetime.date(2023,11,1)
 
 # start month for movie
-mstart = 36
+mstart = 24
 
 #------------------------------------------------------------------------------
 # optionally average an earlier fit for stability
@@ -218,15 +218,14 @@ for pmonth in np.arange(mstart, mend):
 
   afit = curve_fit(u.fpanel,tobs[:pmonth+1],ssn[:pmonth+1],p0=(170.0,0.0))
   f = u.fpanel(tpred,afit[0][0],afit[0][1])
+  print(f"fit 1: {afit[0][0]} {afit[0][1]}")
 
   if (deltak > 0) and (pmonth > (deltak + 23)):
     k2 = pmonth - deltak
     afit2 = curve_fit(u.fpanel,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
     f2 = u.fpanel(tpred,afit2[0][0],afit2[0][1])
     f = 0.5*(f+f2)
-
-  print(f"fit 1: {afit[0][0]} {afit[0][1]}")
-  print(f"fit 2: {afit2[0][0]} {afit2[0][1]}")
+    print(f"fit 2: {afit2[0][0]} {afit2[0][1]}")
 
   # compute quartiles
   kidx = pmonth - kmon[0]
@@ -289,9 +288,9 @@ for pmonth in np.arange(mstart, mend):
   #------------------------------------------------------------------------------
   # plot SSN
 
-  p0, = ax.plot(obstime[:pmonth],ssn[:pmonth], color='black', label = 'Monthly observations')
+  p0, = ax.plot(obstime[:pmonth+1],ssn[:pmonth+1], color='black', label = 'Monthly observations')
 
-  sidx = pmonth - 6
+  sidx = pmonth + 1 - 6
   p1, = ax.plot(obstime[:sidx], ssn_sm[:sidx], color='blue', linewidth = 4, label = 'Smoothed monthly observations')
 
   px = np.insert(ptimej,0,obstime[sidx-1])
@@ -310,6 +309,11 @@ for pmonth in np.arange(mstart, mend):
   idx = np.argmax(f)
   lab2 = f"{ptime[idx].month}/{ptime[idx].year}"
   a2 = ax.annotate(lab2,(.5,.5),xytext = (.8,.8), xycoords='figure fraction',color='darkmagenta', ha='center')
+
+  lab3 = f"prediction date: {tnow.month}/{tnow.year}"
+  a7 = ax.annotate(lab3,(.5,.5),xytext = (.1,.86), xycoords='figure fraction',color='black', ha='left')
+
+  print(f"{np.max(f).astype(np.int32)} {ptime[idx].month}/{ptime[idx].year}")
 
   logo = mpimg.imread("../operations/noaa-logo-rgb-2022.png")
   imagebox = OffsetImage(logo, zoom = 0.024)
@@ -333,7 +337,7 @@ for pmonth in np.arange(mstart, mend):
     l1 = ax.add_artist(leg1)
     leg2 = ax.legend(hh[3:],ss[3:],loc="lower center", bbox_to_anchor=(0.9,-0.48), frameon = False)
     l2 = ax.add_artist(leg2)
-  frames.append([p0,p1,p2,p3,p4,p5,a1,a2,a3,a4,a5,a6,l1,l2])
+  frames.append([p0,p1,p2,p3,p4,p5,a1,a2,a3,a4,a5,a6,a7,l1,l2])
 
 mov = animation.ArtistAnimation(fig, frames, interval = 200, blit = True,
               repeat = True, repeat_delay = 1000)

@@ -49,6 +49,56 @@ mfile = outdir + '/prediction_evolution.mp4'
 tstart = 2019.96
 
 #------------------------------------------------------------------------------
+# estimate date range of max
+def get_date(t, g, gmin, gmax, tnow = None, label = None):
+
+  # First see where the mean prediction peaks
+  i = np.argmax(g)
+
+  tmean = t[i]
+
+  # now see where the min and max curves peak on either side 
+  # of the mean
+
+  iin = np.where(t <= tmean)
+  iip = np.where(t >= tmean)
+
+  tn = t[iin]
+  tp = t[iip]
+
+  tmin1 = tn[np.argmax(gmin[iin])]
+  tmin2 = tn[np.argmax(gmax[iin])]
+
+  tmax1 = tp[np.argmax(gmin[iip])]
+  tmax2 = tp[np.argmax(gmax[iip])]
+
+  tt = np.array([tmin1, tmax1, tmean, tmin2, tmax2])
+
+  if tnow is None:
+     tnow = datetime.date.today()
+
+  ttmin = np.min(tt)
+  if ttmin < tnow:
+     ttmin = tnow
+
+  # now find amplitude range for the future
+  idx = np.where(t > tnow)
+  amin = int(np.max(gmin[idx]))
+  amax = int(np.max(gmax[idx]))
+
+  msg = f"{f[i]} {ptime[i].month}/{ptime[i].year}"
+
+  if label is not None:
+     msg = label + ': ' + msg
+
+  print(80*'*')
+  print("Mean prediction:")
+  print(msg)
+  print(80*'*')
+
+  return [ttmin, np.max(tt), amin, amax]
+
+#------------------------------------------------------------------------------
 # read SSN panel prediction range
 rfile = open(ssnfile)
 
@@ -213,6 +263,10 @@ frames = []
 amps = []
 pdates = []
 maxdates = []
+arange1 = []
+arange2 = []
+drange1 = []
+drange2 = []
 
 for pmonth in np.arange(mstart, mend):
   print(f"pmonth {pmonth}")
@@ -303,16 +357,23 @@ for pmonth in np.arange(mstart, mend):
   p5 = ax.fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color='darkmagenta', alpha=0.1, label = "75% quartile")
 
   #------------------------------------------------------------------------------
-  # annotations
+  # first accumulate information for csv output
 
-  # first accumulate some information for later output
   idx = np.argmax(f)
   amp = np.rint(f[idx]).astype(np.int32)
-  maxdate = ptime[idx]
   amps.append(amp)
+  maxdate = ptime[idx]
   maxdates.append(maxdate)
   pdates.append(tnow)
-  print(f"{amp} {maxdate.month}/{maxdate.year}")
+
+  t1, t2, a1, a2 = get_date(ptime, f, smin[:,1], smax[:,1], label = "SSN")
+  arange1.append(a1)
+  arange2.append(a2)
+  drange1.append(t1)
+  drange2.append(t2)
+
+  #------------------------------------------------------------------------------
+  # annotations
 
   lab = f"Max of Mean Prediction: {amp}"
   a1 = ax.annotate(lab,(.5,.5),xytext = (.8,.86), xycoords='figure fraction',color='darkmagenta', ha='center')
@@ -356,13 +417,17 @@ mov.save(mfile)
 
 import csv
 
-fields = ["prediction month","prediction year", "max", "max month", "max year"]
+fields = ["prediction month","prediction year", "amp", "max month",
+          "max year", "min amp", "max amp", "min date month", \
+          "min date year", "max date month", "max date year"]
 
 csvfile = outdir + '/prediction_evolution.csv'
 
 rows = []
 for i in np.arange(len(amps)):
-   rows.append([pdates[i].month, pdates[i].year, amps[i], maxdates[i].month, maxdates[i].year])
+   rows.append([pdates[i].month, pdates[i].year, amps[i], maxdates[i].month, \
+                maxdates[i].year, arange1[i], arange2[i], drange1[i].month, \
+                drange1[i].year, drange2[i].month, drange2[i].year])
 
 with open(csvfile, 'w') as csvfile:
    csvwriter = csv.writer(csvfile)

@@ -4,7 +4,9 @@ Plot some of the results from movie_maker.py to highlight evolution
 
 import csv
 import datetime
+import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 import sys
 
 sys.path.append("../utilities")
@@ -56,4 +58,41 @@ drange1 = np.array(drange1)
 drange2 = np.array(drange2)
 
 #------------------------------------------------------------------------------
+# plot
 
+fig = plt.figure(figsize = [12,6])
+with sns.axes_style('whitegrid',{'grid.linestyle': ':', 'axes.facecolor': '#FFF8DC'}):
+   ax1 = fig.add_subplot(211)
+   ax2 = fig.add_subplot(212)
+
+plt.rc("font", weight = 'bold')
+
+fig.tight_layout(rect=(0.08,0.08,0.96,0.99))
+
+sns.set_theme(palette='colorblind')
+
+ax1.xaxis.set_tick_params(labelsize=12)
+ax2.xaxis.set_tick_params(labelsize=12)
+ax1.yaxis.set_tick_params(labelsize=12)
+ax2.yaxis.set_tick_params(labelsize=12)
+
+sns.lineplot(x=pdates,y=amps, color='black', ax = ax1)
+ax1.fill_between(x=pdates, y1 = minamp, y2 = maxamp, color='darkgray', alpha = 0.5)
+
+sns.lineplot(x=pdates,y=maxdates, color='black', ax=ax2)
+ax2.fill_between(x=pdates, y1 = drange1, y2 = drange2, color='darkgray', alpha = 0.5)
+
+#------------------------------------------------------------------------------
+# hardwire in axis limits and labels
+# these can be adjusted if necessary
+
+ax1.set_xlim(np.min(pdates),np.max(pdates))
+ax2.set_xlim(np.min(pdates),np.max(pdates))
+
+ax2.set_xlabel("Prediction Date", weight='bold', fontsize=14)
+
+ax1.set_ylabel("Amplitude (SSN)", weight = 'bold', fontsize = 12)
+ax2.set_ylabel("Date of Max", weight = 'bold', fontsize = 12)
+
+#------------------------------------------------------------------------------
+plt.show()

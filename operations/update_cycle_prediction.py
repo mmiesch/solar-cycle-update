@@ -521,6 +521,13 @@ minor_locator = AutoMinorLocator(2)
 ax[0].xaxis.set_minor_locator(minor_locator)
 ax[1].xaxis.set_minor_locator(minor_locator)
 
+yminor = AutoMinorLocator(5)
+ax[0].yaxis.set_minor_locator(yminor)
+ax[1].yaxis.set_minor_locator(yminor)
+
+ax[0].yaxis.set_ticks_position('both')
+ax[1].yaxis.set_ticks_position('both')
+
 ymax = np.max(smax[fidx[0],2]) * 1.05
 
 ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)

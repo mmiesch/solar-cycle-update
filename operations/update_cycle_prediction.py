@@ -572,6 +572,12 @@ ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1],
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],2], y2=smax10[fidx[0],2], color='darkmagenta', alpha=0.1, label = "75% quartile")
 
 #------------------------------------------------------------------------------
+# show grids
+
+ax[0].grid(visible=True)
+ax[1].grid(visible=True)
+
+#------------------------------------------------------------------------------
 # compute amplitude and date ranges based on median values
 
 t1, t2, a1, a2 = get_date(ptime, f, smin[:,1], smax[:,1], label = "SSN")
@@ -605,11 +611,14 @@ xx = .74
 yy = top0 - .05
 dy = .033
 
-ax[0].annotate("International Sunspot Number", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='black', ha='center', weight = 'bold')
+ax[0].annotate("International Sunspot Number", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='black',
+               ha='center', weight = 'bold', bbox=dict(boxstyle='round,pad=0.2',fc='white',ec='none'))
 yy -= dy
-ax[0].annotate(lab1, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='center')
+ax[0].annotate(lab1, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='center',
+                              bbox=dict(boxstyle='round,pad=0.2',fc='white',ec='none'))
 yy -= dy
-ax[0].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='center')
+ax[0].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='center',
+                              bbox=dict(boxstyle='round,pad=0.2',fc='white',ec='none'))
 
 yy = top1 - .06
 
@@ -624,11 +633,14 @@ else:
   else:
     lab2 = f"{month[trange10[0].month]} {trange10[0].year} - {month[trange10[1].month]} {trange10[1].year}"
 
-ax[1].annotate("F10.7cm Radio Flux", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='black', ha='center', weight = 'bold')
+ax[1].annotate("F10.7cm Radio Flux", (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='black', ha='center', weight = 'bold',
+               bbox=dict(boxstyle='round,pad=0.2',fc='white',ec='none'))
 yy -= dy
-ax[1].annotate(lab1, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='center')
+ax[1].annotate(lab1, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='center',
+               bbox=dict(boxstyle='round,pad=0.2',fc='white',ec='none'))
 yy -= dy
-ax[1].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='center')
+ax[1].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='darkmagenta', ha='center',
+               bbox=dict(boxstyle='round,pad=0.2',fc='white',ec='none'))
 
 #--------------------
 

@@ -95,7 +95,7 @@ def get_date(t, g, gmin, gmax, tnow = None, label = None):
   amin = int(np.max(gmin[idx]))
   amax = int(np.max(gmax[idx]))
 
-  msg = f"{f[i]} {month[ptime[i].month]} {ptime[i].year}"
+  msg = f"{g[i]} {month[ptime[i].month]} {ptime[i].year}"
 
   if label is not None:
      msg = label + ': ' + msg

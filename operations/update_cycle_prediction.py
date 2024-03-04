@@ -153,7 +153,7 @@ def declining_phase(tp, p, pmin, pmax, tdata, data, tnow = None, label = 'SSN'):
      else:
         # set this to a large value so it doesn't change the time range determined
         # by get_date()
-        tpeak = np.max(obstime)
+        tpeak = np.max(ptime)
 
   print(80*'*')
   print(yellow+f"Max observed {label} : {np.max(data)}"+cend)
@@ -614,6 +614,10 @@ declining_f10, td_f10 = declining_phase(ptime, f10, smin10[:,1], smax10[:,1], ob
 # shift the quoted range earlier if there is a chance that max has already passed
 trange[0] = np.min([trange[0], td_ssn])
 trange10[0] = np.min([trange10[0], td_f10])
+
+# quoted amplitude range should be no lower than observed
+arange[0] = round(np.max([arange[0], np.max(ssn_sm)]))
+arange10[0] = round(np.max([arange10[0], np.max(fobs10_sm)]))
 
 #------------------------------------------------------------------------------
 # labels

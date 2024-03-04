@@ -51,6 +51,12 @@ outfile = outdir + "/predicted-solar-cycle.json"
 tstart = 2019.96
 
 #------------------------------------------------------------------------------
+# define colors for output
+red = '\033[91m'
+yellow = '\033[93m'
+cend = '\033[0m'
+
+#------------------------------------------------------------------------------
 def get_label(tm, tstart):
     # given input in decimal year, write as a date
     tdec = tstart + tm/12.
@@ -101,7 +107,7 @@ def get_date(t, g, gmin, gmax, tnow = None, label = None):
      msg = label + ': ' + msg
 
   print(80*'*')
-  print("Mean prediction:")
+  print(yellow+"Mean prediction:"+cend)
   print(msg)
   print(80*'*')
 
@@ -110,41 +116,53 @@ def get_date(t, g, gmin, gmax, tnow = None, label = None):
 #------------------------------------------------------------------------------
 # determine whether or not you are in the declining phase
 
-def declining_phase(tp, p, pmin, pmax, data, tnow = None):
+def declining_phase(tp, p, pmin, pmax, tdata, data, tnow = None, label = 'SSN'):
   # input parameters
   # tp = time axis for p, pmin, and pmax
   # p = mean prediction
   # pmin = lower median quartile for p
   # pmax = upper median quartile for p
+  # tdata = time axis for data
   # data = smoothed observations
 
   if tnow is None:
      tnow = datetime.date.today()
 
+  # these indices correspond to future time, beginning now
   pif = np.where(tp > tnow)
 
-  print(f"p {p[pif[0][0]]} {np.max(p[pif])}")
-  print(f"pmin {pmin[pif[0][0]]} {np.max(pmin[pif])}")
-  print(f"pmax {pmax[pif[0][0]]} {np.max(pmax[pif])}")
+  # First check to see if the max observed SSN is greater than
+  # the max of the positive median quartile.  If yes, then the
+  # prediction is that this is the declining phase.
+  if np.max(data) > np.max(pmax[pif]):
+     dec = True
+     tpeak = obstime[np.argmax(data)]
+     print(red+f"{label} declining phase {np.max(data)} {np.max(pmax[pif])}"+cend)
 
-  if np.max(p[pif]) < p[pif[0][0]] and \
-     np.max(pmin[pif]) < pmin[pif[0][0]] and \
-     np.max(pmax[pif]) < pmax[pif[0][0]]:
-    decp = True
   else:
-    decp = False
+     # This may or may not be the declining phase
+     # So, we should still quote a range for possible max
+     dec = False
 
-  # in addition to the prediction declining, the smoothed
-  # observations should also be declining
+     # if the observed smoothed SSN is larger than the lower median quartile
+     # then there is a possibility that the max has already passed. Shift the
+     # estimated range to a value earlier than today
+     if np.max(data) > np.max(pmin[pif]):
+        tpeak = obstime[np.argmax(data)]
+        print(red+f"{label} max may have passed: {np.max(data)} {np.max(pmin[pif])}"+cend)
+     else:
+        # set this to a large value so it doesn't change the time range determined
+        # by get_date()
+        tpeak = np.max(obstime)
 
-  if np.max(data) > data[-1]:
-     deco = True
-  else:
-     deco = False
+  print(80*'*')
+  print(yellow+f"Max observed {label} : {np.max(data)}"+cend)
+  print(f"low  prediction {label} : {np.max(pmin[pif])}")
+  print(f"mean prediction {label} : {np.max(p[pif])}")
+  print(f"high prediction {label} : {np.max(pmax[pif])}")
+  print(80*'*')
 
-  dec = decp and deco
-
-  return dec
+  return dec, tpeak
 
 #------------------------------------------------------------------------------
 # read SSN panel prediction range
@@ -496,15 +514,6 @@ month = {
    11:"Nov",
    12:"Dec"
 }
-#------------------------------------------------------------------------------
-# determine whether or not you have already passed the peak
-
-declining_ssn = declining_phase(ptime, f, smin[:,1], smax[:,1], ssn_sm)
-declining_f10 = declining_phase(ptime, f10, smin10[:,1], smax10[:,1], fobs10_sm)
-
-# you can manually override the automated determination here
-#declining_ssn = True
-#declining_f10 = True
 
 #------------------------------------------------------------------------------
 # plot SSN
@@ -595,6 +604,16 @@ t1, t2, a1, a2 = get_date(ptime, f10, smin10[:,1], smax10[:,1], label = "F10.7")
 trange10 = [t1, t2]
 arange10 = [a1, a2]
 
+#------------------------------------------------------------------------------
+# determine whether or not you have already passed the peak
+# if so, override the trange and arange as previously defined
+
+declining_ssn, td_ssn = declining_phase(ptime, f, smin[:,1], smax[:,1], obstime, ssn_sm)
+declining_f10, td_f10 = declining_phase(ptime, f10, smin10[:,1], smax10[:,1], obstime, fobs10_sm, label='F10.7')
+
+# shift the quoted range earlier if there is a chance that max has already passed
+trange[0] = np.min([trange[0], td_ssn])
+trange10[0] = np.min([trange10[0], td_f10])
 
 #------------------------------------------------------------------------------
 # labels

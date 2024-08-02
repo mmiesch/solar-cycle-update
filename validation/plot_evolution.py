@@ -115,10 +115,10 @@ ax2.set_ylabel("Date of Max", weight = 'bold', fontsize = 12)
 ax1.tick_params(axis='both', which='major', labelsize = 12)
 
 ax1.xaxis.set_major_formatter(mdates.DateFormatter('%m/%Y'))
-ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
+ax1.xaxis.set_major_locator(mdates.MonthLocator(interval=4))
 
 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m/%Y'))
-ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
+ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=4))
 
 ax2.yaxis.set_major_formatter(mdates.DateFormatter('%m/%Y'))
 ax2.yaxis.set_major_locator(mdates.MonthLocator(interval=3))

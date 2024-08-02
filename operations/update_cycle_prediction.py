@@ -537,7 +537,7 @@ ax[1].yaxis.set_minor_locator(yminor)
 ax[0].yaxis.set_ticks_position('both')
 ax[1].yaxis.set_ticks_position('both')
 
-ymax = np.max(smax[fidx[0],2]) * 1.05
+ymax = np.max([np.max(smax[fidx[0],2]),np.max(ssn)]) * 1.05
 
 ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
 
@@ -569,7 +569,7 @@ ax[0].set_ylabel('Sunspot Number',fontsize=16)
 
 fobs10_sm_nz = np.ma.masked_less(fobs10_sm, 0.0)
 
-ymax = np.max(smax10[fidx[0],2]) * 1.05
+ymax = np.max([np.max(smax10[fidx[0],2]),np.max(fobs10)]) * 1.05
 
 sns.lineplot(x=obstime,y=fobs10, color='black', ax = ax[1], label = 'Monthly observations')
 ax[1].set_xlim([tmin,tmax])

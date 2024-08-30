@@ -92,6 +92,35 @@ for i in np.arange(nobs):
     odect[i] = Time(dt).to_value('decimalyear')
 
 #------------------------------------------------------------------------------
+# read average residuals for this fit type
+
+lab = 'panel2_d9'
+
+if resfile is None:
+    resfile = valdir + '/residuals/quartiles_'+lab+'.nc'
+
+r = netcdf_file(resfile,'r')
+print(r.history)
+
+a = r.variables['time']
+rtime = a[:].copy()
+
+a = r.variables['prediction month']
+kmon = a[:].copy()
+
+a = r.variables['quartile']
+q = a[:].copy()
+
+a = r.variables['positive quartiles']
+presid = a[:,:,:].copy()
+
+a = r.variables['negative quartiles']
+nresid = a[:,:,:].copy()
+
+del a
+r.close()
+
+#------------------------------------------------------------------------------
 # do the fitting
 
 # the fitting functions want time in months since cycle beginning
@@ -141,7 +170,11 @@ for idx in np.arange(nobs):
       f2 = u.fpanel(tobs[idx],afit2[0][0],afit2[0][1])
       f = 0.5*(f+f2)
 
+    kidx = pmonth - kmon[0]
+
     pp[ilt,idx] = f
+    pmin[ilt,idx] = f - nresid[omonth,kidx,q]
+    pmax[ilt,idx] = f + presid[omonth,kidx,q]
 
 #------------------------------------------------------------------------------
 # plot out results.  Show SSN and F10.7 in separate files for 
@@ -159,21 +192,26 @@ ax = sns.lineplot(x = obstime[:-6], y = ssn_sm[:-6], color='black', label='Smoot
 
 idx = np.where(pp[0,:] > 0)
 sns.lineplot(x = obstime[idx], y = pp[0,idx[0]], color='blue', label='1 year lead time')
+plt.fill_between(obstime[idx], y1 = pmin[0,idx[0]], y2 = pmax[0,idx[0]], color='blue', alpha=0.2)
 
 idx = np.where(pp[1,:] > 0)
 sns.lineplot(x = obstime[idx], y = pp[1,idx[0]], color='red', label='2 year lead time')
+plt.fill_between(obstime[idx], y1 = pmin[1,idx[0]], y2 = pmax[1,idx[0]], color='red', alpha=0.2)
 
-ax.xaxis.set_major_locator(mdates.YearLocator())
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%Y'))
+ax.tick_params(axis='both', which='major', labelsize=8)
 
-ax.set_ylabel('SSN', fontweight='bold')
-ax.set_xlabel('Date', fontweight='bold')
+ax.set_ylabel('SSN', fontweight='bold', fontsize=10)
+ax.set_xlabel('Date', fontweight='bold', fontsize=10)
 
-ax.set_xlim([datetime.date(2022,12,1),obstime[-6]])
+ax.set_xlim([datetime.date(2022,12,1),datetime.date(obstime[-6].year,obstime[-6].month,1)])
 
 ax.legend().set_visible(False)
 
 fig1.tight_layout()
 plt.savefig(outfig_ssn)
+
+print(obstime[-6])
 
 plt.show()

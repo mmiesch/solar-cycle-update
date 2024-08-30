@@ -133,12 +133,12 @@ for idx in np.arange(nobs):
 
     # do the fit
     afit = curve_fit(u.fpanel,tobs[:pmonth+1],ssn[:pmonth+1],p0=(170.0,0.0))
-    f = u.fpanel(tobs[pmonth],afit[0][0],afit[0][1])
+    f = u.fpanel(tobs[idx],afit[0][0],afit[0][1])
 
     if (deltak > 0) and (pmonth > (deltak + 23)):
       k2 = pmonth - deltak
       afit2 = curve_fit(u.fpanel,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
-      f2 = u.fpanel(tobs[pmonth],afit2[0][0],afit2[0][1])
+      f2 = u.fpanel(tobs[idx],afit2[0][0],afit2[0][1])
       f = 0.5*(f+f2)
 
     pp[ilt,idx] = f
@@ -155,6 +155,8 @@ fig1 = plt.figure(figsize = [6,3], dpi = 300)
 
 ax = sns.lineplot(x = obstime[:-6], y = ssn_sm[:-6], color='black', label='Smoothed SSN')
 
+#sns.lineplot(x = obstime, y = ssn, color='gray', label='SSN', alpha=0.2)
+
 idx = np.where(pp[0,:] > 0)
 sns.lineplot(x = obstime[idx], y = pp[0,idx[0]], color='blue', label='1 year lead time')
 
@@ -166,6 +168,8 @@ ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
 
 ax.set_ylabel('SSN', fontweight='bold')
 ax.set_xlabel('Date', fontweight='bold')
+
+ax.set_xlim([datetime.date(2022,12,1),obstime[-6]])
 
 ax.legend().set_visible(False)
 

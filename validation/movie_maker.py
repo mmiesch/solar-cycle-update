@@ -346,7 +346,8 @@ for pmonth in np.arange(mstart, mend):
   p0, = ax.plot(obstime[:pmonth+1],ssn[:pmonth+1], color='black', label = 'Monthly observations')
 
   sidx = pmonth + 1 - 6
-  p1, = ax.plot(obstime[:sidx], ssn_sm[:sidx], color='blue', linewidth = 4, label = 'Smoothed monthly observations')
+  #p1, = ax.plot(obstime[:sidx], ssn_sm[:sidx], color='blue', linewidth = 4, label = 'Smoothed monthly observations')
+  p1, = ax.plot(obstime[:-6], ssn_sm[:-6], color='blue', linewidth = 4, label = 'Smoothed monthly observations')
 
   px = np.insert(ptimej,0,obstime[sidx-1])
   py = np.insert(fj,0,ssn_sm[sidx-1])

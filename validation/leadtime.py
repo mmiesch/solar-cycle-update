@@ -184,15 +184,28 @@ for idx in np.arange(nobs):
       f102 = u.fclette10(tobs[idx],ffit2[0][0],ffit2[0][1])
       f10 = 0.5*(f10+f102)
 
+    #--------------------------------------------------------------------------
+    # convert residuals to f10.7
+
     kidx = pmonth - kmon[0]
+    smin = f - nresid[omonth,kidx,q]
+    smax = f + presid[omonth,kidx,q]
+
+    # converted f10 as opposed to fitted
+    f10c = u.f10_from_ssn_2021(f)
+
+    smax10 = u.f10_from_ssn_2021(smax) - f10c + f10
+    smin10 = u.f10_from_ssn_2021(smin) - f10c + f10
+
+    #--------------------------------------------------------------------------
 
     pp[ilt,idx] = f
-    pmin[ilt,idx] = f - nresid[omonth,kidx,q]
-    pmax[ilt,idx] = f + presid[omonth,kidx,q]
+    pmin[ilt,idx] = smin
+    pmax[ilt,idx] = smax
 
     pp10[ilt,idx] = f10
-    #pmin10[ilt,idx] = f - nresid[omonth,kidx,q]
-    #pmax10[ilt,idx] = f + presid[omonth,kidx,q]
+    pmin10[ilt,idx] = smin10
+    pmax10[ilt,idx] = smax10
 
 #------------------------------------------------------------------------------
 # plot out results.  Show SSN and F10.7 in separate files for 
@@ -243,11 +256,11 @@ ax2 = sns.lineplot(x = obstime[:-6], y = fobs10_sm[:-6], color='black', label='S
 
 idx = np.where(pp10[0,:] > 0)
 sns.lineplot(x = obstime[idx], y = pp10[0,idx[0]], color='blue', label='F10.7 1 year lead time')
-#plt.fill_between(obstime[idx], y1 = pmin[0,idx[0]], y2 = pmax[0,idx[0]], color='blue', alpha=0.2)
+plt.fill_between(obstime[idx], y1 = pmin10[0,idx[0]], y2 = pmax10[0,idx[0]], color='blue', alpha=0.2)
 
 idx = np.where(pp10[1,:] > 0)
 sns.lineplot(x = obstime[idx], y = pp10[1,idx[0]], color='red', label='F10.7 2 year lead time')
-#plt.fill_between(obstime[idx], y1 = pmin[1,idx[0]], y2 = pmax[1,idx[0]], color='red', alpha=0.2)
+plt.fill_between(obstime[idx], y1 = pmin10[1,idx[0]], y2 = pmax10[1,idx[0]], color='red', alpha=0.2)
 
 ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m/%Y'))

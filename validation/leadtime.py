@@ -212,6 +212,41 @@ ax.legend().set_visible(False)
 fig1.tight_layout()
 plt.savefig(outfig_ssn)
 
+#------------------------------------------------------------------------------
+#  Now F10.7
+
+plt.rc("font", weight = 'bold')
+
+sns.set_theme(style={'axes.facecolor': '#F5F5F5'}, palette='colorblind')
+
+fig2 = plt.figure(figsize = [6,3], dpi = 300)
+
+ax2 = sns.lineplot(x = obstime[:-6], y = fobs10_sm[:-6], color='black', label='Smoothed SSN')
+
+#idx = np.where(pp[0,:] > 0)
+#sns.lineplot(x = obstime[idx], y = pp[0,idx[0]], color='blue', label='1 year lead time')
+#plt.fill_between(obstime[idx], y1 = pmin[0,idx[0]], y2 = pmax[0,idx[0]], color='blue', alpha=0.2)
+
+#idx = np.where(pp[1,:] > 0)
+#sns.lineplot(x = obstime[idx], y = pp[1,idx[0]], color='red', label='2 year lead time')
+#plt.fill_between(obstime[idx], y1 = pmin[1,idx[0]], y2 = pmax[1,idx[0]], color='red', alpha=0.2)
+
+ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
+ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m/%Y'))
+ax2.tick_params(axis='both', which='major', labelsize=8)
+
+ax2.set_ylabel('F10.7 (sfu)', fontweight='bold', fontsize=10)
+ax2.set_xlabel('Date', fontweight='bold', fontsize=10)
+
+ax2.set_xlim([datetime.date(2022,12,1),datetime.date(obstime[-6].year,obstime[-6].month,1)])
+
+ax2.legend().set_visible(False)
+
+fig2.tight_layout()
+plt.savefig(outfig_f10)
+
+#------------------------------------------------------------------------------
+
 print(obstime[-6])
 
 plt.show()

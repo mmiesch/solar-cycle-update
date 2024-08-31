@@ -132,6 +132,10 @@ pp = np.zeros((nlt,nobs)) - 1
 pmin = np.zeros((nlt,nobs)) - 1
 pmax = np.zeros((nlt,nobs)) - 1
 
+pp10 = np.zeros((nlt,nobs)) - 1
+pmin10 = np.zeros((nlt,nobs)) - 1
+pmax10 = np.zeros((nlt,nobs)) - 1
+
 # index used for min and max
 # q = 1 is 50% quartile
 q = 1
@@ -170,11 +174,25 @@ for idx in np.arange(nobs):
       f2 = u.fpanel(tobs[idx],afit2[0][0],afit2[0][1])
       f = 0.5*(f+f2)
 
+    # now the same for F10.7
+    ffit = curve_fit(u.fclette10,tobs[:pmonth+1],fobs10[:pmonth+1],p0=(170.0,0.0))
+    f10 = u.fclette10(tobs[idx],ffit[0][0],ffit[0][1])
+
+    if (deltak > 0) and (pmonth > (deltak + 23)):
+      k2 = pmonth - deltak
+      ffit2 = curve_fit(u.fclette10,tobs[0:k2],fobs10[0:k2],p0=(170.0,0.0))
+      f102 = u.fclette10(tobs[idx],ffit2[0][0],ffit2[0][1])
+      f10 = 0.5*(f10+f102)
+
     kidx = pmonth - kmon[0]
 
     pp[ilt,idx] = f
     pmin[ilt,idx] = f - nresid[omonth,kidx,q]
     pmax[ilt,idx] = f + presid[omonth,kidx,q]
+
+    pp10[ilt,idx] = f10
+    #pmin10[ilt,idx] = f - nresid[omonth,kidx,q]
+    #pmax10[ilt,idx] = f + presid[omonth,kidx,q]
 
 #------------------------------------------------------------------------------
 # plot out results.  Show SSN and F10.7 in separate files for 
@@ -221,14 +239,14 @@ sns.set_theme(style={'axes.facecolor': '#F5F5F5'}, palette='colorblind')
 
 fig2 = plt.figure(figsize = [6,3], dpi = 300)
 
-ax2 = sns.lineplot(x = obstime[:-6], y = fobs10_sm[:-6], color='black', label='Smoothed SSN')
+ax2 = sns.lineplot(x = obstime[:-6], y = fobs10_sm[:-6], color='black', label='Smoothed F10.7')
 
-#idx = np.where(pp[0,:] > 0)
-#sns.lineplot(x = obstime[idx], y = pp[0,idx[0]], color='blue', label='1 year lead time')
+idx = np.where(pp10[0,:] > 0)
+sns.lineplot(x = obstime[idx], y = pp10[0,idx[0]], color='blue', label='F10.7 1 year lead time')
 #plt.fill_between(obstime[idx], y1 = pmin[0,idx[0]], y2 = pmax[0,idx[0]], color='blue', alpha=0.2)
 
-#idx = np.where(pp[1,:] > 0)
-#sns.lineplot(x = obstime[idx], y = pp[1,idx[0]], color='red', label='2 year lead time')
+idx = np.where(pp10[1,:] > 0)
+sns.lineplot(x = obstime[idx], y = pp10[1,idx[0]], color='red', label='F10.7 2 year lead time')
 #plt.fill_between(obstime[idx], y1 = pmin[1,idx[0]], y2 = pmax[1,idx[0]], color='red', alpha=0.2)
 
 ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=3))

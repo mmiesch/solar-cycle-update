@@ -21,6 +21,7 @@ indir, outdir, valdir = u.get_data_dirs()
 
 # json product
 jfile = outdir + "/predicted-solar-cycle.json"
+#jfile = outdir + "/archive/predicted-solar-cycle_2023_10.json"
 
 # official start time of cycle 25 from SIDC, in decimal year
 tstart = 2019.96

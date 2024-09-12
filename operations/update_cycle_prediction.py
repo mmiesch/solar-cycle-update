@@ -409,15 +409,18 @@ fidx_json = np.where(ptime >= pstart)
 #number of months to replace with smoothed values
 Ntransition = 6
 
+# number of months in the json file
+Njson = len(fidx_json[0])
+
 ptimej = ptime[fidx_json[0]]
 
 fj = f[fidx_json[0]]
-sminj = smin[fidx_json[0],1]
-smaxj = smax[fidx_json[0],1]
+sminj = smin[fidx_json[0],:3]
+smaxj = smax[fidx_json[0],:3]
 
 f10j = f10[fidx_json[0]]
-smin10j = smin10[fidx_json[0],1]
-smax10j = smax10[fidx_json[0],1]
+smin10j = smin10[fidx_json[0],:3]
+smax10j = smax10[fidx_json[0],:3]
 
 Nj = len(fj)
 
@@ -442,10 +445,11 @@ for i in np.arange(Ntransition):
   fs[i] = np.sum(x)/13.0
   f10s[i] = np.sum(y)/13.0
 
-sminj[:Ntransition] = sminj[:Ntransition] - fj[:Ntransition] + fs
-smaxj[:Ntransition] = smaxj[:Ntransition] - fj[:Ntransition] + fs
-smin10j[:Ntransition] = smin10j[:Ntransition] - f10j[:Ntransition] + f10s
-smax10j[:Ntransition] = smax10j[:Ntransition] - f10j[:Ntransition] + f10s
+for q in np.arange(sminj.shape[1]):
+   sminj[:Ntransition,q] = sminj[:Ntransition,q] - fj[:Ntransition] + fs
+   smaxj[:Ntransition,q] = smaxj[:Ntransition,q] - fj[:Ntransition] + fs
+   smin10j[:Ntransition,q] = smin10j[:Ntransition,q] - f10j[:Ntransition] + f10s
+   smax10j[:Ntransition,q] = smax10j[:Ntransition,q] - f10j[:Ntransition] + f10s
 
 fj[:Ntransition] = fs
 f10j[:Ntransition] = f10s
@@ -455,27 +459,36 @@ for i in np.arange(Nj):
    if ptimej[i].year < 2033:
 
      # sanity check
-     if sminj[i] > fj[i]:
-        print(f"ERROR in SSN min {i} {ptimej[i]} {sminj[i]} {fj[i]}")
-        sminj[i] = fj[i]
-     if smaxj[i] < fj[i]:
-        print(f"ERROR in SSN max {i} {ptimej[i]} {fj[i]} {smaxj[i]}")
-        smaxj[i] = fj[i]
-     if smin10j[i] > f10j[i]:
-        print(f"ERROR in F10.7 min {i} {ptimej[i]} {smin10j[i]} {f10j[i]}")
-        smin10j[i] = f10j[i]
-     if smax10j[i] < f10j[i]:
-        print(f"ERROR in F10.7 max {i} {ptimej[i]} {f10j[i]} {smax10j[i]}")
-        smax10j[j] = f10j[i]
+     for q in np.arange(sminj.shape[1]):
+       if sminj[i,q] > fj[i]:
+          print(f"ERROR in SSN min {i} {ptimej[i]} {sminj[i,q]} {fj[i]}")
+          sminj[i,q] = fj[i]
+       if smaxj[i,q] < fj[i]:
+          print(f"ERROR in SSN max {i} {ptimej[i]} {fj[i]} {smaxj[i,q]}")
+          smaxj[i,q] = fj[i]
+       if smin10j[i,q] > f10j[i]:
+          print(f"ERROR in F10.7 min {i} {ptimej[i]} {smin10j[i,q]} {f10j[i]}")
+          smin10j[i,q] = f10j[i]
+       if smax10j[i,q] < f10j[i]:
+          print(f"ERROR in F10.7 max {i} {ptimej[i]} {f10j[i]} {smax10j[i,q]}")
+          smax10j[j,q] = f10j[i]
 
      out = {
         "time-tag": f"{ptimej[i].year}-{ptimej[i].month:02d}",
         "predicted_ssn": fj[i],
-        "high_ssn": smaxj[i],
-        "low_ssn": sminj[i],
+        "high25_ssn": smaxj[i,0],
+        "high_ssn": smaxj[i,1],
+        "high75_ssn": smaxj[i,2],
+        "low25_ssn": sminj[i,0],
+        "low_ssn": sminj[i,1],
+        "low75_ssn": sminj[i,2],
         "predicted_f10.7": f10j[i],
-        "high_f10.7": smax10j[i],
-        "low_f10.7": smin10j[i]
+        "high25_f10.7": smax10j[i,0],
+        "high_f10.7": smax10j[i,1],
+        "high75_f10.7": smax10j[i,2],
+        "low25_f10.7": smin10j[i,0],
+        "low_f10.7": smin10j[i,1],
+        "low75_f10.7": smin10j[i,2]
      }
      outdata.append(out)
 

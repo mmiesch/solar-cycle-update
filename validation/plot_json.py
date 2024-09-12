@@ -77,6 +77,19 @@ pssn_high = []
 pf10_low = []
 pf10_high = []
 
+# if set, plot 25 and 75 quartiles too
+quartiles = True
+if quartiles:
+    pssn_25_low = []
+    pssn_25_high = []
+    pssn_75_low = []
+    pssn_75_high = []
+
+    pf10_25_low = []
+    pf10_25_high = []
+    pf10_75_low = []
+    pf10_75_high = []
+
 for d in data:
     t = np.array(d['time-tag'].split('-'), dtype='int')
     ptime.append(datetime.date(t[0], t[1], 15))
@@ -87,6 +100,17 @@ for d in data:
     pf10_low.append(d['low_f10.7'])
     pf10_high.append(d['high_f10.7'])
 
+    if quartiles:
+        pssn_25_low.append(d['low25_ssn'])
+        pssn_25_high.append(d['high25_ssn'])
+        pssn_75_low.append(d['low75_ssn'])
+        pssn_75_high.append(d['high75_ssn'])
+
+        pf10_25_low.append(d['low25_f10.7'])
+        pf10_25_high.append(d['high25_f10.7'])
+        pf10_75_low.append(d['low75_f10.7'])
+        pf10_75_high.append(d['high75_f10.7'])
+
 ptime = np.array(ptime)
 pssn = np.array(pssn)
 pf10 = np.array(pf10)
@@ -94,6 +118,17 @@ pssn_low = np.array(pssn_low)
 pssn_high = np.array(pssn_high)
 pf10_low = np.array(pf10_low)
 pf10_high = np.array(pf10_high)
+
+if quartiles:
+    pssn_25_low = np.array(pssn_25_low)
+    pssn_25_high = np.array(pssn_25_high)
+    pssn_75_low = np.array(pssn_75_low)
+    pssn_75_high = np.array(pssn_75_high)
+
+    pf10_25_low = np.array(pf10_25_low)
+    pf10_25_high = np.array(pf10_25_high)
+    pf10_75_low = np.array(pf10_75_low)
+    pf10_75_high = np.array(pf10_75_high)
 
 #------------------------------------------------------------------------------
 # copy last smoothed point into prediction for plotting continuity
@@ -128,7 +163,9 @@ ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
 
 sns.lineplot(x=obstime, y=ssn_sm_nz, color='blue', linewidth = 4, ax = ax[0])
 
+ax[0].fill_between(x = ptime[1:], y1 = pssn_75_low, y2 = pssn_75_high, color='darkmagenta', alpha = 0.1)
 ax[0].fill_between(x = ptime[1:], y1 = pssn_low, y2 = pssn_high, color='darkmagenta', alpha = 0.2)
+ax[0].fill_between(x = ptime[1:], y1 = pssn_25_low, y2 = pssn_25_high, color='darkmagenta', alpha = 0.3)
 sns.lineplot(x=ptime,y=pssn, color='darkmagenta', ax = ax[0])
 
 
@@ -145,7 +182,9 @@ ax[1].set_ylim([50,ymax10])
 
 sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1])
 
+ax[1].fill_between(x = ptime[1:], y1 = pf10_75_low, y2 = pf10_75_high, color='darkmagenta', alpha = 0.1)
 ax[1].fill_between(x = ptime[1:], y1 = pf10_low, y2 = pf10_high, color='darkmagenta', alpha = 0.2)
+ax[1].fill_between(x = ptime[1:], y1 = pf10_25_low, y2 = pf10_25_high, color='darkmagenta', alpha = 0.3)
 sns.lineplot(x=ptime,y=pf10, color='darkmagenta', ax = ax[1])
 
 #------------------------------------------------------------------------------

@@ -472,20 +472,20 @@ for i in np.arange(Nj):
 
      out = {
         "time-tag": f"{ptimej[i].year}-{ptimej[i].month:02d}",
-        "predicted_ssn": fj[i],
-        "high25_ssn": smaxj[i,0],
-        "high_ssn": smaxj[i,1],
-        "high75_ssn": smaxj[i,2],
-        "low25_ssn": sminj[i,0],
-        "low_ssn": sminj[i,1],
-        "low75_ssn": sminj[i,2],
-        "predicted_f10.7": f10j[i],
-        "high25_f10.7": smax10j[i,0],
-        "high_f10.7": smax10j[i,1],
-        "high75_f10.7": smax10j[i,2],
-        "low25_f10.7": smin10j[i,0],
-        "low_f10.7": smin10j[i,1],
-        "low75_f10.7": smin10j[i,2]
+        "predicted_ssn": round(fj[i],1),
+        "high25_ssn": round(smaxj[i,0],1),
+        "high_ssn": round(smaxj[i,1],1),
+        "high75_ssn": round(smaxj[i,2],1),
+        "low25_ssn": round(sminj[i,0],1),
+        "low_ssn": round(sminj[i,1],1),
+        "low75_ssn": round(sminj[i,2],1),
+        "predicted_f10.7": round(f10j[i],1),
+        "high25_f10.7": round(smax10j[i,0],1),
+        "high_f10.7": round(smax10j[i,1],1),
+        "high75_f10.7": round(smax10j[i,2],1),
+        "low25_f10.7": round(smin10j[i,0],1),
+        "low_f10.7": round(smin10j[i,1],1),
+        "low75_f10.7": round(smin10j[i,2],1)
      }
      outdata.append(out)
 

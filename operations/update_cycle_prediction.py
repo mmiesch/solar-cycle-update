@@ -409,9 +409,6 @@ fidx_json = np.where(ptime >= pstart)
 #number of months to replace with smoothed values
 Ntransition = 6
 
-# number of months in the json file
-Njson = len(fidx_json[0])
-
 ptimej = ptime[fidx_json[0]]
 
 fj = f[fidx_json[0]]
@@ -757,4 +754,3 @@ with open(csvfile, 'w') as csvfile:
    csvwriter.writerows(rows)
 
 #------------------------------------------------------------------------------
-plt.show()

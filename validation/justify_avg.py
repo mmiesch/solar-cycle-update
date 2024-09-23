@@ -72,7 +72,7 @@ tmax = np.max(time)
 
 sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
 
-fig, ax = plt.subplots(1,2,figsize=[10,4])
+fig, ax = plt.subplots(1,2,figsize=[12,4])
 
 ymax = np.max(ssn) + 30
 
@@ -82,21 +82,40 @@ a.plot(time,ssn, color='black', linestyle=':')
 a.set_xlim([tmin,tmax])
 a.set_ylim([0,ymax])
 
-a.plot(time[0:k], ssn_sm_nz[0:k], color='black', linewidth = 4)
+a.plot([time[k],time[k]],[0,ymax], color='red', linestyle='--')
+
+a.plot(time, ssn_sm_nz, color='black', linewidth = 4)
 a.plot(time, f[0,:], color='blue')
+
+a.set_ylabel('SSN')
+a.set_xlabel('date')
+
+a = ax[1]
+
+a.plot(time,ssn, color='black', linestyle=':')
+a.set_xlim([tmin,tmax])
+a.set_ylim([0,ymax])
+
+a.plot([time[k],time[k]],[0,ymax], color='red', linestyle='--')
+
+a.plot(time, ssn_sm_nz, color='black', linewidth = 4)
+a.plot(time, f[1,:], color='blue')
+a.set_xlabel('date')
 
 fig.tight_layout()
 
 #------------------------------------------------------------------------------
 # label
 
-x1 = .41
-y1 = .37
+x1 = .1
+y1 = .9
 
-x2 = .91
-y2 = .82
+x2 = .6
+y2 = .9
 
-#ax[0,0].annotate(f"{years[0]} years", (x1,y2), xycoords='figure fraction', weight = "bold")
+plt.rcParams['text.usetex'] = True
+
+a.annotate("($a$)", (x1,y2), xycoords='figure fraction', weight = "bold", fontsize = 14)
 
 #------------------------------------------------------------------------------
 # save to a file

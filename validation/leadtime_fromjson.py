@@ -25,9 +25,10 @@ import cycles_util as u
 #------------------------------------------------------------------------------
 # Preliminaries
 
-# the two lead times you want to plot, in months
+# the two lead times you want to plot, in years
+# currently it is assumed that these are integers
 
-lead_times = [12, 24]
+lead_times = [1, 2]
 
 #------------------------------------------------------------------------------
 # Define files
@@ -42,6 +43,12 @@ outfig_f10 = outdir + '/leadtime_f10.png'
 
 # official start time of cycle 25 from SIDC, in decimal year
 tstart = 2019.96
+
+# minimum date for prediction
+mindate = datetime.date(2022,1,15)
+
+# directory containing the archived json files
+jsondir = valdir + "/reanalysis/archive"
 
 #------------------------------------------------------------------------------
 # read observations
@@ -85,43 +92,9 @@ for i in np.arange(nobs):
     odect[i] = Time(dt).to_value('decimalyear')
 
 #------------------------------------------------------------------------------
-# read predictions
+# read the predictions
 
-print("MSM")
-
-
-exit()
-
-lab = 'panel2_d9'
-
-if resfile is None:
-    resfile = valdir + '/residuals/quartiles_'+lab+'.nc'
-
-r = netcdf_file(resfile,'r')
-print(r.history)
-
-a = r.variables['time']
-rtime = a[:].copy()
-
-a = r.variables['prediction month']
-kmon = a[:].copy()
-
-a = r.variables['quartile']
-q = a[:].copy()
-
-a = r.variables['positive quartiles']
-presid = a[:,:,:].copy()
-
-a = r.variables['negative quartiles']
-nresid = a[:,:,:].copy()
-
-del a
-r.close()
-
-#------------------------------------------------------------------------------
-# do the fitting
-
-# the fitting functions want time in months since cycle beginning
+# time in months since cycle beginning
 tobs = (odect - tstart)*12
 
 # predictions
@@ -137,6 +110,18 @@ pmax10 = np.zeros((nlt,nobs,Nq)) - 1
 
 cmonth = np.rint(tobs[-1]).astype(np.int32)
 print(f"Current month = {cmonth}")
+
+for time in obstime:
+
+  for il in np.arange(nlt):
+     pyear = time.year - lead_times[il]
+     pmonth = time.month
+     if datetime.date(pyear,pmonth,15) < mindate:
+        continue
+     jfile = jsondir+f'/predicted-solar-cycle_{pyear}_{pmonth}.json'
+     print(f"MSM {jfile}")
+
+exit()
 
 # loop through all obs times past two years
 for idx in np.arange(nobs):

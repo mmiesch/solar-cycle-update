@@ -45,7 +45,7 @@ outfig_f10 = outdir + '/leadtime_f10.png'
 tstart = 2019.96
 
 # minimum date for prediction
-mindate = datetime.date(2022,1,15)
+mindate = datetime.date(2021,12,15)
 
 # directory containing the archived json files
 jsondir = valdir + "/reanalysis/archive"
@@ -111,7 +111,9 @@ pmax10 = np.zeros((nlt,nobs,Nq)) - 1
 cmonth = np.rint(tobs[-1]).astype(np.int32)
 print(f"Current month = {cmonth}")
 
-for time in obstime:
+for itime in np.arange(len(obstime)):
+
+  time = obstime[itime]
 
   tag = f"{time.year}-{time.month:02d}"
 
@@ -121,7 +123,7 @@ for time in obstime:
     if datetime.date(pyear,pmonth,15) < mindate:
       continue
     jfile = jsondir+f'/predicted-solar-cycle_{pyear}_{pmonth:02d}.json'
-    print(f"MSM {tag}")
+    print(f"MSM {tag} {jfile}")
 
     # Read the JSON file
     with open(jfile, 'r') as file:
@@ -131,73 +133,22 @@ for time in obstime:
       for record in data:
         if record.get("time-tag") == tag:
           print(f"Found record: {record}")
+          pp[il,itime] = record.get("predicted_ssn")
+          pmin[il,itime,0] = record.get("low25_ssn")
+          pmin[il,itime,1] = record.get("low_ssn")
+          pmin[il,itime,2] = record.get("low75_ssn")
+          pmax[il,itime,0] = record.get("high25_ssn")
+          pmax[il,itime,1] = record.get("high_ssn")
+          pmax[il,itime,2] = record.get("high75_ssn")
+
+          pp10[il,itime] = record.get("predicted_f10.7")
+          pmin10[il,itime,0] = record.get("low25_f10.7")
+          pmin10[il,itime,1] = record.get("low_f10.7")
+          pmin10[il,itime,2] = record.get("low75_f10.7")
+          pmax10[il,itime,0] = record.get("high25_f10.7")
+          pmax10[il,itime,1] = record.get("high_f10.7")
+          pmax10[il,itime,2] = record.get("high75_f10.7")
           break
-exit()
-
-# loop through all obs times past two years
-for idx in np.arange(nobs):
-
-  omonth = np.rint(tobs[idx]).astype(np.int32)
-  if omonth < 24:
-    continue
-
-  if ssn_sm[idx] < 0:
-    continue
-
-  print(80*'*'+f"\nobs month = {omonth}")
-
-  for ilt in np.arange(len(lead_times)):
-
-    pidx = idx - lead_times[ilt]
-    pmonth = np.rint(tobs[pidx]).astype(np.int32)
-    if pmonth < 24:
-       continue
-
-    print(f"Prediction month = {pmonth}")
-
-    # do the fit
-    afit = curve_fit(u.fpanel,tobs[:pmonth+1],ssn[:pmonth+1],p0=(170.0,0.0))
-    f = u.fpanel(tobs[idx],afit[0][0],afit[0][1])
-
-    if (deltak > 0) and (pmonth > (deltak + 23)):
-      k2 = pmonth - deltak
-      afit2 = curve_fit(u.fpanel,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
-      f2 = u.fpanel(tobs[idx],afit2[0][0],afit2[0][1])
-      f = 0.5*(f+f2)
-
-    # now the same for F10.7
-    ffit = curve_fit(u.fclette10,tobs[:pmonth+1],fobs10[:pmonth+1],p0=(170.0,0.0))
-    f10 = u.fclette10(tobs[idx],ffit[0][0],ffit[0][1])
-
-    if (deltak > 0) and (pmonth > (deltak + 23)):
-      k2 = pmonth - deltak
-      ffit2 = curve_fit(u.fclette10,tobs[0:k2],fobs10[0:k2],p0=(170.0,0.0))
-      f102 = u.fclette10(tobs[idx],ffit2[0][0],ffit2[0][1])
-      f10 = 0.5*(f10+f102)
-
-    #--------------------------------------------------------------------------
-    # convert residuals to f10.7
-
-    # converted f10 as opposed to fitted
-    f10c = u.f10_from_ssn_2021(f)
-
-    pp[ilt,idx] = f
-    pp10[ilt,idx] = f10
-
-    for q in np.arange(Nq):
-
-      kidx = pmonth - kmon[0]
-      smin = f - nresid[omonth,kidx,q]
-      smax = f + presid[omonth,kidx,q]
-
-      smax10 = u.f10_from_ssn_2021(smax) - f10c + f10
-      smin10 = u.f10_from_ssn_2021(smin) - f10c + f10
-
-      pmin[ilt,idx,q] = smin
-      pmax[ilt,idx,q] = smax
-
-      pmin10[ilt,idx,q] = smin10
-      pmax10[ilt,idx,q] = smax10
 
 #------------------------------------------------------------------------------
 # plot out results.  Show SSN and F10.7 in separate files for 
@@ -216,14 +167,14 @@ ax = sns.lineplot(x = obstime[:-6], y = ssn_sm[:-6], color='blue', label='Smooth
 idx = np.where(pp[0,:] > 0)
 sns.lineplot(x = obstime[idx], y = pp[0,idx[0]], color='darkmagenta', label='1 year lead time')
 plt.fill_between(obstime[idx], y1 = pmin[0,idx[0],2], y2 = pmax[0,idx[0],2], color='darkmagenta', alpha=0.1)
-plt.fill_between(obstime[idx], y1 = pmin[0,idx[0],1], y2 = pmax[0,idx[0],1], color='darkmagenta', alpha=0.2)
-plt.fill_between(obstime[idx], y1 = pmin[0,idx[0],0], y2 = pmax[0,idx[0],0], color='darkmagenta', alpha=0.3)
+#plt.fill_between(obstime[idx], y1 = pmin[0,idx[0],1], y2 = pmax[0,idx[0],1], color='darkmagenta', alpha=0.2)
+#plt.fill_between(obstime[idx], y1 = pmin[0,idx[0],0], y2 = pmax[0,idx[0],0], color='darkmagenta', alpha=0.3)
 
 idx = np.where(pp[1,:] > 0)
 sns.lineplot(x = obstime[idx], y = pp[1,idx[0]], color='red', label='2 year lead time')
 plt.fill_between(obstime[idx], y1 = pmin[1,idx[0],2], y2 = pmax[1,idx[0],2], color='red', alpha=0.1)
-plt.fill_between(obstime[idx], y1 = pmin[1,idx[0],1], y2 = pmax[1,idx[0],1], color='red', alpha=0.2)
-plt.fill_between(obstime[idx], y1 = pmin[1,idx[0],0], y2 = pmax[1,idx[0],0], color='red', alpha=0.3)
+#plt.fill_between(obstime[idx], y1 = pmin[1,idx[0],1], y2 = pmax[1,idx[0],1], color='red', alpha=0.2)
+#plt.fill_between(obstime[idx], y1 = pmin[1,idx[0],0], y2 = pmax[1,idx[0],0], color='red', alpha=0.3)
 
 ax.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
 ax.xaxis.set_major_formatter(mdates.DateFormatter('%m/%Y'))
@@ -252,15 +203,15 @@ ax2 = sns.lineplot(x = obstime[:-6], y = fobs10_sm[:-6], color='blue', label='Sm
 
 idx = np.where(pp10[0,:] > 0)
 sns.lineplot(x = obstime[idx], y = pp10[0,idx[0]], color='blue', label='F10.7 1 year lead time')
-plt.fill_between(obstime[idx], y1 = pmin10[0,idx[0],2], y2 = pmax10[0,idx[0],2], color='darkmagenta', alpha=0.1)
+#plt.fill_between(obstime[idx], y1 = pmin10[0,idx[0],2], y2 = pmax10[0,idx[0],2], color='darkmagenta', alpha=0.1)
 plt.fill_between(obstime[idx], y1 = pmin10[0,idx[0],1], y2 = pmax10[0,idx[0],1], color='darkmagenta', alpha=0.2)
-plt.fill_between(obstime[idx], y1 = pmin10[0,idx[0],0], y2 = pmax10[0,idx[0],0], color='darkmagenta', alpha=0.3)
+#plt.fill_between(obstime[idx], y1 = pmin10[0,idx[0],0], y2 = pmax10[0,idx[0],0], color='darkmagenta', alpha=0.3)
 
 idx = np.where(pp10[1,:] > 0)
 sns.lineplot(x = obstime[idx], y = pp10[1,idx[0]], color='red', label='F10.7 2 year lead time')
-plt.fill_between(obstime[idx], y1 = pmin10[1,idx[0],2], y2 = pmax10[1,idx[0],2], color='red', alpha=0.1)
+#plt.fill_between(obstime[idx], y1 = pmin10[1,idx[0],2], y2 = pmax10[1,idx[0],2], color='red', alpha=0.1)
 plt.fill_between(obstime[idx], y1 = pmin10[1,idx[0],1], y2 = pmax10[1,idx[0],1], color='red', alpha=0.2)
-plt.fill_between(obstime[idx], y1 = pmin10[1,idx[0],0], y2 = pmax10[1,idx[0],0], color='red', alpha=0.3)
+#plt.fill_between(obstime[idx], y1 = pmin10[1,idx[0],0], y2 = pmax10[1,idx[0],0], color='red', alpha=0.3)
 
 ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=3))
 ax2.xaxis.set_major_formatter(mdates.DateFormatter('%m/%Y'))

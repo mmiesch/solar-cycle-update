@@ -65,57 +65,45 @@ f[1,:] = 0.5*(fk+fk2)
 #------------------------------------------------------------------------------
 # plot
 
+plt.rc("font", weight = 'bold')
+plt.rc("font", size = 14)
+#plt.rcParams['text.usetex'] = True
+#plt.rcParams['font.weight'] = 'bold'
+#plt.rcParams['axes.labelweight'] = 'bold'
+#plt.rcParams['axes.titleweight'] = 'bold'
+#plt.rcParams['axes.titlesize'] = 32
+#plt.rcParams['axes.labelsize'] = 32
+#plt.tick_params(labelsize=18)
+
 ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
 
 tmin = np.min(time)
 tmax = np.max(time)
 
-sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
+#sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
 
-fig, ax = plt.subplots(1,2,figsize=[12,4])
+fig = plt.figure(figsize = (10,6))
 
 ymax = np.max(ssn) + 30
 
-a = ax[0]
+sns.lineplot(x=time, y=ssn, color='black', linestyle=':')
+plt.xlim([tmin,tmax])
+plt.ylim([0,ymax])
 
-a.plot(time,ssn, color='black', linestyle=':')
-a.set_xlim([tmin,tmax])
-a.set_ylim([0,ymax])
+#sns.lineplot(x=[time[k],time[k]],y=[0,ymax], color='green', linestyle='--', linewidth = 8)
+x = np.array([time[k],time[k]])
+y = np.array([0,ymax])
+#sns.lineplot(x=x,y=y, color='green', linewidth = 8)
+plt.plot(x,y, color='green', linestyle='--', linewidth = 4)
 
-a.plot([time[k],time[k]],[0,ymax], color='red', linestyle='--')
+sns.lineplot(x=time, y=ssn_sm_nz, color='black', linewidth = 4)
+sns.lineplot(x=time, y=f[0,:], color='red', linewidth = 4)
+sns.lineplot(x=time, y=f[1,:], color='blue', linewidth = 4)
 
-a.plot(time, ssn_sm_nz, color='black', linewidth = 4)
-a.plot(time, f[0,:], color='blue')
-
-a.set_ylabel('SSN')
-a.set_xlabel('date')
-
-a = ax[1]
-
-a.plot(time,ssn, color='black', linestyle=':')
-a.set_xlim([tmin,tmax])
-a.set_ylim([0,ymax])
-
-a.plot([time[k],time[k]],[0,ymax], color='red', linestyle='--')
-
-a.plot(time, ssn_sm_nz, color='black', linewidth = 4)
-a.plot(time, f[1,:], color='blue')
-a.set_xlabel('date')
+plt.ylabel('SSN', fontweight = "bold")
+plt.xlabel('Date', fontweight = "bold")
 
 fig.tight_layout()
-
-#------------------------------------------------------------------------------
-# label
-
-x1 = .1
-y1 = .9
-
-x2 = .6
-y2 = .9
-
-plt.rcParams['text.usetex'] = True
-
-a.annotate("($a$)", (x1,y2), xycoords='figure fraction', weight = "bold", fontsize = 14)
 
 #------------------------------------------------------------------------------
 # save to a file
@@ -126,7 +114,7 @@ dir = valdir + '/output/'
 
 fname = f"justify_avg.png"
 
-plt.savefig(dir+fname)
+plt.savefig(dir+fname, dpi=300)
 
 #------------------------------------------------------------------------------
 plt.show()

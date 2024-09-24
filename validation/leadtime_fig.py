@@ -150,10 +150,13 @@ for itime in np.arange(len(obstime)):
 
 plt.rc("font", weight = 'bold')
 
+# this makes the fonts look thin
+#plt.rcParams['text.usetex'] = True
+
 sns.set_theme(style={'axes.facecolor': '#F5F5F5'}, palette='colorblind')
 
 #fig, ax = plt.subplots(1, 2, figsize = [12,6], dpi = 300)
-fig, ax = plt.subplots(1, 2, figsize = [12,6])
+fig, ax = plt.subplots(1, 2, figsize = [12,5])
 
 sns.lineplot(x = obstime[:-6], y = ssn_sm[:-6], color='blue', label='Smoothed SSN', linewidth=4, ax=ax[0])
 
@@ -209,6 +212,23 @@ ax[1].set_xlabel('Date', fontweight='bold', fontsize=12)
 ax[1].set_xlim([datetime.date(2022,12,1),datetime.date(obstime[-6].year,obstime[-6].month,1)])
 
 ax[1].legend().set_visible(False)
+
+#------------------------------------------------------------------------------
+# label figures
+
+# unkown on my laptop
+#plt.rcParams["font.family"] = "Times New Roman"
+
+x1 = .1
+y1 = .85
+
+x2 = .6
+y2 = y1
+
+#ax[0].annotate(f"(a)", (x1,y2), xycoords='figure fraction', weight = "bold", fontsize = 14, family = 'serif', style = "italic")
+ax[0].annotate(f"(a)", (x1,y2), xycoords='figure fraction', weight = "bold", fontsize = 16, family = 'serif', style = "italic")
+
+ax[1].annotate(f"(b)", (x2,y2), xycoords='figure fraction', weight = "bold", fontsize = 16, family = 'serif', style = "italic")
 
 fig.tight_layout()
 plt.savefig(outfig)

@@ -22,8 +22,16 @@ import cycles_util as u
 #------------------------------------------------------------------------------
 # set the issue date
 
-issue_date = datetime.date.today()
-#issue_date = datetime.date(2023,11,1)
+#issue_date = datetime.date.today()
+issue_date = datetime.date(2021,12,2)
+
+# set this to False for normal operations
+# set to true to rerun a past date
+reanalysis = True
+
+#failsafe
+if issue_date != datetime.date.today():
+   reanalysis = True
 
 #------------------------------------------------------------------------------
 # optionally average an earlier fit for stability
@@ -37,6 +45,9 @@ deltak = 9
 obsfile, ssnfile, f10file, resfile = u.ops_input_files()
 
 indir, outdir, valdir = u.get_data_dirs()
+
+if reanalysis:
+   outdir = valdir + '/reanalysis'
 
 # Figure product
 outfig = outdir + '/cycle_update.png'
@@ -242,6 +253,22 @@ for i in np.arange(len(fobs10)):
    print(f"{obstime[i]} {fobs10[i]} {fobs10_sm[i]}")
 
 #------------------------------------------------------------------------------
+# If a reanalysis, truncate observations
+
+if reanalysis:
+
+  iobs = np.where(obstime < issue_date)
+
+  obstime = obstime[iobs]
+  ssn = ssn[iobs]
+  ssn_sm = ssn_sm[iobs]
+  fobs10 = fobs10[iobs]
+  fobs10_sm = fobs10_sm[iobs]
+
+  ssn_sm[-6:] = -1
+  fobs10_sm[-6:] = -1
+
+#------------------------------------------------------------------------------
 
 # time of available observations in decimal year
 nobs = len(obstime)
@@ -287,13 +314,12 @@ if (deltak > 0) and (pmonth > (deltak + 23)):
   if ftype == 2:
     afit2 = curve_fit(u.fuh,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
     f2 = u.fuh(tpred,afit2[0][0],afit2[0][1])
+    print(f"fit 1: {afit[0][0]} {afit[0][1]}")
   else:
     afit2 = curve_fit(u.fpanel,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
     f2 = u.fpanel(tpred,afit2[0][0],afit2[0][1])
+    print(f"fit 2: {afit2[0][0]} {afit2[0][1]}")
   f = 0.5*(f+f2)
-
-print(f"fit 1: {afit[0][0]} {afit[0][1]}")
-print(f"fit 2: {afit2[0][0]} {afit2[0][1]}")
 
 #------------------------------------------------------------------------------
 # read average residuals for this fit type

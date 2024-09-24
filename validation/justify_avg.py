@@ -93,7 +93,6 @@ plt.ylim([0,ymax])
 #sns.lineplot(x=[time[k],time[k]],y=[0,ymax], color='green', linestyle='--', linewidth = 8)
 x = np.array([time[k],time[k]])
 y = np.array([0,ymax])
-#sns.lineplot(x=x,y=y, color='green', linewidth = 8)
 plt.plot(x,y, color='green', linestyle='--', linewidth = 4)
 
 sns.lineplot(x=time, y=ssn_sm_nz, color='black', linewidth = 4)

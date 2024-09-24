@@ -113,14 +113,25 @@ print(f"Current month = {cmonth}")
 
 for time in obstime:
 
-  for il in np.arange(nlt):
-     pyear = time.year - lead_times[il]
-     pmonth = time.month
-     if datetime.date(pyear,pmonth,15) < mindate:
-        continue
-     jfile = jsondir+f'/predicted-solar-cycle_{pyear}_{pmonth}.json'
-     print(f"MSM {jfile}")
+  tag = f"{time.year}-{time.month:02d}"
 
+  for il in np.arange(nlt):
+    pyear = time.year - lead_times[il]
+    pmonth = time.month
+    if datetime.date(pyear,pmonth,15) < mindate:
+      continue
+    jfile = jsondir+f'/predicted-solar-cycle_{pyear}_{pmonth:02d}.json'
+    print(f"MSM {tag}")
+
+    # Read the JSON file
+    with open(jfile, 'r') as file:
+      data = json.load(file)
+
+      # Find the record with the matching "time-tag"
+      for record in data:
+        if record.get("time-tag") == tag:
+          print(f"Found record: {record}")
+          break
 exit()
 
 # loop through all obs times past two years

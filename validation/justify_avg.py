@@ -47,33 +47,36 @@ for i in np.arange(nobs):
    time.append(Time(tdec[i],format='decimalyear').datetime)
 
 #------------------------------------------------------------------------------
-# choose year for illustration
-year = 3
-k = 12*year
+# choose years for illustration
+years = [3,4]
 
-f = np.zeros((2, nobs))
+Ny = len(years)
 
-afit = curve_fit(u.fpanel,tobs[0:k],ssn[0:k],p0=(170.0,0.0))
-fk = u.fpanel(tobs,afit[0][0],afit[0][1])
-f[0,:] = fk
+f = np.zeros((2, Ny, nobs))
 
-k2 = k - deltak
-afit2 = curve_fit(u.fpanel,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
-fk2 = u.fpanel(tobs,afit2[0][0],afit2[0][1])
-f[1,:] = 0.5*(fk+fk2)
+ptime = []
+
+for iyear in np.arange(Ny):
+
+  k = 12*years[iyear]
+
+  print(f"Prediction date: {time[k]}")
+  ptime.append(time[k])
+
+  afit = curve_fit(u.fpanel,tobs[0:k],ssn[0:k],p0=(170.0,0.0))
+  fk = u.fpanel(tobs,afit[0][0],afit[0][1])
+  f[0,iyear,:] = fk
+
+  k2 = k - deltak
+  afit2 = curve_fit(u.fpanel,tobs[0:k2],ssn[0:k2],p0=(170.0,0.0))
+  fk2 = u.fpanel(tobs,afit2[0][0],afit2[0][1])
+  f[1,iyear,:] = 0.5*(fk+fk2)
 
 #------------------------------------------------------------------------------
 # plot
 
 plt.rc("font", weight = 'bold')
 plt.rc("font", size = 14)
-#plt.rcParams['text.usetex'] = True
-#plt.rcParams['font.weight'] = 'bold'
-#plt.rcParams['axes.labelweight'] = 'bold'
-#plt.rcParams['axes.titleweight'] = 'bold'
-#plt.rcParams['axes.titlesize'] = 32
-#plt.rcParams['axes.labelsize'] = 32
-#plt.tick_params(labelsize=18)
 
 ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
 
@@ -91,13 +94,13 @@ plt.xlim([tmin,tmax])
 plt.ylim([0,ymax])
 
 #sns.lineplot(x=[time[k],time[k]],y=[0,ymax], color='green', linestyle='--', linewidth = 8)
-x = np.array([time[k],time[k]])
+x = np.array([ptime[0],ptime[0]])
 y = np.array([0,ymax])
 plt.plot(x,y, color='green', linestyle='--', linewidth = 4)
 
 sns.lineplot(x=time, y=ssn_sm_nz, color='black', linewidth = 4)
-sns.lineplot(x=time, y=f[0,:], color='red', linewidth = 4)
-sns.lineplot(x=time, y=f[1,:], color='blue', linewidth = 4)
+sns.lineplot(x=time, y=f[0,0,:], color='red', linewidth = 4)
+sns.lineplot(x=time, y=f[1,0,:], color='blue', linewidth = 4)
 
 plt.ylabel('SSN', fontweight = "bold")
 plt.xlabel('Date', fontweight = "bold")

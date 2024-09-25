@@ -48,7 +48,7 @@ for i in np.arange(nobs):
 
 #------------------------------------------------------------------------------
 # choose years for illustration
-years = [3,4]
+years = [3,5]
 
 Ny = len(years)
 
@@ -83,27 +83,59 @@ ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
 tmin = np.min(time)
 tmax = np.max(time)
 
-#sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
+sns.set_theme(style={'axes.facecolor': '#F5F5F5'}, palette='colorblind')
 
-fig = plt.figure(figsize = (10,6))
+fig, ax = plt.subplots(1, 2, figsize = [12,5])
 
 ymax = np.max(ssn) + 30
 
-sns.lineplot(x=time, y=ssn, color='black', linestyle=':')
-plt.xlim([tmin,tmax])
-plt.ylim([0,ymax])
+#------------------------------------------------------------------------------
 
-#sns.lineplot(x=[time[k],time[k]],y=[0,ymax], color='green', linestyle='--', linewidth = 8)
+sns.lineplot(x=time, y=ssn, color='black', linestyle=':', ax=ax[0])
+ax[0].set_xlim([tmin,tmax])
+ax[0].set_ylim([0,ymax])
+
+#sns.lineplot(x=[time[k],time[k]],y=[0,ymax], color='green', linestyle='--', linewidth = 8, ax=ax[0])
 x = np.array([ptime[0],ptime[0]])
 y = np.array([0,ymax])
-plt.plot(x,y, color='green', linestyle='--', linewidth = 4)
+ax[0].plot(x,y, color='green', linestyle='--', linewidth = 4)
 
-sns.lineplot(x=time, y=ssn_sm_nz, color='black', linewidth = 4)
-sns.lineplot(x=time, y=f[0,0,:], color='red', linewidth = 4)
-sns.lineplot(x=time, y=f[1,0,:], color='blue', linewidth = 4)
+sns.lineplot(x=time, y=ssn_sm_nz, color='black', linewidth = 4, ax=ax[0])
+sns.lineplot(x=time, y=f[0,0,:], color='red', linewidth = 4, ax=ax[0])
+sns.lineplot(x=time, y=f[1,0,:], color='blue', linewidth = 4, ax=ax[0])
 
-plt.ylabel('SSN', fontweight = "bold")
-plt.xlabel('Date', fontweight = "bold")
+ax[0].set_ylabel('SSN', fontweight = "bold")
+ax[0].set_xlabel('Date', fontweight = "bold")
+
+#------------------------------------------------------------------------------
+
+sns.lineplot(x=time, y=ssn, color='black', linestyle=':', ax=ax[1])
+ax[1].set_xlim([tmin,tmax])
+ax[1].set_ylim([0,ymax])
+
+x = np.array([ptime[1],ptime[1]])
+ax[1].plot(x,y, color='green', linestyle='--', linewidth = 4)
+
+sns.lineplot(x=time, y=ssn_sm_nz, color='black', linewidth = 4, ax=ax[1])
+sns.lineplot(x=time, y=f[0,1,:], color='red', linewidth = 4, ax=ax[1])
+sns.lineplot(x=time, y=f[1,1,:], color='blue', linewidth = 4, ax=ax[1])
+
+ax[1].set_xlabel('Date', fontweight = "bold")
+
+#------------------------------------------------------------------------------
+# annotate
+
+x1 = .1
+y1 = .85
+
+x2 = .59
+y2 = y1
+
+ax[0].annotate(f"(a)", (x1,y2), xycoords='figure fraction', weight = "bold", fontsize = 16, family = 'serif', style = "italic")
+
+ax[1].annotate(f"(b)", (x2,y2), xycoords='figure fraction', weight = "bold", fontsize = 16, family = 'serif', style = "italic")
+
+#------------------------------------------------------------------------------
 
 fig.tight_layout()
 

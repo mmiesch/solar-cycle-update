@@ -22,12 +22,12 @@ import cycles_util as u
 #------------------------------------------------------------------------------
 # set the issue date
 
-#issue_date = datetime.date.today()
-issue_date = datetime.date(2021,12,2)
+issue_date = datetime.date.today()
+#issue_date = datetime.date(2021,12,2)
 
 # set this to False for normal operations
 # set to true to rerun a past date
-reanalysis = True
+reanalysis = False
 
 #failsafe
 if issue_date != datetime.date.today():

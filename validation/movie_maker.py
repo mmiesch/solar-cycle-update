@@ -78,8 +78,8 @@ def get_date(t, g, gmin, gmax, tnow = None, label = None):
      tnow = datetime.date.today()
 
   ttmin = np.min(tt)
-  if ttmin < tnow:
-     ttmin = tnow
+  #if ttmin < tnow:
+  #   ttmin = tnow
 
   # now find amplitude range for the future
   idx = np.where(t > tnow)

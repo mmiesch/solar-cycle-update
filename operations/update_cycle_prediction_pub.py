@@ -1,5 +1,5 @@
 """
-This is a slightly modified version of update_cycle_prediction.py.  It's purpose is to tweak the plots slightly for display as a figure in the paper.
+This is a modified version of update_cycle_prediction.py that is used to generate a figure for the paper
 """
 
 import datetime
@@ -22,8 +22,8 @@ import cycles_util as u
 #------------------------------------------------------------------------------
 # set the issue date
 
-issue_date = datetime.date.today()
-#issue_date = datetime.date(2024,10,2)
+#issue_date = datetime.date.today()
+issue_date = datetime.date(2024,1,2)
 print(f"Issue date: {issue_date}")
 
 # set this to False for normal operations
@@ -51,13 +51,13 @@ if reanalysis:
    outdir = valdir + '/reanalysis'
 
 # Figure product
-outfig = outdir + '/cycle_update.png'
+outfig = outdir + '/cycle_update-pub.png'
 
 # optionally archive previous predictions
 archive = False
 
 # json product
-outfile = outdir + "/predicted-solar-cycle.json"
+outfile = outdir + "/predicted-solar-cycle-pub.json"
 
 # official start time of cycle 25 from SIDC, in decimal year
 tstart = 2019.96
@@ -84,6 +84,9 @@ def get_date(t, g, gmin, gmax, tnow = None, label = None):
 
   tmean = t[i]
 
+  for m in np.arange(len(gmin)):
+     print(f"{label}: {t[m]} {g[m]:.1f} {gmin[m]:.1f} {gmax[m]:.1f}")
+
   # now see where the min and max curves peak on either side 
   # of the mean
 
@@ -105,6 +108,8 @@ def get_date(t, g, gmin, gmax, tnow = None, label = None):
      tnow = datetime.date.today()
 
   ttmin = np.min(tt)
+  print(f"ttmin: {ttmin}")
+
   #if ttmin < tnow:
   #   ttmin = tnow
 
@@ -618,7 +623,7 @@ idx = np.where(pmin10 > 0.0)
 ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.2, label = "2019 NOAA/NASA/ISES Panel Prediction (range)")
 
 py10 = np.insert(f10j,0,fobs10_sm[:-6])
-sns.lineplot(x=px,y=py10, color='darkmagenta', ax = ax[1], label = "Experimental Prediction")
+sns.lineplot(x=px,y=py10, color='darkmagenta', ax = ax[1], label = "Base Prediction")
 
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3, label = "25% quartile")
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],1], y2=smax10[fidx[0],1], color='darkmagenta', alpha=0.2, label = "50% quartile")
@@ -714,7 +719,7 @@ ax[1].annotate(lab2, (.5,.5), xytext=(xx,yy),xycoords='figure fraction',color='d
 plt.ylabel('Solar Flux Units',fontsize=16)
 plt.xlabel('Years',fontsize=16)
 
-fig.suptitle("Experimental Solar Cycle 25 Prediction", weight="bold")
+#fig.suptitle("Experimental Solar Cycle 25 Prediction", weight="bold")
 
 #--------------------
 

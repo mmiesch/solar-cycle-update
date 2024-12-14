@@ -36,6 +36,9 @@ print(f"Cycle {cycle}")
 # exclude the first 5 cycles
 cycle_idx = cycle - 5
 
+# set this to generate figures for the paper
+pub = True
+
 #------------------------------------------------------------------------------
 # optionally average an earlier fit for stability
 # units are months.  Set to -1 to disable
@@ -112,7 +115,12 @@ r.close()
 
 #------------------------------------------------------------------------------
 # choose four years for illustration
-years = np.array([3, 5, 7, 9])
+if pub:
+  #years = np.array([2, 3, 5, 8])
+  years = np.array([2, 3, 4, 6])
+else:
+  years = np.array([3, 5, 7, 9])
+
 klist = 12*years
 Nsam = len(klist)
 
@@ -174,10 +182,25 @@ sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
 
 fig, ax = plt.subplots(2,2,figsize=[12,6])
 
-title = f"Cycle {cycle}"
-fig.suptitle(title,fontsize=20,x=0.05,y=.97,fontweight='bold', horizontalalignment = 'left')
+if pub:
+  ymax = 290
 
-ymax = np.max(ssn) + 30
+else:
+  ymax = np.max(ssn) + 30
+  title = f"Cycle {cycle}"
+  fig.suptitle(title,fontsize=20,x=0.05,y=.97,fontweight='bold', horizontalalignment = 'left')
+
+obsamp = []
+amp = []
+amp25 = []
+amp50 = []
+amp75 = []
+
+obsdate = []
+pdate = []
+pdate25 = []
+pdate50 = []
+pdate75 = []
 
 for iframe in np.arange(Nsam):
 
@@ -194,19 +217,30 @@ for iframe in np.arange(Nsam):
 
   rmin = savgol_filter(f[iframe,:] - nerr[iframe,:,2],21,3)
   rmax = savgol_filter(f[iframe,:] + perr[iframe,:,2],21,3)
-  a.fill_between(x=time, y1=rmin, y2=rmax, color='blue', alpha=0.1)
+  a.fill_between(x=time, y1=rmin, y2=rmax, color='darkmagenta', alpha=0.1)
+  amp75.append([np.max(rmin), np.max(rmax)])
+  pdate75.append([time[np.argmax(rmin)], time[np.argmax(rmax)]])
 
   rmin = savgol_filter(f[iframe,:] - nerr[iframe,:,1],21,3)
   rmax = savgol_filter(f[iframe,:] + perr[iframe,:,1],21,3)
-  a.fill_between(x=time, y1=rmin, y2=rmax, color='blue', alpha=0.2)
+  a.fill_between(x=time, y1=rmin, y2=rmax, color='darkmagenta', alpha=0.2)
+  amp50.append([np.max(rmin), np.max(rmax)])
+  pdate50.append([time[np.argmax(rmin)], time[np.argmax(rmax)]])
 
   rmin = savgol_filter(f[iframe,:] - nerr[iframe,:,0],21,3)
   rmax = savgol_filter(f[iframe,:] + perr[iframe,:,0],21,3)
-  a.fill_between(x=time, y1=rmin, y2=rmax, color='blue', alpha=0.3)
+  a.fill_between(x=time, y1=rmin, y2=rmax, color='darkmagenta', alpha=0.3)
+  amp25.append([np.max(rmin), np.max(rmax)])
+  pdate25.append([time[np.argmax(rmin)], time[np.argmax(rmax)]])
 
   k = klist[iframe]
-  a.plot(time[0:k], ssn_sm_nz[0:k], color='black', linewidth = 4)
-  a.plot(time, f[iframe,:], color='blue')
+  a.plot(time[0:k], ssn_sm_nz[0:k], color='blue', linewidth = 4)
+  obsamp.append(np.max(ssn_sm_nz))
+  obsdate.append(time[np.argmax(ssn_sm_nz)])
+
+  a.plot(time, f[iframe,:], color='darkmagenta')
+  amp.append(np.max(f[iframe,:]))
+  pdate.append(time[np.argmax(f[iframe,:])])
 
 fig.tight_layout()
 
@@ -227,15 +261,79 @@ ax[1,0].annotate(f"{years[2]} years", (x1,y1), xycoords='figure fraction', weigh
 
 ax[1,1].annotate(f"{years[3]} years", (x2,y1), xycoords='figure fraction', weight = "bold")
 
-ax[0,0].annotate(plot_lab, (.94,.92), xycoords='figure fraction', weight = "bold", fontsize = 12, horizontalalignment='right')
+if pub:
+  x1 = .09
+  x2 = .58
+  y1 = .41
+  y2 = .89
+  ax[0,0].annotate("(a)", (x1,y2), xycoords='figure fraction', weight = "bold")
+  ax[0,1].annotate("(b)", (x2,y2), xycoords='figure fraction', weight = "bold")
+  ax[1,0].annotate("(c)", (x1,y1), xycoords='figure fraction', weight = "bold")
+  ax[1,1].annotate("(d)", (x2,y1), xycoords='figure fraction', weight = "bold")
+
+  ax[0,0].set_ylabel("SSNV2")
+  ax[1,0].set_ylabel("SSNV2")
+
+  ax[1,0].set_xlabel("Date")
+  ax[1,1].set_xlabel("Date")
+
+  plt.subplots_adjust(bottom=0.1, left = 0.07)
+
+else:
+  ax[0,0].annotate(plot_lab, (.94,.92), xycoords='figure fraction', weight = "bold", fontsize = 12, horizontalalignment='right')
 
 #------------------------------------------------------------------------------
 # save to a file
 dir = valdir + '/output/'
 
+if pub:
+  lab = lab + "_pub"
+
 fname = f"validation_cycle{cycle}_{lab}.png"
 
 plt.savefig(dir+fname)
+
+#------------------------------------------------------------------------------
+# print results for analysis
+
+print(80*'='+f"\nCycle {cycle}")
+camp = obsamp[0]
+print(f'observed amplitude: {camp:.1f}')
+
+print(f'\npredicted amplitude:')
+for i in np.arange(Nsam):
+  print(f'{years[i]} years: {amp[i]:.1f} {np.abs(amp[i]-camp)/camp:.3f}')
+
+print(f'\n75 percentile:')
+for i in np.arange(Nsam):
+  print(f'{years[i]} years: {amp75[i][0]:.1f}--{amp75[i][1]:.1f}')
+
+print(f'\n50 percentile:')
+for i in np.arange(Nsam):
+  print(f'{years[i]} years: {amp50[i][0]:.1f}--{amp50[i][1]:.1f}')
+
+print(f'\n25 percentile:')
+for i in np.arange(Nsam):
+  print(f'{years[i]} years: {amp25[i][0]:.1f}--{amp25[i][1]:.1f}')
+
+print('\n'+80*'-')
+print(f'\nobserved date: {obsdate[0].date()}')
+
+print(f'\npredicted date:')
+for i in np.arange(Nsam):
+  print(f'{years[i]} years: {pdate[i].date()}')
+
+print(f'\n75 percentile:')
+for i in np.arange(Nsam):
+  print(f'{years[i]} years: {pdate75[i][1].date()}--{pdate75[i][0].date()}')
+
+print(f'\n50 percentile:')
+for i in np.arange(Nsam):
+  print(f'{years[i]} years: {pdate50[i][1].date()}--{pdate50[i][0].date()}')
+
+print(f'\n25 percentile:')
+for i in np.arange(Nsam):
+  print(f'{years[i]} years: {pdate25[i][1].date()}--{pdate25[i][0].date()}')
 
 #------------------------------------------------------------------------------
 plt.show()

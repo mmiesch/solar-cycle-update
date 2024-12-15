@@ -26,7 +26,7 @@ import cycles_util as u
 prediction_times = ['2021_12', '2022_12']
 
 # set this to false to plot F10.7 instead of SSN
-plot_ssn = True
+plot_ssn = False
 
 #------------------------------------------------------------------------------
 # Define files
@@ -108,7 +108,21 @@ for pt in prediction_times:
     t = np.array(d['time-tag'].split('-'), dtype='int')
     ptime.append(datetime.date(t[0], t[1], 15))
 
-    pbase[idx] = d['predicted_ssn']
+    pbase[idx]    = d['predicted_ssn']
+    plower[idx,0] = d['low25_ssn']
+    plower[idx,1] = d['low_ssn']
+    plower[idx,2] = d['low75_ssn']
+    pupper[idx,0] = d['high25_ssn']
+    pupper[idx,1] = d['high_ssn']
+    pupper[idx,2] = d['high75_ssn']
+
+    pbase10[idx]    = d['predicted_f10.7']
+    plower10[idx,0] = d['low25_f10.7']
+    plower10[idx,1] = d['low_f10.7']
+    plower10[idx,2] = d['low75_f10.7']
+    pupper10[idx,0] = d['high25_f10.7']
+    pupper10[idx,1] = d['high_f10.7']
+    pupper10[idx,2] = d['high75_f10.7']
 
   ptime_list.append(np.array(ptime))
   pbase_list.append(pbase)
@@ -117,6 +131,22 @@ for pt in prediction_times:
   pbase10_list.append(pbase10)
   plower10_list.append(plower10)
   pupper10_list.append(pupper10)
+
+#------------------------------------------------------------------------------
+# pick your plot
+
+if plot_ssn:
+  pobs = ssn
+  pobs_sm = ssn_sm
+  pbs  = pbase_list
+  plow = plower_list
+  pup  = pupper_list
+else:
+  pobs = fobs10
+  pobs_sm = fobs10_sm
+  pbs  = pbase10_list
+  plow = plower10_list
+  pup  = pupper10_list
 
 #------------------------------------------------------------------------------
 # plot out results.  Show SSN and F10.7 in separate files for inclusion publications
@@ -128,20 +158,29 @@ fig, ax = plt.subplots(1,2,figsize=[12,4])
 pt = ptime_list[0][5]
 idx0 = np.where(obstime < pt)
 
-ax[0].plot(obstime[idx0], ssn[idx0], color='black')
-ax[0].plot(obstime[:-6], ssn_sm[:-6], color='blue', linewidth = 4)
-ax[0].plot(ptime_list[0], pbase_list[0], color='darkmagenta')
+ax[0].plot(obstime[idx0], pobs[idx0], color='black')
+ax[0].plot(obstime[:-6], pobs_sm[:-6], color='blue', linewidth = 4)
+
+ax[0].fill_between(x=ptime_list[0][6:], y1=plow[0][6:,0], y2=pup[0][6:,0], color='darkmagenta', alpha=0.3)
+ax[0].fill_between(x=ptime_list[0][6:], y1=plow[0][6:,1], y2=pup[0][6:,1], color='darkmagenta', alpha=0.2)
+ax[0].fill_between(x=ptime_list[0][6:], y1=plow[0][6:,2], y2=pup[0][6:,2], color='darkmagenta', alpha=0.1)
+
+ax[0].plot(ptime_list[0], pbs[0], color='darkmagenta')
 ax[0].axvline(x=pt, color='black', linestyle='--', linewidth=1)
 
 pt = ptime_list[1][5]
 idx1 = np.where(obstime < pt)
-ax[1].plot(obstime[idx1], ssn[idx1], color='black')
-ax[1].plot(obstime[:-6], ssn_sm[:-6], color='blue', linewidth = 4)
-ax[1].plot(ptime_list[1], pbase_list[1], color='darkmagenta')
+ax[1].plot(obstime[idx1], pobs[idx1], color='black')
+ax[1].plot(obstime[:-6], pobs_sm[:-6], color='blue', linewidth = 4)
+ax[1].plot(ptime_list[1], pbs[1], color='darkmagenta')
 ax[1].axvline(x=pt, color='black', linestyle='--', linewidth=1)
 
+ax[1].fill_between(x=ptime_list[1][6:], y1=plow[1][6:,0], y2=pup[1][6:,0], color='darkmagenta', alpha=0.3)
+ax[1].fill_between(x=ptime_list[1][6:], y1=plow[1][6:,1], y2=pup[1][6:,1], color='darkmagenta', alpha=0.2)
+ax[1].fill_between(x=ptime_list[1][6:], y1=plow[1][6:,2], y2=pup[1][6:,2], color='darkmagenta', alpha=0.1)
+
 tmin = datetime.date(2020,1,15)
-tmax = datetime.date(2032,1,1)
+tmax = datetime.date(2030,1,1)
 
 ax[0].set_ylabel('SSN', weight = 'bold')
 
@@ -149,22 +188,35 @@ minor_locator = AutoMinorLocator(2)
 
 for a in ax:
   a.yaxis.set_tick_params(labelsize=12)
+  a.xaxis.set_major_locator(mdates.YearLocator(2))
+  a.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
   a.xaxis.set_minor_locator(minor_locator)
   a.yaxis.set_minor_locator(minor_locator)
   a.set_xlabel('year', weight = 'bold')
   a.set_xlim(tmin, tmax)
-  a.set_ylim(0, 200)
+  if plot_ssn:
+    a.set_ylim(0, 200)
+  else:
+    a.set_ylim(60, 220)
 
 
 #fig.tight_layout(rect=(0.02,0.18,0.99,.98))
 fig.tight_layout()
 
-#------------------------------------------------------------------------------
+ax[0].annotate("(a)", (.438,.84), xycoords='figure fraction', weight = "bold")
+ax[1].annotate("(b)", (.92,.84), xycoords='figure fraction', weight = "bold")
 
-for t in obstime:
-  print(t)
+#------------------------------------------------------------------------------
+# save the figure
+
+if plot_ssn:
+  plt.savefig(outfig_ssn)
+else:
+  plt.savefig(outfig_f10)
+
+#------------------------------------------------------------------------------
 
 print("Number of fit points")
 print(f'{len(idx0[0])} {len(idx1[0])}')
 
-plt.show()
+#plt.show()

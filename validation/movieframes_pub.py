@@ -23,7 +23,7 @@ import cycles_util as u
 
 # the two prediction times you want to plot
 
-prediction_times = ['2022_01', '2023_01']
+prediction_times = ['2021_12', '2022_12']
 
 # set this to false to plot F10.7 instead of SSN
 plot_ssn = True
@@ -125,13 +125,20 @@ plt.rcParams.update({'font.size': 12., 'font.weight': 'bold'})
 
 fig, ax = plt.subplots(1,2,figsize=[12,4])
 
-ax[0].plot(obstime, ssn, color='black')
+pt = ptime_list[0][5]
+idx0 = np.where(obstime < pt)
+
+ax[0].plot(obstime[idx0], ssn[idx0], color='black')
 ax[0].plot(obstime[:-6], ssn_sm[:-6], color='blue', linewidth = 4)
 ax[0].plot(ptime_list[0], pbase_list[0], color='darkmagenta')
+ax[0].axvline(x=pt, color='black', linestyle='--', linewidth=1)
 
-ax[1].plot(obstime, ssn, color='black')
+pt = ptime_list[1][5]
+idx1 = np.where(obstime < pt)
+ax[1].plot(obstime[idx1], ssn[idx1], color='black')
 ax[1].plot(obstime[:-6], ssn_sm[:-6], color='blue', linewidth = 4)
 ax[1].plot(ptime_list[1], pbase_list[1], color='darkmagenta')
+ax[1].axvline(x=pt, color='black', linestyle='--', linewidth=1)
 
 tmin = datetime.date(2020,1,15)
 tmax = datetime.date(2032,1,1)
@@ -149,10 +156,15 @@ for a in ax:
   a.set_ylim(0, 200)
 
 
-fig.tight_layout(rect=(0.02,0.18,0.99,.98))
+#fig.tight_layout(rect=(0.02,0.18,0.99,.98))
+fig.tight_layout()
 
 #------------------------------------------------------------------------------
 
-print(obstime[-6:])
+for t in obstime:
+  print(t)
+
+print("Number of fit points")
+print(f'{len(idx0[0])} {len(idx1[0])}')
 
 plt.show()

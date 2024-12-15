@@ -116,8 +116,8 @@ r.close()
 #------------------------------------------------------------------------------
 # choose four years for illustration
 if pub:
-  #years = np.array([2, 3, 5, 8])
-  years = np.array([2, 3, 4, 6])
+  years = np.array([2, 3, 5, 8])
+  #years = np.array([2, 3, 4, 6])
 else:
   years = np.array([3, 5, 7, 9])
 
@@ -183,7 +183,7 @@ sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
 fig, ax = plt.subplots(2,2,figsize=[12,6])
 
 if pub:
-  ymax = 290
+  ymax = 340
 
 else:
   ymax = np.max(ssn) + 30

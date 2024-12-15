@@ -182,7 +182,10 @@ ax[1].fill_between(x=ptime_list[1][6:], y1=plow[1][6:,2], y2=pup[1][6:,2], color
 tmin = datetime.date(2020,1,15)
 tmax = datetime.date(2030,1,1)
 
-ax[0].set_ylabel('SSN', weight = 'bold')
+if plot_ssn:
+  ax[0].set_ylabel('SSN V2', weight = 'bold')
+else:
+  ax[0].set_ylabel('F10.7 Radio Flux (s.f.u.)', weight = 'bold')
 
 minor_locator = AutoMinorLocator(2)
 

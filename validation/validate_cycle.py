@@ -173,17 +173,21 @@ p.append((1,1))
 #------------------------------------------------------------------------------
 # plot
 
+plt.rcParams.update({'font.size': 12})
+plt.rcParams["font.weight"] = "bold"
+plt.rcParams["axes.labelweight"] = "bold"
+
 ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
 
 tmin = np.min(time)
 tmax = np.max(time)
 
-sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
+#sns.set_theme(style={'axes.facecolor': '#FFFFFF'}, palette='colorblind')
 
 fig, ax = plt.subplots(2,2,figsize=[12,6])
 
 if pub:
-  ymax = 340
+  ymax = 370
 
 else:
   ymax = np.max(ssn) + 30
@@ -242,7 +246,6 @@ for iframe in np.arange(Nsam):
   amp.append(np.max(f[iframe,:]))
   pdate.append(time[np.argmax(f[iframe,:])])
 
-fig.tight_layout()
 
 #------------------------------------------------------------------------------
 # label
@@ -250,26 +253,23 @@ fig.tight_layout()
 x1 = .41
 y1 = .37
 
-x2 = .91
+x2 = .88
 y2 = .82
 
-ax[0,0].annotate(f"{years[0]} years", (x1,y2), xycoords='figure fraction', weight = "bold")
-
-ax[0,1].annotate(f"{years[1]} years", (x2,y2), xycoords='figure fraction', weight = "bold")
-
-ax[1,0].annotate(f"{years[2]} years", (x1,y1), xycoords='figure fraction', weight = "bold")
-
-ax[1,1].annotate(f"{years[3]} years", (x2,y1), xycoords='figure fraction', weight = "bold")
+ax[0,0].annotate(f"{years[0]} yr", (x1,y2), xycoords='figure fraction', weight = "bold")
+ax[0,1].annotate(f"{years[1]} yr", (x2,y2), xycoords='figure fraction', weight = "bold")
+ax[1,0].annotate(f"{years[2]} yr", (x1,y1), xycoords='figure fraction', weight = "bold")
+ax[1,1].annotate(f"{years[3]} yr", (x2,y1), xycoords='figure fraction', weight = "bold")
 
 if pub:
-  x1 = .09
+  x1 = .095
   x2 = .58
   y1 = .41
-  y2 = .89
-  ax[0,0].annotate("(a)", (x1,y2), xycoords='figure fraction', weight = "bold")
-  ax[0,1].annotate("(b)", (x2,y2), xycoords='figure fraction', weight = "bold")
-  ax[1,0].annotate("(c)", (x1,y1), xycoords='figure fraction', weight = "bold")
-  ax[1,1].annotate("(d)", (x2,y1), xycoords='figure fraction', weight = "bold")
+  y2 = .87
+  ax[0,0].annotate("(a)", (x1,y2), xycoords='figure fraction', weight = "bold", fontsize=16, family='serif', style='italic')
+  ax[0,1].annotate("(b)", (x2,y2), xycoords='figure fraction', weight = "bold", fontsize=16, family='serif', style='italic')
+  ax[1,0].annotate("(c)", (x1,y1), xycoords='figure fraction', weight = "bold", fontsize=16, family='serif', style='italic')
+  ax[1,1].annotate("(d)", (x2,y1), xycoords='figure fraction', weight = "bold", fontsize=16, family='serif', style='italic')
 
   ax[0,0].set_ylabel("SSNV2")
   ax[1,0].set_ylabel("SSNV2")
@@ -282,6 +282,8 @@ if pub:
 else:
   ax[0,0].annotate(plot_lab, (.94,.92), xycoords='figure fraction', weight = "bold", fontsize = 12, horizontalalignment='right')
 
+fig.tight_layout()
+
 #------------------------------------------------------------------------------
 # save to a file
 dir = valdir + '/output/'
@@ -291,7 +293,7 @@ if pub:
 
 fname = f"validation_cycle{cycle}_{lab}.png"
 
-plt.savefig(dir+fname)
+plt.savefig(dir+fname, dpi=300)
 
 #------------------------------------------------------------------------------
 # print results for analysis
@@ -336,4 +338,4 @@ for i in np.arange(Nsam):
   print(f'{years[i]} years: {pdate25[i][1].date()}--{pdate25[i][0].date()}')
 
 #------------------------------------------------------------------------------
-plt.show()
+#plt.show()

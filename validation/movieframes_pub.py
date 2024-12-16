@@ -26,7 +26,7 @@ import cycles_util as u
 prediction_times = ['2021_12', '2022_12']
 
 # set this to false to plot F10.7 instead of SSN
-plot_ssn = False
+plot_ssn = True
 
 #------------------------------------------------------------------------------
 # Define files
@@ -151,9 +151,11 @@ else:
 #------------------------------------------------------------------------------
 # plot out results.  Show SSN and F10.7 in separate files for inclusion publications
 
-plt.rcParams.update({'font.size': 12., 'font.weight': 'bold'})
+plt.rcParams.update({'font.size': 14})
+plt.rcParams["font.weight"] = "bold"
+plt.rcParams["axes.labelweight"] = "bold"
 
-fig, ax = plt.subplots(1,2,figsize=[12,4])
+fig, ax = plt.subplots(1,2,figsize=[12,5])
 
 pt = ptime_list[0][5]
 idx0 = np.where(obstime < pt)
@@ -185,7 +187,7 @@ tmax = datetime.date(2030,1,1)
 if plot_ssn:
   ax[0].set_ylabel('SSN V2', weight = 'bold')
 else:
-  ax[0].set_ylabel('F10.7 Radio Flux (s.f.u.)', weight = 'bold')
+  ax[0].set_ylabel('F10.7 Radio Flux (sfu)', weight = 'bold')
 
 minor_locator = AutoMinorLocator(2)
 
@@ -195,7 +197,7 @@ for a in ax:
   a.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
   a.xaxis.set_minor_locator(minor_locator)
   a.yaxis.set_minor_locator(minor_locator)
-  a.set_xlabel('year', weight = 'bold')
+  a.set_xlabel('Date', weight = 'bold')
   a.set_xlim(tmin, tmax)
   if plot_ssn:
     a.set_ylim(0, 200)
@@ -206,16 +208,16 @@ for a in ax:
 #fig.tight_layout(rect=(0.02,0.18,0.99,.98))
 fig.tight_layout()
 
-ax[0].annotate("(a)", (.438,.84), xycoords='figure fraction', weight = "bold")
-ax[1].annotate("(b)", (.92,.84), xycoords='figure fraction', weight = "bold")
+ax[0].annotate("(a)", (.428,.84), xycoords='figure fraction', weight = "bold", fontsize=16, family='serif', style='italic')
+ax[1].annotate("(b)", (.91 ,.84), xycoords='figure fraction', weight = "bold", fontsize=16, family='serif', style='italic')
 
 #------------------------------------------------------------------------------
 # save the figure
 
 if plot_ssn:
-  plt.savefig(outfig_ssn)
+  plt.savefig(outfig_ssn, dpi=300)
 else:
-  plt.savefig(outfig_f10)
+  plt.savefig(outfig_f10, dpi=300)
 
 #------------------------------------------------------------------------------
 

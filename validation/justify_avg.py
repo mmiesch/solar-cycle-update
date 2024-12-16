@@ -4,6 +4,7 @@ The purpose of this function is to justify why I'm averaging the current predict
 
 import datetime
 import numpy as np
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
@@ -75,15 +76,16 @@ for iyear in np.arange(Ny):
 #------------------------------------------------------------------------------
 # plot
 
-plt.rc("font", weight = 'bold')
-plt.rc("font", size = 14)
+plt.rcParams.update({'font.size': 14})
+plt.rcParams["font.weight"] = "bold"
+plt.rcParams["axes.labelweight"] = "bold"
 
 ssn_sm_nz = np.ma.masked_less(ssn_sm, 0.0)
 
 tmin = np.min(time)
 tmax = np.max(time)
 
-sns.set_theme(style={'axes.facecolor': '#F5F5F5'}, palette='colorblind')
+#sns.set_theme(style={'axes.facecolor': '#F5F5F5'}, palette='colorblind')
 
 fig, ax = plt.subplots(1, 2, figsize = [12,5])
 
@@ -96,12 +98,10 @@ ax[0].set_xlim([tmin,tmax])
 ax[0].set_ylim([0,ymax])
 
 #sns.lineplot(x=[time[k],time[k]],y=[0,ymax], color='green', linestyle='--', linewidth = 8, ax=ax[0])
-x = np.array([ptime[0],ptime[0]])
-y = np.array([0,ymax])
-ax[0].plot(x,y, color='green', linestyle='--', linewidth = 4)
+ax[0].axvline(x=ptime[0], color='black', linestyle='--', linewidth=2)
 
 sns.lineplot(x=time, y=ssn_sm_nz, color='black', linewidth = 4, ax=ax[0])
-sns.lineplot(x=time, y=f[0,0,:], color='red', linewidth = 4, ax=ax[0])
+sns.lineplot(x=time, y=f[0,0,:], color='darkred', linewidth = 4, ax=ax[0])
 sns.lineplot(x=time, y=f[1,0,:], color='blue', linewidth = 4, ax=ax[0])
 
 ax[0].set_ylabel('SSN', fontweight = "bold")
@@ -113,8 +113,7 @@ sns.lineplot(x=time, y=ssn, color='black', linestyle=':', ax=ax[1])
 ax[1].set_xlim([tmin,tmax])
 ax[1].set_ylim([0,ymax])
 
-x = np.array([ptime[1],ptime[1]])
-ax[1].plot(x,y, color='green', linestyle='--', linewidth = 4)
+ax[1].axvline(x=ptime[1], color='black', linestyle='--', linewidth=2)
 
 sns.lineplot(x=time, y=ssn_sm_nz, color='black', linewidth = 4, ax=ax[1])
 sns.lineplot(x=time, y=f[0,1,:], color='red', linewidth = 4, ax=ax[1])
@@ -122,6 +121,10 @@ sns.lineplot(x=time, y=f[1,1,:], color='blue', linewidth = 4, ax=ax[1])
 
 ax[1].set_xlabel('Date', fontweight = "bold")
 
+# only show even years
+for a in ax:
+  a.xaxis.set_major_locator(mdates.YearLocator(2))
+  a.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
 #------------------------------------------------------------------------------
 # annotate
 

@@ -268,9 +268,6 @@ def fclette10(t,amp,t0):
 # estimate date range of max
 def get_date(t, g, gmin, gmax, tnow = None, label = None):
 
-  #print(f"MSM {len(t)} {np.max(g)} {np.max(gmin)} {np.max(gmax)}")
-  print(f"MSM {t[0]} {t[-1]}")
-
   # First see where the mean prediction peaks
   i = np.argmax(g)
 

@@ -29,6 +29,10 @@ issue_date = datetime.date.today()
 # start month for movie
 mstart = 24
 
+# if set, then this does adjusts the quoted min/max range
+# based on the observed values, as in the operational product
+obs_adjustment = False
+
 #------------------------------------------------------------------------------
 # optionally average an earlier fit for stability
 # units are months.  Set to -1 to disable
@@ -51,9 +55,6 @@ tstart = 2019.96
 #------------------------------------------------------------------------------
 # estimate date range of max
 def get_date(t, g, gmin, gmax, tnow = None, label = None):
-
-  #print(f"MSM {len(t)} {np.max(g)} {np.max(gmin)} {np.max(gmax)}")
-  print(f"MSM {t[0]} {t[-1]}")
 
   # First see where the mean prediction peaks
   i = np.argmax(g)
@@ -376,13 +377,14 @@ for pmonth in np.arange(mstart, mend):
   # determine whether or not you have already passed the peak
   # if so, override the trange and arange as previously defined
 
-  declining_ssn, td_ssn = u.declining_phase(ptime, f, smin[:,1], smax[:,1], obstime[:pmonth+1], ssn_sm[:pmonth+1])
+  if obs_adjustment:
+    declining_ssn, td_ssn = u.declining_phase(ptime, f, smin[:,1], smax[:,1], obstime[:pmonth+1], ssn_sm[:pmonth+1])
 
-  # shift the quoted range earlier if there is a chance that max has already passed
-  t1 = np.min([t1, td_ssn])
+    # shift the quoted range earlier if there is a chance that max has already passed
+    t1 = np.min([t1, td_ssn])
 
-  # quoted amplitude range should be no lower than observed
-  a1 = round(np.max([a1, np.max(ssn_sm[:pmonth+1])]))
+    # quoted amplitude range should be no lower than observed
+    a1 = round(np.max([a1, np.max(ssn_sm[:pmonth+1])]))
 
   #----------------------------------------------------------------------------
 

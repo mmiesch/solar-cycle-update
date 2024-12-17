@@ -125,47 +125,6 @@ while True:
 print(f"Number of prediction months: {len(m_ptime)}")
 
 #------------------------------------------------------------------------------
-# first read csv file
-
-#amps = []
-#pdates = []
-#maxdates = []
-#minamp = []
-#maxamp = []
-#drange1 = []
-#drange2 = []
-
-#with open(csvfile, 'r') as file:
-#    csvreader = csv.reader(file)
-#    for row in csvreader:
-#        if row[0] != 'prediction month':
-#          pdate = datetime.date(int(row[1]),int(row[0]),15)
-#          pdates.append(pdate)
-#
-#          amps.append(int(row[2]))
-#
-#          mdate = datetime.date(int(row[4]),int(row[3]),15)
-#          maxdates.append(mdate)
-#
-#          minamp.append(int(row[5]))
-#          maxamp.append(int(row[6]))
-#
-#          mdate = datetime.date(int(row[8]),int(row[7]),15)
-#          drange1.append(mdate)
-#
-#          mdate = datetime.date(int(row[10]),int(row[9]),15)
-#          drange2.append(mdate)
-
-
-#amps = np.array(amps)
-#pdates = np.array(pdates)
-#maxdates = np.array(maxdates)
-#minamp = np.array(minamp)
-#maxamp = np.array(maxamp)
-#drange1 = np.array(drange1)
-#drange2 = np.array(drange2)
-
-#------------------------------------------------------------------------------
 # loop over prediction months and get ranges for each
 
 # note: after 10/2024 we started only writing the prediction out to the end
@@ -184,12 +143,16 @@ for m in np.arange(len(m_ptime)):
   pmonth = mstart + m
   print(f"ptime: {m_ptime[m][5]} {pmonth} {len(m_ptime[m])}")
 
+  # note: the data in index 6 corrresponds to the first month of the prediction
+  # i.e. the future.  So, the "current" date is index 5.
   pdates.append(m_ptime[m][5])
   amps.append(np.max(m_pbase[m][6:]))
   maxdates.append(m_ptime[m][6+np.argmax(m_pbase[m][6:])])
 
-  t1, t2, a1, a2 = u.get_date(m_ptime[m][6:], m_pbase[m][6:], m_pmin[m][6:], 
+  # start at 6 to compare with the operational version
+  t1, t2, a1, a2 = u.get_date(m_ptime[m][6:], m_pbase[m][6:], m_pmin[m][6:],
                               m_pmax[m][6:], tnow = start_date, label = "SSN")
+
   arange1.append(a1)
   arange2.append(a2)
   drange1.append(t1)
@@ -240,7 +203,7 @@ release_date = datetime.date(2023,9,15)
 ax1.axvline(x = release_date, linestyle=':', color = 'green')
 ax2.axvline(x = release_date, linestyle=':', color = 'green')
 
-ax1.annotate(f"  {amps[-1]}", (pdates[-1],amps[-1]), ha='left', annotation_clip = False, 
+ax1.annotate(f"  {round(amps[-1])}", (pdates[-1],amps[-1]), ha='left', annotation_clip = False, 
              fontsize = 10, color = 'blue')
 
 ax2.annotate(f"  {maxdates[-1].month}/{maxdates[-1].year}", (pdates[-1],maxdates[-1]), ha='left', annotation_clip = False, 
@@ -276,12 +239,9 @@ ax2.annotate("(b)", (.84,.43), xycoords='figure fraction', weight="bold", fontsi
 #------------------------------------------------------------------------------
 # save figure
 
-outfile = outdir + '/prediction_evolution_pub.png'
+outfile = outdir + f'/prediction_evolution_json_{label}.png'
 
 plt.savefig(outfile)
-
-for p in pdates:
-  print(p)
 
 #------------------------------------------------------------------------------
 #plt.show()

@@ -16,6 +16,15 @@ sys.path.append("../utilities")
 import cycles_util as u
 
 #------------------------------------------------------------------------------
+# program options
+
+# set q = 0, 1, 2 for 25, 50, 75th percentile
+q = 1
+
+# set this to false to plot F10.7
+plot_ssn = True
+
+#------------------------------------------------------------------------------
 indir, outdir, valdir = u.get_data_dirs()
 
 archive_dir = outdir + '/archive'
@@ -25,6 +34,8 @@ start_date = datetime.date(2021,12,15)
 
 year = start_date.year
 month = start_date.month
+
+
 
 while True:
 
@@ -46,11 +57,47 @@ while True:
   if not os.path.exists(fpath):
     break
 
+  # Now read the json file
+
   print(fpath)
+  data = json.load(open(fpath))
 
-  if datetime.date(year,month,15) > datetime.date.today():
-    break
+  ptime = []
+  pbase = []
+  pmin = []
+  pmax = []
 
+  for d in data:
+    t = np.array(d['time-tag'].split('-'), dtype='int')
+    ptime.append(datetime.date(t[0], t[1], 15))
+
+    if plot_ssn:
+      pbase.append(d['predicted_ssn'])
+
+      if q == 0:
+        pmin.append(d['low25_ssn'])
+        pmax.append(d['high25_ssn'])
+      elif q == 2:
+        pmin.append(d['low75_ssn'])
+        pmax.append(d['high75_ssn'])
+      else:
+        pmin.append(d['low_ssn'])
+        pmax.append(d['high_ssn'])
+
+    else:
+      pbase.append(d['predicted_f10.7'])
+
+      if q == 0:
+        pmin.append(d['low25_f10.7'])
+        pmax.append(d['high25_f10.7'])
+      elif q == 2:
+        pmin.append(d['low75_f10.7'])
+        pmax.append(d['high75_f10.7'])
+      else:
+        pmin.append(d['low_f10.7'])
+        pmax.append(d['high_f10.7'])
+
+  # increment month
   month += 1
   if month > 12:
     month = 1

@@ -9,6 +9,12 @@ import numpy as np
 from astropy.time import Time
 
 #------------------------------------------------------------------------------
+# define colors for output
+red = '\033[91m'
+yellow = '\033[93m'
+cend = '\033[0m'
+
+#------------------------------------------------------------------------------
 """
 This function is used to define the directories where input and output (product) files are stored for operations.
 
@@ -241,3 +247,106 @@ def fclette10(t,amp,t0):
   s = a * tt**3 / (np.exp((tt/b)**2) - c)
 
   return f10_from_ssn_2021(s)
+
+#------------------------------------------------------------------------------
+# estimate date range of max
+def get_date(t, g, gmin, gmax, tnow = None, label = None):
+
+  # First see where the mean prediction peaks
+  i = np.argmax(g)
+
+  tmean = t[i]
+
+  # now see where the min and max curves peak on either side 
+  # of the mean
+
+  iin = np.where(t <= tmean)
+  iip = np.where(t >= tmean)
+
+  tn = t[iin]
+  tp = t[iip]
+
+  tmin1 = tn[np.argmax(gmin[iin])]
+  tmin2 = tn[np.argmax(gmax[iin])]
+
+  tmax1 = tp[np.argmax(gmin[iip])]
+  tmax2 = tp[np.argmax(gmax[iip])]
+
+  tt = np.array([tmin1, tmax1, tmean, tmin2, tmax2])
+
+
+  if tnow is None:
+     tnow = datetime.date.today()
+
+  ttmin = np.min(tt)
+  #if ttmin < tnow:
+  #   ttmin = tnow
+
+  # now find amplitude range for the future
+  idx = np.where(t > tnow)
+  amin = int(np.max(gmin[idx]))
+  amax = int(np.max(gmax[idx]))
+
+  msg = f"{g[i]} {month[ptime[i].month]} {ptime[i].year}"
+
+  if label is not None:
+     msg = label + ': ' + msg
+
+  print(80*'*')
+  print(yellow+"Mean prediction:"+cend)
+  print(msg)
+  print(80*'*')
+
+  return [ttmin, np.max(tt), amin, amax]
+
+
+#------------------------------------------------------------------------------
+# determine whether or not you are in the declining phase
+
+def declining_phase(tp, p, pmin, pmax, tdata, data, tnow = None, label = 'SSN'):
+  # input parameters
+  # tp = time axis for p, pmin, and pmax
+  # p = mean prediction
+  # pmin = lower median quartile for p
+  # pmax = upper median quartile for p
+  # tdata = time axis for data
+  # data = smoothed observations
+
+  if tnow is None:
+     tnow = datetime.date.today()
+
+  # these indices correspond to future time, beginning now
+  pif = np.where(tp > tnow)
+
+  # First check to see if the max observed SSN is greater than
+  # the max of the positive median quartile.  If yes, then the
+  # prediction is that this is the declining phase.
+  if np.max(data) > np.max(pmax[pif]):
+     dec = True
+     tpeak = obstime[np.argmax(data)]
+     print(red+f"{label} declining phase {np.max(data)} {np.max(pmax[pif])}"+cend)
+
+  else:
+     # This may or may not be the declining phase
+     # So, we should still quote a range for possible max
+     dec = False
+
+     # if the observed smoothed SSN is larger than the lower median quartile
+     # then there is a possibility that the max has already passed. Shift the
+     # estimated range to a value earlier than today
+     if np.max(data) > np.max(pmin[pif]):
+        tpeak = obstime[np.argmax(data)]
+        print(red+f"{label} max may have passed: {np.max(data)} {np.max(pmin[pif])}"+cend)
+     else:
+        # set this to a large value so it doesn't change the time range determined
+        # by get_date()
+        tpeak = np.max(ptime)
+
+  print(80*'*')
+  print(yellow+f"Max observed {label} : {np.max(data)}"+cend)
+  print(f"low  prediction {label} : {np.max(pmin[pif])}")
+  print(f"mean prediction {label} : {np.max(p[pif])}")
+  print(f"high prediction {label} : {np.max(pmax[pif])}")
+  print(80*'*')
+
+  return dec, tpeak

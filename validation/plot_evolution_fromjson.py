@@ -16,40 +16,6 @@ sys.path.append("../utilities")
 import cycles_util as u
 
 #------------------------------------------------------------------------------
-# estimate date range of max
-def get_date(t, g, gmin, gmax):
-
-  # First see where the mean prediction peaks
-  i = np.argmax(g)
-
-  tmean = t[i]
-
-  for m in np.arange(len(gmin)):
-     print(f"{t[m]} {g[m]:.1f} {gmin[m]:.1f} {gmax[m]:.1f}")
-
-  # now see where the min and max curves peak on either side 
-  # of the mean
-
-  iin = np.where(t <= tmean)
-  iip = np.where(t >= tmean)
-
-  tn = t[iin]
-  tp = t[iip]
-
-  tmin1 = tn[np.argmax(gmin[iin])]
-  tmin2 = tn[np.argmax(gmax[iin])]
-
-  tmax1 = tp[np.argmax(gmin[iip])]
-  tmax2 = tp[np.argmax(gmax[iip])]
-
-  tt = np.array([tmin1, tmax1, tmean, tmin2, tmax2])
-
-  amin = int(np.max(gmin))
-  amax = int(np.max(gmax))
-
-  return [np.min(tt), np.max(tt), amin, amax]
-
-#------------------------------------------------------------------------------
 # program options
 
 # set q = 0, 1, 2 for 25, 50, 75th percentile
@@ -66,9 +32,18 @@ reanalysis_dir = valdir + '/reanalysis/archive'
 
 start_date = datetime.date(2021,12,15)
 
+dt = start_date - datetime.date(2019,12,15)
+mstart = round(dt.days * 12 / 365)
+
+print(f"start date: {start_date.month}/{start_date.year} mstart: {mstart}")
+
 year = start_date.year
 month = start_date.month
 
+m_ptime = []
+m_pbase = []
+m_pmin = []
+m_pmax = []
 
 
 while True:
@@ -131,26 +106,62 @@ while True:
         pmin.append(d['low_f10.7'])
         pmax.append(d['high_f10.7'])
 
+  m_ptime.append(np.array(ptime))
+  m_pbase.append(np.array(pbase))
+  m_pmin.append(np.array(pmin))
+  m_pmax.append(np.array(pmax))
+
   # increment month
   month += 1
   if month > 12:
     month = 1
     year += 1
 
-ptime = np.array(ptime)
-pbase = np.array(pbase)
-pmin = np.array(pmin)
-pmax = np.array(pmax)
-
-exit()
+print(f"Number of prediction months: {len(m_ptime)}")
 
 #------------------------------------------------------------------------------
 # first read csv file
 
-indir, outdir, valdir = u.get_data_dirs()
+#amps = []
+#pdates = []
+#maxdates = []
+#minamp = []
+#maxamp = []
+#drange1 = []
+#drange2 = []
 
-csvfile = outdir + '/prediction_evolution.csv'
+#with open(csvfile, 'r') as file:
+#    csvreader = csv.reader(file)
+#    for row in csvreader:
+#        if row[0] != 'prediction month':
+#          pdate = datetime.date(int(row[1]),int(row[0]),15)
+#          pdates.append(pdate)
+#
+#          amps.append(int(row[2]))
+#
+#          mdate = datetime.date(int(row[4]),int(row[3]),15)
+#          maxdates.append(mdate)
+#
+#          minamp.append(int(row[5]))
+#          maxamp.append(int(row[6]))
+#
+#          mdate = datetime.date(int(row[8]),int(row[7]),15)
+#          drange1.append(mdate)
+#
+#          mdate = datetime.date(int(row[10]),int(row[9]),15)
+#          drange2.append(mdate)
 
+
+#amps = np.array(amps)
+#pdates = np.array(pdates)
+#maxdates = np.array(maxdates)
+#minamp = np.array(minamp)
+#maxamp = np.array(maxamp)
+#drange1 = np.array(drange1)
+#drange2 = np.array(drange2)
+
+#------------------------------------------------------------------------------
+# loop over prediction months and get ranges for each
 amps = []
 pdates = []
 maxdates = []
@@ -159,36 +170,12 @@ maxamp = []
 drange1 = []
 drange2 = []
 
-with open(csvfile, 'r') as file:
-    csvreader = csv.reader(file)
-    for row in csvreader:
-        if row[0] != 'prediction month':
-          pdate = datetime.date(int(row[1]),int(row[0]),15)
-          pdates.append(pdate)
-
-          amps.append(int(row[2]))
-
-          mdate = datetime.date(int(row[4]),int(row[3]),15)
-          maxdates.append(mdate)
-
-          minamp.append(int(row[5]))
-          maxamp.append(int(row[6]))
-
-          mdate = datetime.date(int(row[8]),int(row[7]),15)
-          drange1.append(mdate)
-
-          mdate = datetime.date(int(row[10]),int(row[9]),15)
-          drange2.append(mdate)
+for m in np.arange(len(m_ptime)):
+  pmonth = mstart + m
+  print(f"prediction month: {pmonth}")
 
 
-amps = np.array(amps)
-pdates = np.array(pdates)
-maxdates = np.array(maxdates)
-minamp = np.array(minamp)
-maxamp = np.array(maxamp)
-drange1 = np.array(drange1)
-drange2 = np.array(drange2)
-
+exit()
 #------------------------------------------------------------------------------
 # plot
 

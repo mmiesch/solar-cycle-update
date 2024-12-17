@@ -123,6 +123,11 @@ ax2.xaxis.set_major_locator(mdates.MonthLocator(interval=4))
 ax2.yaxis.set_major_formatter(mdates.DateFormatter('%m/%Y'))
 ax2.yaxis.set_major_locator(mdates.MonthLocator(interval=3))
 
+# annotate
+
+ax1.annotate("(a)", (.84,.86), xycoords='figure fraction', weight="bold", fontsize=16, family = 'serif', style = 'italic')
+ax2.annotate("(b)", (.84,.43), xycoords='figure fraction', weight="bold", fontsize=16, family = 'serif', style = 'italic')
+
 #------------------------------------------------------------------------------
 # save figure
 
@@ -131,4 +136,4 @@ outfile = outdir + '/prediction_evolution.png'
 plt.savefig(outfile)
 
 #------------------------------------------------------------------------------
-plt.show()
+#plt.show()

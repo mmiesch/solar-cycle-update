@@ -15,6 +15,22 @@ yellow = '\033[93m'
 cend = '\033[0m'
 
 #------------------------------------------------------------------------------
+month = {
+   1:"Jan",
+   2:"Feb",
+   3:"Mar",
+   4:"Apr",
+   5:"May",
+   6:"Jun",
+   7:"Jul",
+   8:"Aug",
+   9:"Sep",
+   10:"Oct",
+   11:"Nov",
+   12:"Dec"
+}
+
+#------------------------------------------------------------------------------
 """
 This function is used to define the directories where input and output (product) files are stored for operations.
 
@@ -274,7 +290,6 @@ def get_date(t, g, gmin, gmax, tnow = None, label = None):
 
   tt = np.array([tmin1, tmax1, tmean, tmin2, tmax2])
 
-
   if tnow is None:
      tnow = datetime.date.today()
 
@@ -287,7 +302,7 @@ def get_date(t, g, gmin, gmax, tnow = None, label = None):
   amin = int(np.max(gmin[idx]))
   amax = int(np.max(gmax[idx]))
 
-  msg = f"{g[i]} {month[ptime[i].month]} {ptime[i].year}"
+  msg = f"{g[i]} {month[t[i].month]}/{t[i].year}"
 
   if label is not None:
      msg = label + ': ' + msg

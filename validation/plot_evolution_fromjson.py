@@ -24,6 +24,11 @@ q = 1
 # set this to false to plot F10.7
 plot_ssn = True
 
+if plot_ssn:
+  label = 'SSN'
+else:
+  label = 'F10'
+
 #------------------------------------------------------------------------------
 indir, outdir, valdir = u.get_data_dirs()
 
@@ -162,17 +167,41 @@ print(f"Number of prediction months: {len(m_ptime)}")
 
 #------------------------------------------------------------------------------
 # loop over prediction months and get ranges for each
+
+# note: after 10/2024 we started only writing the prediction out to the end
+# of 2030 instead of 2032.  So, the length of ptime and other arrays
+# decreases after that.
+
 amps = []
 pdates = []
 maxdates = []
-minamp = []
-maxamp = []
+arange1 = []
+arange2 = []
 drange1 = []
 drange2 = []
 
 for m in np.arange(len(m_ptime)):
   pmonth = mstart + m
-  print(f"prediction month: {pmonth}")
+  print(f"ptime: {m_ptime[m][6]} {pmonth} {len(m_ptime[m])}")
+
+  pdates.append(m_ptime[m][6])
+  amps.append(np.max(m_pbase[m]))
+  maxdates.append(m_ptime[m][np.argmax(m_pbase[m])])
+
+  t1, t2, a1, a2 = u.get_date(m_ptime[m][6:], m_pbase[m][6:], m_pmin[m][6:], 
+                              m_pmax[m][6:], tnow = start_date, label = "SSN")
+  arange1.append(a1)
+  arange2.append(a2)
+  drange1.append(t1)
+  drange2.append(t2)
+
+amps = np.array(amps)
+pdates = np.array(pdates)
+maxdates = np.array(maxdates)
+arange1 = np.array(arange1)
+arange2 = np.array(arange2)
+drange1 = np.array(drange1)
+drange2 = np.array(drange2)
 
 
 exit()

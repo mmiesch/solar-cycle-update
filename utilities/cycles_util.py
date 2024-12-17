@@ -268,6 +268,9 @@ def fclette10(t,amp,t0):
 # estimate date range of max
 def get_date(t, g, gmin, gmax, tnow = None, label = None):
 
+  #print(f"MSM {len(t)} {np.max(g)} {np.max(gmin)} {np.max(gmax)}")
+  print(f"MSM {t[0]} {t[-1]}")
+
   # First see where the mean prediction peaks
   i = np.argmax(g)
 
@@ -318,7 +321,7 @@ def get_date(t, g, gmin, gmax, tnow = None, label = None):
 #------------------------------------------------------------------------------
 # determine whether or not you are in the declining phase
 
-def declining_phase(tp, p, pmin, pmax, tdata, data, tnow = None, label = 'SSN'):
+def declining_phase(tp, p, pmin, pmax, obstime, data, tnow = None, label = 'SSN'):
   # input parameters
   # tp = time axis for p, pmin, and pmax
   # p = mean prediction
@@ -355,7 +358,7 @@ def declining_phase(tp, p, pmin, pmax, tdata, data, tnow = None, label = 'SSN'):
      else:
         # set this to a large value so it doesn't change the time range determined
         # by get_date()
-        tpeak = np.max(ptime)
+        tpeak = np.max(tp)
 
   print(80*'*')
   print(yellow+f"Max observed {label} : {np.max(data)}"+cend)

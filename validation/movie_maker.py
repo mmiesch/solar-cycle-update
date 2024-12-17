@@ -52,6 +52,9 @@ tstart = 2019.96
 # estimate date range of max
 def get_date(t, g, gmin, gmax, tnow = None, label = None):
 
+  #print(f"MSM {len(t)} {np.max(g)} {np.max(gmin)} {np.max(gmax)}")
+  print(f"MSM {t[0]} {t[-1]}")
+
   # First see where the mean prediction peaks
   i = np.argmax(g)
 
@@ -368,6 +371,21 @@ for pmonth in np.arange(mstart, mend):
   pdates.append(tnow)
 
   t1, t2, a1, a2 = get_date(ptime, f, smin[:,1], smax[:,1], label = "SSN")
+
+  #----------------------------------------------------------------------------
+  # determine whether or not you have already passed the peak
+  # if so, override the trange and arange as previously defined
+
+  declining_ssn, td_ssn = u.declining_phase(ptime, f, smin[:,1], smax[:,1], obstime[:pmonth+1], ssn_sm[:pmonth+1])
+
+  # shift the quoted range earlier if there is a chance that max has already passed
+  t1 = np.min([t1, td_ssn])
+
+  # quoted amplitude range should be no lower than observed
+  a1 = round(np.max([a1, np.max(ssn_sm[:pmonth+1])]))
+
+  #----------------------------------------------------------------------------
+
   arange1.append(a1)
   arange2.append(a2)
   drange1.append(t1)

@@ -182,9 +182,9 @@ drange2 = []
 
 for m in np.arange(len(m_ptime)):
   pmonth = mstart + m
-  print(f"ptime: {m_ptime[m][6]} {pmonth} {len(m_ptime[m])}")
+  print(f"ptime: {m_ptime[m][5]} {pmonth} {len(m_ptime[m])}")
 
-  pdates.append(m_ptime[m][6])
+  pdates.append(m_ptime[m][5])
   amps.append(np.max(m_pbase[m][6:]))
   maxdates.append(m_ptime[m][6+np.argmax(m_pbase[m][6:])])
 
@@ -279,6 +279,9 @@ ax2.annotate("(b)", (.84,.43), xycoords='figure fraction', weight="bold", fontsi
 outfile = outdir + '/prediction_evolution_pub.png'
 
 plt.savefig(outfile)
+
+for p in pdates:
+  print(p)
 
 #------------------------------------------------------------------------------
 #plt.show()

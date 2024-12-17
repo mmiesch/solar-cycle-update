@@ -16,6 +16,40 @@ sys.path.append("../utilities")
 import cycles_util as u
 
 #------------------------------------------------------------------------------
+# estimate date range of max
+def get_date(t, g, gmin, gmax):
+
+  # First see where the mean prediction peaks
+  i = np.argmax(g)
+
+  tmean = t[i]
+
+  for m in np.arange(len(gmin)):
+     print(f"{t[m]} {g[m]:.1f} {gmin[m]:.1f} {gmax[m]:.1f}")
+
+  # now see where the min and max curves peak on either side 
+  # of the mean
+
+  iin = np.where(t <= tmean)
+  iip = np.where(t >= tmean)
+
+  tn = t[iin]
+  tp = t[iip]
+
+  tmin1 = tn[np.argmax(gmin[iin])]
+  tmin2 = tn[np.argmax(gmax[iin])]
+
+  tmax1 = tp[np.argmax(gmin[iip])]
+  tmax2 = tp[np.argmax(gmax[iip])]
+
+  tt = np.array([tmin1, tmax1, tmean, tmin2, tmax2])
+
+  amin = int(np.max(gmin))
+  amax = int(np.max(gmax))
+
+  return [np.min(tt), np.max(tt), amin, amax]
+
+#------------------------------------------------------------------------------
 # program options
 
 # set q = 0, 1, 2 for 25, 50, 75th percentile
@@ -102,6 +136,11 @@ while True:
   if month > 12:
     month = 1
     year += 1
+
+ptime = np.array(ptime)
+pbase = np.array(pbase)
+pmin = np.array(pmin)
+pmax = np.array(pmax)
 
 exit()
 

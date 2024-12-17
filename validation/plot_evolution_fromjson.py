@@ -185,8 +185,8 @@ for m in np.arange(len(m_ptime)):
   print(f"ptime: {m_ptime[m][6]} {pmonth} {len(m_ptime[m])}")
 
   pdates.append(m_ptime[m][6])
-  amps.append(np.max(m_pbase[m]))
-  maxdates.append(m_ptime[m][np.argmax(m_pbase[m])])
+  amps.append(np.max(m_pbase[m][6:]))
+  maxdates.append(m_ptime[m][6+np.argmax(m_pbase[m][6:])])
 
   t1, t2, a1, a2 = u.get_date(m_ptime[m][6:], m_pbase[m][6:], m_pmin[m][6:], 
                               m_pmax[m][6:], tnow = start_date, label = "SSN")
@@ -203,8 +203,6 @@ arange2 = np.array(arange2)
 drange1 = np.array(drange1)
 drange2 = np.array(drange2)
 
-
-exit()
 #------------------------------------------------------------------------------
 # plot
 
@@ -225,7 +223,7 @@ ax1.yaxis.set_tick_params(labelsize=12)
 ax2.yaxis.set_tick_params(labelsize=12)
 
 sns.lineplot(x=pdates,y=amps, color='black', ax = ax1)
-ax1.fill_between(x=pdates, y1 = minamp, y2 = maxamp, color='darkgray', alpha = 0.5)
+ax1.fill_between(x=pdates, y1 = arange1, y2 = arange2, color='darkgray', alpha = 0.5)
 
 sns.lineplot(x=pdates,y=maxdates, color='black', ax=ax2)
 ax2.fill_between(x=pdates, y2 = drange2, y1 = drange1, color='darkgray', alpha = 0.5)
@@ -278,7 +276,7 @@ ax2.annotate("(b)", (.84,.43), xycoords='figure fraction', weight="bold", fontsi
 #------------------------------------------------------------------------------
 # save figure
 
-outfile = outdir + '/prediction_evolution.png'
+outfile = outdir + '/prediction_evolution_pub.png'
 
 plt.savefig(outfile)
 

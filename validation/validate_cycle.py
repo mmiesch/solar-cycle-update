@@ -116,8 +116,8 @@ r.close()
 #------------------------------------------------------------------------------
 # choose four years for illustration
 if pub:
-  years = np.array([2, 3, 5, 8])
-  #years = np.array([2, 3, 4, 6])
+  #years = np.array([2, 3, 5, 8])
+  years = np.array([2, 3, 4, 6])
 else:
   years = np.array([3, 5, 7, 9])
 

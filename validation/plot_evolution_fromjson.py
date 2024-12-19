@@ -22,7 +22,7 @@ import cycles_util as u
 q = 1
 
 # set this to false to plot F10.7
-plot_ssn = True
+plot_ssn = False
 
 if plot_ssn:
   label = 'SSN'
@@ -242,6 +242,11 @@ ax2.annotate("(b)", (.84,.43), xycoords='figure fraction', weight="bold", fontsi
 outfile = outdir + f'/prediction_evolution_json_{label}.png'
 
 plt.savefig(outfile)
+
+#------------------------------------------------------------------------------
+
+for i in np.arange(len(pdates)):
+  print(f"{pdates[i]} {amps[i]} {maxdates[i]} {arange1[i]} {arange2[i]} {drange1[i]} {drange2[i]}")
 
 #------------------------------------------------------------------------------
 #plt.show()

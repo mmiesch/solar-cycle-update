@@ -205,7 +205,7 @@ for a in ax:
   a.set_xlim([datetime.date(2022,12,1),datetime.date(obstime[-6].year,obstime[-6].month,1)])
   a.legend().set_visible(False)
 
-ax[0].set_ylabel('SSN')
+ax[0].set_ylabel('SSN V2')
 ax[1].set_ylabel('F10.7 radio flux (sfu)')
 
 ax[0].annotate("(a)", (.12,.84), xycoords='figure fraction', weight="bold", fontsize=16, family = 'serif', style = 'italic')

@@ -133,7 +133,7 @@ ax2.annotate("(b)", (.84,.43), xycoords='figure fraction', weight="bold", fontsi
 
 outfile = outdir + '/prediction_evolution.png'
 
-plt.savefig(outfile)
+plt.savefig(outfile, dpi=300)
 
 #------------------------------------------------------------------------------
 #plt.show()

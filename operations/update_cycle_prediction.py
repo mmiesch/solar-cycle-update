@@ -28,7 +28,7 @@ print(f"Issue date: {issue_date}")
 
 # set this to False for normal operations
 # set to true to rerun a past date
-reanalysis = True
+reanalysis = False
 
 #failsafe
 if issue_date != datetime.date.today():
@@ -54,7 +54,7 @@ if reanalysis:
 outfig = outdir + '/cycle_update.png'
 
 # optionally archive previous predictions
-archive = False
+archive = True
 
 # json product
 outfile = outdir + "/predicted-solar-cycle.json"

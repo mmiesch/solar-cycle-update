@@ -211,6 +211,17 @@ ax[1].set_ylabel('F10.7 radio flux (sfu)')
 ax[0].annotate("(a)", (.12,.84), xycoords='figure fraction', weight="bold", fontsize=16, family = 'serif', style = 'italic')
 ax[1].annotate("(b)", (.6 ,.84), xycoords='figure fraction', weight="bold", fontsize=16, family = 'serif', style = 'italic')
 
+#tweak for publication
+for a in ax:
+  a.set_xlim([datetime.date(2022,12,1),datetime.date(2024,7,1)])
+  a.set_xticks([
+    datetime.date(2022, 12, 15),
+    datetime.date(2023, 6, 15),
+    datetime.date(2023, 12, 15),
+    datetime.date(2024, 6, 15),
+    ])
+  #a.set_xticklabels([(datetime.date(2022, 12, 1) + datetime.timedelta(days=i*30)).strftime('%m/%Y') for i in range(19)], rotation=45)
+
 fig.tight_layout()
 
 plt.savefig(outfig, dpi=300)

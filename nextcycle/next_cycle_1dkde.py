@@ -57,7 +57,7 @@ indir, outdir, valdir = u.get_data_dirs()
 #------------------------------------------------------------------------------
 # get cycle data to work with
 
-time, ssn, ssn_sm, start_times = u.get_cycles(tstart = True)
+time, ssn, ssn_sm, start_times = u.get_cycles(full = True, tstart = True)
 
 Ncycles = len(ssn_sm)
 print(f"Number of cycles: {Ncycles}")

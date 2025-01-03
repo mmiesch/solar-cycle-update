@@ -7,6 +7,7 @@ import json
 import numpy as np
 
 from astropy.time import Time
+from astropy import units
 
 #------------------------------------------------------------------------------
 # define colors for output
@@ -365,3 +366,131 @@ def declining_phase(tp, p, pmin, pmax, obstime, data, tnow = None, label = 'SSN'
   print(80*'*')
 
   return dec, tpeak
+
+#----------------------------------------------------------------------------
+def cycle_amps(ssn):
+  """
+  Given a list of ssn for each cycle, this returns their amplitudes
+  """
+
+  N = len(ssn)
+  amps = np.zeros(N)
+
+  for c in np.arange(N):
+    amps[c] = np.max(ssn[c])
+
+  return amps
+
+#----------------------------------------------------------------------------
+def cycle_periods(tstart):
+  """
+  Given the start dates for cycles, compute the periods
+  """
+
+  N = len(tstart)
+
+  per = np.zeros(N)
+
+  for c in np.arange(N-1):
+    per[c] = (tstart[c+1] - tstart[c]).days
+
+  # hardwire in the start date of the most recent cycle
+  this_t1 = Time(2019.96,format='decimalyear').iso
+  per[N-1] = (datetime.datetime.fromisoformat(this_t1) - tstart[N-1]).days
+
+  days_per_year = units.year.to(units.second)/(3600.0*24)
+
+  return per / days_per_year
+
+#----------------------------------------------------------------------------
+"""
+Given the (smoothed) ssn and time arrays, compute the residual for the panel fit as if you know ahead of time what the amplitude and start time are.
+"""
+def residual_known_A(t, ssn, offset = -4.0):
+
+  smax = np.max(ssn)
+  amp = smax_to_amp(smax)
+
+  f = fpanel(t,amp,offset)
+
+  resid = ssn - f
+
+  return resid
+
+#----------------------------------------------------------------------------
+"""
+Return the value of amp needed to achieve a desired max sunspot number of smax
+Based on a curve fit valid for amp between 60 and 300
+"""
+def smax_to_amp(smax):
+
+  c = np.flip(np.array([ 2.34925573e-06, -1.99589707e-03,  1.41056910e+00, -2.50466776e+01]))
+
+  amp = c[0]
+  for n in np.arange(1,len(c)):
+    amp += c[n] * np.power(smax,n)
+
+  return amp
+
+#----------------------------------------------------------------------------
+"""
+Given the period of the previous cycle, return a pdf of amplitudes and an amplitude grid spanning that pdf
+Note the ampgrid that is returned corresponds to the max ssn, not the amp parameter in the fpanel function
+"""
+def amp_pdf(period, Namp=20, ssn_sm = None, tstart = None):
+
+  # get cycle data
+  if ssn_sm is None or tstart is None:
+    time, ssn, ssn_sm, tstart = get_cycles(tstart = True)
+
+  per = cycle_periods(tstart)
+  amp = cycle_amps(ssn_sm)
+
+  N = len(ssn_sm)
+  per1 = per[:N-1]
+  amp1 = amp[1:]
+
+  #----------------------------------------------------------------------------
+  # compute regression in period(N) vs amplitude (N+1) relation
+
+  from sklearn import linear_model
+
+  x = per1[:, np.newaxis]
+  y = amp1[:, np.newaxis]
+
+  reg = linear_model.LinearRegression()
+  reg.fit(x,y)
+
+  #----------------------------------------------------------------------------
+  # compute standard deviation with respect to regression
+
+  yfit = reg.predict(x)
+
+  diff = (yfit[:,0] - amp1)**2
+  var = np.sum(diff)/len(diff)
+  sigma = np.sqrt(var)
+
+  #----------------------------------------------------------------------------
+  # assume Gaussian pdf in amplitudes
+
+  # center on results from regression
+  xnew = np.array([period])[:,np.newaxis]
+  mu = reg.predict(xnew)[0][0]
+  print(f"amp_pdf mean prediction {period:.2f} {mu:.2f} {sigma:.2f}")
+
+  # span 95% confidence interval
+  #amax = 1.96 * sigma
+
+  # 99% confidence interval
+  amax = 2.576 * sigma
+
+  amin = mu - amax
+  if amin < 0:
+    amin = 0
+
+  ampgrid = np.linspace(amin,mu+amax,Namp)
+
+  ee = -0.5 * (ampgrid - mu)**2 / var
+  pdf = np.exp(ee) / (sigma*np.sqrt(2*np.pi))
+
+  return ampgrid, pdf, mu

@@ -426,7 +426,6 @@ pstart = ptime[fidx[0][0] - 6]
 fidx_json = np.where(ptime >= pstart)
 
 #------------------------------------------------------------------------------
-# write prediction to a json file
 
 # but replace first months with a 13-month smoothing between
 # observed monthly values and prediction
@@ -439,12 +438,8 @@ Ntransition = 6
 ptimej = ptime[fidx_json[0]]
 
 fj = f[fidx_json[0]]
-sminj = smin[fidx_json[0],:3]
-smaxj = smax[fidx_json[0],:3]
 
 f10j = f10[fidx_json[0]]
-smin10j = smin10[fidx_json[0],:3]
-smax10j = smax10[fidx_json[0],:3]
 
 Nj = len(fj)
 
@@ -469,14 +464,38 @@ for i in np.arange(Ntransition):
   fs[i] = np.sum(x)/13.0
   f10s[i] = np.sum(y)/13.0
 
-for q in np.arange(sminj.shape[1]):
-   sminj[:Ntransition,q] = sminj[:Ntransition,q] - fj[:Ntransition] + fs
-   smaxj[:Ntransition,q] = smaxj[:Ntransition,q] - fj[:Ntransition] + fs
-   smin10j[:Ntransition,q] = smin10j[:Ntransition,q] - f10j[:Ntransition] + f10s
-   smax10j[:Ntransition,q] = smax10j[:Ntransition,q] - f10j[:Ntransition] + f10s
-
 fj[:Ntransition] = fs
 f10j[:Ntransition] = f10s
+
+#------------------------------------------------------------------------------
+# Gassian transition beyond
+
+# decay time in months for gaussian transition
+tau = 6
+
+sec_per_month = 3600 * 24 * 365.25/12.0
+dt = np.array([(d - ptimej[0]).total_seconds() for d in ptimej]) / sec_per_month
+psi = np.exp(-((dt[6:]-dt[5])/tau)**2)
+
+fj[6:] = fj[5] * psi + fj[6:] * (1.0 - psi)
+f10j[6:] = f10j[5] * psi + f10j[6:] * (1.0 - psi)
+
+for j in np.arange(fj.shape[0]):
+  i = fidx_json[0][j]
+  smin[i,:] = smin[i,:] - f[i] + fj[j]
+  smax[i,:] = smax[i,:] - f[i] + fj[j]
+  f[i] = fj[j]
+  smin10[i,:] = smin10[i,:] - f10[i] + f10j[j]
+  smax10[i,:] = smax10[i,:] - f10[i] + f10j[j]
+  f10[i] = f10j[j]
+
+sminj = smin[fidx_json[0],:3]
+smaxj = smax[fidx_json[0],:3]
+smin10j = smin10[fidx_json[0],:3]
+smax10j = smax10[fidx_json[0],:3]
+
+#------------------------------------------------------------------------------
+# write prediction to a json file
 
 outdata = []
 for i in np.arange(Nj):
@@ -495,7 +514,7 @@ for i in np.arange(Nj):
           smin10j[i,q] = f10j[i]
        if smax10j[i,q] < f10j[i]:
           print(f"ERROR in F10.7 max {i} {ptimej[i]} {f10j[i]} {smax10j[i,q]}")
-          smax10j[j,q] = f10j[i]
+          smax10j[i,q] = f10j[i]
 
      out = {
         "time-tag": f"{ptimej[i].year}-{ptimej[i].month:02d}",
@@ -595,8 +614,8 @@ ax[0].fill_between(x=ptime[fidx], y1=smin[fidx[0],2], y2=smax[fidx[0],2], color=
 
 ax[0].fill_between(x=ptime, y1=pmin, y2=pmax, color='red', alpha=0.2)
 
-px = np.insert(ptimej,0,obstime[:-6])
-py = np.insert(fj,0,ssn_sm[:-6])
+px = np.insert(ptimej,0,obstime[-7])
+py = np.insert(fj,0,ssn_sm[-7])
 sns.lineplot(x=px,y=py, color='darkmagenta', ax = ax[0])
 
 ax[0].set_ylabel('Sunspot Number',fontsize=16)
@@ -617,7 +636,7 @@ sns.lineplot(x=obstime, y=fobs10_sm_nz, color='blue', linewidth = 4, ax = ax[1],
 idx = np.where(pmin10 > 0.0)
 ax[1].fill_between(x=ptime10[idx], y1=pmin10[idx], y2=pmax10[idx], color='red', alpha=0.2, label = "2019 NOAA/NASA/ISES Panel Prediction (range)")
 
-py10 = np.insert(f10j,0,fobs10_sm[:-6])
+py10 = np.insert(f10j,0,fobs10_sm[-7])
 sns.lineplot(x=px,y=py10, color='darkmagenta', ax = ax[1], label = "Experimental Prediction")
 
 ax[1].fill_between(x=ptime[fidx[0]], y1=smin10[fidx[0],0], y2=smax10[fidx[0],0], color='darkmagenta', alpha=0.3, label = "25% quartile")
@@ -780,4 +799,3 @@ with open(csvfile, 'w') as csvfile:
    csvwriter.writerow(fields)
    csvwriter.writerows(rows)
 
-#------------------------------------------------------------------------------

@@ -213,7 +213,7 @@ ax[1].annotate("(b)", (.6 ,.84), xycoords='figure fraction', weight="bold", font
 
 #tweak for publication
 for a in ax:
-  a.set_xlim([datetime.date(2022,12,1),datetime.date(2024,7,1)])
+  a.set_xlim([datetime.date(2022,12,1),datetime.date(2024,9,1)])
   a.set_xticks([
     datetime.date(2022, 12, 15),
     datetime.date(2023, 6, 15),

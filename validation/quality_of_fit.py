@@ -5,10 +5,9 @@ compute quality of fit for each cycle curve
 import numpy as np
 import matplotlib.pyplot as plt
 import sys
-import scipy.stats as stats
 
 from scipy.optimize import curve_fit
-from scipy.stats import chisquare
+from scipy.stats import chisquare, chi2
 
 sys.path.append("../utilities")
 import cycles_util as u
@@ -64,21 +63,24 @@ dof = len(y) - 2
 
 # this is the critical value of the chi2 distribution for 75% confidence
 # ppf is the percent point function
-ccrit = stats.chi2.ppf(0.75, df=dof)
-
-print(f'dof = {dof}')
+ccrit = chi2.ppf(0.75, df=dof)
 
 # This calculates the chi2 statistic and the p-value from scipy
-chi2 = chisquare(y, fexp)
+csq = chisquare(y, fexp)
 
-# chitest should be the same as chi2.statistic
-print(f'chi2: {chitest_nocheck:.2f} {chitest:.2f} {chi2.statistic:.2f} crit = {ccrit:.2f} p = {chi2.pvalue:.2f}')
+# chitest should be the same as csq.statistic
+print(f'chi2: {dof} {chitest_nocheck:.2f} {chitest:.2f} {csq.statistic:.2f} crit = {ccrit:.2f} p = {csq.pvalue:.2f}')
+print(f"R^2 = {r2:.2f}")
 
 # plot the data and the fit
-plt.plot(tobs, ssn, color='black', linewidth=2)
-plt.plot(tobs[idx], fexp, color='blue', linewidth=2)
-plt.plot(tobs[idx], fexp_nocheck, color='red', linewidth=2)
+fig,ax = plt.subplots(1,2,figsize=(12,6))
+ax[0].plot(tobs, ssn, color='black', linewidth=2)
+ax[0].plot(tobs[idx], fexp, color='blue', linewidth=2)
+ax[0].plot(tobs[idx], fexp_nocheck, color='red', linewidth=2)
 
-print(f"R^2 = {r2:.2f}")
+# plot the chi2 distribution
+x = np.linspace(chi2.ppf(0.01,dof),chi2.ppf(0.99,dof))
+ax[1].plot(x, chi2.pdf(x,dof), color='black', linewidth=2)
+ax[1].axvline(chitest, color='blue', linestyle='--')
 
 plt.show()

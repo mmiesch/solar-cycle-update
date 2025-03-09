@@ -98,6 +98,28 @@ if (deltak > 0) and (pmonth > (deltak + 23)):
   f102 = u.fclette10(tpred,ffit2[0][0],ffit2[0][1])
   f10 = 0.5*(f10+f102)
 
+#--------------------
+
+print('\n\nMAE F10.7')
+
+resid = fobs10 - f10
+
+MAE = np.mean(np.abs(resid))
+bias = np.mean(resid)
+
+eidx = np.where(fobs10_sm > 0.0)
+err = fobs10[eidx] - fobs10_sm[eidx]
+sigma = np.mean(np.abs(err))
+
+resid_sm = fobs10_sm[eidx] - f10[eidx]
+MAE_sm = np.mean(np.abs(resid_sm))
+
+MAE_metric = MAE/sigma
+bias_metric = bias/sigma
+MAE_metric_sm = MAE_sm/sigma
+
+print(f'MAE = {MAE:.1f} {MAE_metric:.1f}, bias = {bias:.1f} {bias_metric:.1f}, sigma = {sigma:.1f}, MAE_sm = {MAE_sm:.1f} {MAE_metric_sm:.1f}') 
+
 #------------------------------------------------------------------------------
 # plot as a sanity check
 

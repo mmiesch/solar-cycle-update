@@ -20,6 +20,10 @@ sys.path.append("../utilities")
 import cycles_util as u
 
 #------------------------------------------------------------------------------
+
+deltak = 9
+
+#------------------------------------------------------------------------------
 # Read observations
 
 obsfile, ssnfile, f10file, resfile = u.ops_input_files()
@@ -55,8 +59,50 @@ obstime = obstime_full[idx]
 fobs10 = fobs10_full[idx]
 fobs10_sm = fobs10_full_sm[idx]
 
-for i in np.arange(len(fobs10)):
-   print(f"{obstime[i]} {fobs10[i]} {fobs10_sm[i]}")
+#for i in np.arange(len(fobs10)):
+#   print(f"{obstime[i]} {fobs10[i]} {fobs10_sm[i]}")
 
 #------------------------------------------------------------------------------
 
+# time of available observations in decimal year
+nobs = len(obstime)
+odect = np.zeros(nobs)
+for i in np.arange(nobs):
+    dt = datetime.datetime(obstime[i].year,obstime[i].month,obstime[i].day)
+    odect[i] = Time(dt).to_value('decimalyear')
+
+# time of predictions in decimal year
+ptime = obstime
+nn = len(ptime)
+pdect = np.zeros(nn)
+for i in np.arange(nn):
+    dt = datetime.datetime(ptime[i].year,ptime[i].month,ptime[i].day)
+    pdect[i] = Time(dt).to_value('decimalyear')
+
+tstart = odect[0]
+tobs = (odect - tstart)*12
+tpred = (pdect - tstart)*12
+
+pmonth = np.rint(tobs[-1]).astype(np.int32)
+print(f"Prediction month = {pmonth}")
+
+#------------------------------------------------------------------------------
+# do the curve fit
+
+ffit = curve_fit(u.fclette10,tobs,fobs10,p0=(170.0,0.0))
+f10 = u.fclette10(tpred,ffit[0][0],ffit[0][1])
+
+if (deltak > 0) and (pmonth > (deltak + 23)):
+  k2 = pmonth - deltak
+  ffit2 = curve_fit(u.fclette10,tobs[0:k2],fobs10[0:k2],p0=(170.0,0.0))
+  f102 = u.fclette10(tpred,ffit2[0][0],ffit2[0][1])
+  f10 = 0.5*(f10+f102)
+
+#------------------------------------------------------------------------------
+# plot as a sanity check
+
+plt.plot(obstime,fobs10,'black',label='Observed',linewidth=2)
+plt.plot(ptime,f10,'blue',label='Predicted',linewidth=2)
+plt.plot(obstime,fobs10_sm,'red',label='Smoothed',linewidth=2)
+
+plt.show()

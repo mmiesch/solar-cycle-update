@@ -22,6 +22,11 @@ R_squared = []
 chi_prob = []
 redchi = []
 
+MAE = []
+bias = []
+MAE_metric = []
+bias_metric = []
+
 for cycle in range(6,24):
 
   tobs = tmon[cycle-7]
@@ -83,6 +88,24 @@ for cycle in range(6,24):
   redchi.append(rchi)
 
   #------------------------------------------------------------------------------
+  # MAE measure
+
+
+  mymae = np.mean(np.abs(resid))
+  mybias = np.mean(resid)
+
+  eidx = np.where(ssn_sm > 0.0)
+  err = ssn[eidx] - ssn_sm[eidx]
+  ref = np.mean(np.abs(err))
+
+  MAE.append(mymae)
+  bias.append(mybias)
+  MAE_metric.append(mymae/ref)
+  bias_metric.append(mybias/ref)
+
+  #------------------------------------------------------------------------------
+  # print the results
+
   # chitest should be the same as csq.statistic
   print(f'cycle {cycle} ; R^2 = {r2:.2f} rchi = {rchi:.2f} dof = {dof} sigma = {sigma:.2f}')
   print(f'chi2: {chitest_nocheck:.2f} {chitest:.2f} {csq.statistic:.2f} crit = {ccrit:.2f} p = {csq.pvalue:.2f}')
@@ -94,12 +117,24 @@ for cycle in range(6,24):
   ax[0].plot(tobs[idx], fexp_nocheck, color='red', linewidth=2)
 
   # plot the chi2 distribution
-  x = np.linspace(chi2.ppf(0.01,dof),chi2.ppf(0.99,dof))
-  ax[1].plot(x, chi2.pdf(x,dof), color='black', linewidth=2)
-  ax[1].axvline(chitest, color='blue', linestyle='--')
+  #x = np.linspace(chi2.ppf(0.01,dof),chi2.ppf(0.99,dof))
+  #ax[1].plot(x, chi2.pdf(x,dof), color='black', linewidth=2)
+  #ax[1].axvline(chitest, color='blue', linestyle='--')
+
+  # residual plot
+  yy = ssn[idx] - fk[idx]
+  xx = fk[idx]
+  #ss = ssn_sm[idx]
+  ax[1].scatter(xx, yy, color='black')
 
   #plt.show()
 
 #------------------------------------------------------------------------------
 for i in range(0,len(R_squared)):
   print(f'cycle {i+6} R^2 = {R_squared[i]:.2f} redchi = {redchi[i]:.2f} chi2 p = {chi_prob[i]:.2f}')
+
+
+print('\nMAE')
+
+for i in range(0,len(MAE)):
+  print(f'cycle {i+6} MAE = {MAE[i]:.2f} {MAE_metric[i]:.2f}, bias = {bias[i]:.2f} {bias_metric[i]:.2f}')

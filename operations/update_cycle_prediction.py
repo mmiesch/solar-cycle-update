@@ -799,3 +799,47 @@ with open(csvfile, 'w') as csvfile:
    csvwriter.writerow(fields)
    csvwriter.writerows(rows)
 
+#--------------------
+# print goodness of fit measures
+
+print('\nMAE SSN')
+
+resid = ssn - f[:len(ssn)]
+
+MAE = np.mean(np.abs(resid))
+bias = np.mean(resid)
+
+eidx = np.where(ssn_sm > 0.0)
+err = ssn[eidx] - ssn_sm[eidx]
+sigma = np.mean(np.abs(err))
+
+resid_sm = ssn_sm[eidx] - f[eidx]
+MAE_sm = np.mean(np.abs(resid_sm))
+
+MAE_metric = MAE/sigma
+bias_metric = bias/sigma
+MAE_metric_sm = MAE_sm/sigma
+
+print(f'MAE = {MAE:.1f} {MAE_metric:.1f}, bias = {bias:.1f} {bias_metric:.1f}, sigma = {sigma:.1f}, MAE_sm = {MAE_sm:.1f} {MAE_metric_sm:.1f}') 
+
+#--------------------
+
+print('\n\nMAE F10.7')
+
+resid = fobs10 - f10[:len(fobs10)]
+
+MAE = np.mean(np.abs(resid))
+bias = np.mean(resid)
+
+eidx = np.where(fobs10_sm > 0.0)
+err = fobs10[eidx] - fobs10_sm[eidx]
+sigma = np.mean(np.abs(err))
+
+resid_sm = fobs10_sm[eidx] - f10[eidx]
+MAE_sm = np.mean(np.abs(resid_sm))
+
+MAE_metric = MAE/sigma
+bias_metric = bias/sigma
+MAE_metric_sm = MAE_sm/sigma
+
+print(f'MAE = {MAE:.1f} {MAE_metric:.1f}, bias = {bias:.1f} {bias_metric:.1f}, sigma = {sigma:.1f}, MAE_sm = {MAE_sm:.1f} {MAE_metric_sm:.1f}') 

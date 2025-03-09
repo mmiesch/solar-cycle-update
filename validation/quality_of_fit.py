@@ -20,6 +20,7 @@ tmon, d, dsm, t1 = u.get_cycles(tstart = True)
 #------------------------------------------------------------------------------
 R_squared = []
 chi_prob = []
+redchi = []
 
 for cycle in range(6,24):
 
@@ -71,10 +72,20 @@ for cycle in range(6,24):
   csq = chisquare(y, fexp)
   chi_prob.append(csq.pvalue)
 
-  # chitest should be the same as csq.statistic
-  print(f'cycle {cycle} ; R^2 = {r2:.2f} dof = {dof}')
-  print(f'chi2: {chitest_nocheck:.2f} {chitest:.2f} {csq.statistic:.2f} crit = {ccrit:.2f} p = {csq.pvalue:.2f}')
+  #------------------------------------------------------------------------------
+  # reduced chi squared test
 
+  # esitmate error by subracting off smoothed ssn
+  err = ssn - ssn_sm
+  sigma = np.mean(np.abs(err))
+  rchi = np.sum(resid**2/sigma**2)/dof
+
+  redchi.append(rchi)
+
+  #------------------------------------------------------------------------------
+  # chitest should be the same as csq.statistic
+  print(f'cycle {cycle} ; R^2 = {r2:.2f} rchi = {rchi:.2f} dof = {dof} sigma = {sigma:.2f}')
+  print(f'chi2: {chitest_nocheck:.2f} {chitest:.2f} {csq.statistic:.2f} crit = {ccrit:.2f} p = {csq.pvalue:.2f}')
 
   # plot the data and the fit
   fig,ax = plt.subplots(1,2,figsize=(12,6))
@@ -87,7 +98,8 @@ for cycle in range(6,24):
   ax[1].plot(x, chi2.pdf(x,dof), color='black', linewidth=2)
   ax[1].axvline(chitest, color='blue', linestyle='--')
 
-  plt.show()
+  #plt.show()
 
+#------------------------------------------------------------------------------
 for i in range(0,len(R_squared)):
-  print(f'cycle {i+6} R^2 = {R_squared[i]:.2f} chi2 p = {chi_prob[i]:.2f}')
+  print(f'cycle {i+6} R^2 = {R_squared[i]:.2f} redchi = {redchi[i]:.2f} chi2 p = {chi_prob[i]:.2f}')

@@ -26,8 +26,12 @@ MAE = []
 bias = []
 MAE_metric = []
 bias_metric = []
+sigma = []
 
-for cycle in range(6,24):
+MAE_sm = []
+MAE_metric_sm = []
+
+for cycle in range(6,25):
 
   tobs = tmon[cycle-7]
   ssn = d[cycle-7]
@@ -82,14 +86,13 @@ for cycle in range(6,24):
 
   # esitmate error by subracting off smoothed ssn
   err = ssn - ssn_sm
-  sigma = np.mean(np.abs(err))
-  rchi = np.sum(resid**2/sigma**2)/dof
+  csigma = np.mean(np.abs(err))
+  rchi = np.sum(resid**2/csigma**2)/dof
 
   redchi.append(rchi)
 
   #------------------------------------------------------------------------------
   # MAE measure
-
 
   mymae = np.mean(np.abs(resid))
   mybias = np.mean(resid)
@@ -102,12 +105,18 @@ for cycle in range(6,24):
   bias.append(mybias)
   MAE_metric.append(mymae/ref)
   bias_metric.append(mybias/ref)
+  sigma.append(ref)
+
+  resid_sm = ssn_sm - fk
+  mymae_sm = np.mean(np.abs(resid_sm))
+  MAE_sm.append(mymae_sm)
+  MAE_metric_sm.append(mymae_sm/ref)
 
   #------------------------------------------------------------------------------
   # print the results
 
   # chitest should be the same as csq.statistic
-  print(f'cycle {cycle} ; R^2 = {r2:.2f} rchi = {rchi:.2f} dof = {dof} sigma = {sigma:.2f}')
+  print(f'cycle {cycle} ; R^2 = {r2:.2f} rchi = {rchi:.2f} dof = {dof} sigma = {csigma:.2f}')
   print(f'chi2: {chitest_nocheck:.2f} {chitest:.2f} {csq.statistic:.2f} crit = {ccrit:.2f} p = {csq.pvalue:.2f}')
 
   # plot the data and the fit
@@ -133,8 +142,7 @@ for cycle in range(6,24):
 for i in range(0,len(R_squared)):
   print(f'cycle {i+6} R^2 = {R_squared[i]:.2f} redchi = {redchi[i]:.2f} chi2 p = {chi_prob[i]:.2f}')
 
-
 print('\nMAE')
 
 for i in range(0,len(MAE)):
-  print(f'cycle {i+6} MAE = {MAE[i]:.2f} {MAE_metric[i]:.2f}, bias = {bias[i]:.2f} {bias_metric[i]:.2f}')
+  print(f'cycle {i+6} MAE = {MAE[i]:.1f} {MAE_metric[i]:.1f}, bias = {bias[i]:.1f} {bias_metric[i]:.1f}, sigma = {sigma[i]:.1f}, MAE_sm = {MAE_sm[i]:.1f} {MAE_metric_sm[i]:.1f}') 

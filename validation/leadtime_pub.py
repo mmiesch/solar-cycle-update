@@ -172,11 +172,21 @@ ax[0].fill_between(obstime[idx], y1 = pmin[0,idx[0],2], y2 = pmax[0,idx[0],2], c
 #ax[0].fill_between(obstime[idx], y1 = pmin[0,idx[0],1], y2 = pmax[0,idx[0],1], color='darkmagenta', alpha=0.2)
 #ax[0].fill_between(obstime[idx], y1 = pmin[0,idx[0],0], y2 = pmax[0,idx[0],0], color='darkmagenta', alpha=0.3)
 
+print("MSM magenta")
+print(ssn_sm[:-6])
+print(obstime[idx[:-6]])
+print(pp[0,idx[0][:-6]])
+
 idx = np.where(pp[1,:] > 0)
 sns.lineplot(x = obstime[idx], y = pp[1,idx[0]], color='red', label='2 year lead time', ax=ax[0])
 ax[0].fill_between(obstime[idx], y1 = pmin[1,idx[0],2], y2 = pmax[1,idx[0],2], color='red', alpha=0.1)
 #ax[0].fill_between(obstime[idx], y1 = pmin[1,idx[0],1], y2 = pmax[1,idx[0],1], color='red', alpha=0.2)
 #ax[0].fill_between(obstime[idx], y1 = pmin[1,idx[0],0], y2 = pmax[1,idx[0],0], color='red', alpha=0.3)
+
+print("MSM red")
+
+for i in idx[0]:
+  print(f'{obstime[i]} {pp[1,i]}')
 
 #------------------------------------------------------------------------------
 #  Now F10.7

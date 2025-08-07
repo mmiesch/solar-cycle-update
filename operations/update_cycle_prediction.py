@@ -250,6 +250,12 @@ ssn_sm = np.array(ssn_sm)
 fobs10 = np.array(fobs10)
 fobs10_sm = np.array(fobs10_sm)
 
+# add in missing f10.7 data manually
+#fobs10[-1] = 127.97
+#dwin = fobs10[-14:-1]
+#print(f"dwin: {dwin.shape}")
+#fobs10_sm[-7] = (np.sum(dwin) - 0.5*dwin[0] - 0.5*dwin[-1])/12.0
+
 for i in np.arange(len(fobs10)):
    print(f"{obstime[i]} {fobs10[i]} {fobs10_sm[i]}")
 

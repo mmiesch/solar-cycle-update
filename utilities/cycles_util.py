@@ -39,7 +39,7 @@ It also optionally returns the directory used to store validation data. If you a
 """
 def get_data_dirs():
 
-  basedir = '/home/mark.miesch/data/solar-cycle-update'
+  basedir = '/home/miesch/data/solar-cycle-update'
 
   # put monthly observations and residual files here
   indir = basedir + '/input'
